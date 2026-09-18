@@ -68,11 +68,17 @@ espectro axial.
 Os dados foram organizados em JSON para facilitar a comparação
 automática com os valores encontrados no binário.
 
-![Captura e extração no CLF Viewer](ezgif-701e6d989f40589c.gif)
+![Captura e extração no CLF Viewer](./img/ezgif-701e6d989f40589c.gif)
 
 O JSON foi tratado como referência de comparação, e não como
 especificação oficial do CF2. Isso foi importante porque alguns valores
 apresentados pela interface estavam arredondados.
+
+O codigo em python que realiza a extração dos dados é <a href="./scripts/read_files_cf2_from_cflviewer.py"
+   target="_blank"
+   rel="noopener noreferrer">
+  Automação e captura no CLF Viewer
+</a>
 
 ## 4. Extração das diretividades no CATT-Acoustic
 
@@ -94,7 +100,7 @@ Isso resultou em:
 = 5472 pontos por modelo
 ```
 
-![Automação e captura no CATT-Acoustic](ezgif-7a76bdb22440949b.gif)
+![Automação e captura no CATT-Acoustic](./img/ezgif-7a76bdb22440949b.gif)
 
 
 Como o CATT não fornecia diretamente todos os valores numéricos da
@@ -114,6 +120,12 @@ com:
 ``` python
 db = 10 * (radius_px - r0_px) / ring_step_px
 ```
+ 
+O codigo em python que realiza a extração dos dados é <a href="./scripts/catt_batch_cf2_extract_v8_rot_outer.py"
+   target="_blank"
+   rel="noopener noreferrer">
+  Automação e captura no CATT-Acoustic
+</a>
 
 ## 5. Análise inicial dos offsets
 
