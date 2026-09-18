@@ -94,7 +94,8 @@ Isso resultou em:
 = 5472 pontos por modelo
 ```
 
-![Automação e captura no CATT-Acoustic](images/catt_extraction.gif)
+![Automação e captura no CATT-Acoustic](ezgif-7a76bdb22440949b.gif)
+
 
 Como o CATT não fornecia diretamente todos os valores numéricos da
 curva, os pontos foram reconstruídos geometricamente a partir do gráfico
