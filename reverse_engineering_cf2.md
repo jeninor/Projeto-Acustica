@@ -68,7 +68,7 @@ espectro axial.
 Os dados foram organizados em JSON para facilitar a comparação
 automática com os valores encontrados no binário.
 
-![Captura e extração no CLF Viewer](images/clf_viewer_extraction.gif)
+![Captura e extração no CLF Viewer](ezgif-701e6d989f40589c.gif)
 
 O JSON foi tratado como referência de comparação, e não como
 especificação oficial do CF2. Isso foi importante porque alguns valores
