@@ -1,0 +1,176 @@
+=== Stage-2 Pyroomacoustics multiband directivity benchmark ===
+environment: local-docker
+python: 3.11.16
+pyroomacoustics: 0.10.1
+numpy: 2.4.6
+platform: Linux-6.12.76-linuxkit-x86_64-with-glibc2.41
+cpu: Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz
+cpu_count_os: 8
+cpu_affinity_count: 8
+pra_num_threads: 1
+omp_num_threads: 1
+openblas_num_threads: 1
+mkl_num_threads: 1
+
+=== Fixed benchmark configuration ===
+room_dim_m: [6.0, 5.0, 3.0]
+source_pos_m: [2.0, 2.5, 1.5]
+n_mics: 25
+fs_hz: 16000
+max_order: 10
+absorption_per_band: 0.35
+band_centers_hz: [125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0]
+source_orientation_deg: {'azimuth': 0.0, 'colatitude': 90.0, 'roll': 0.0}
+CF2: /app/speaker.cf2
+CF2 handedness: top_to_left
+CF2 interpolation_domain: db
+warmup_rounds: 3
+repetitions_per_case: 20
+
+=== Building CF2 adapter once (excluded from compute_rir timing) ===
+cf2_build_elapsed_s: 0.0015087319999995685
+valid_cf2_frequencies_hz: [100.0, 125.0, 160.0, 200.0, 250.0, 315.0, 400.0, 500.0, 630.0, 800.0, 1000.0, 1250.0, 1600.0, 2000.0, 2500.0, 3150.0, 4000.0, 5000.0, 6300.0, 8000.0, 10000.0]
+preflight_room_is_multi_band: True
+preflight_wall_absorption_shape: (7,)
+preflight_cf2_type: <class 'cf2_pra_directivity.CF2SevenBandDirectivity'>
+
+=== Warm-up ===
+warmup_round=1 order=OMNI -> CARDIOID -> CF2
+  OMNI     0.273035 s
+  CARDIOID 0.272089 s
+  CF2      11.865005 s
+warmup_round=2 order=CARDIOID -> CF2 -> OMNI
+  CARDIOID 0.287127 s
+  CF2      12.385938 s
+  OMNI     0.272813 s
+warmup_round=3 order=CF2 -> OMNI -> CARDIOID
+  CF2      12.728051 s
+  OMNI     0.289335 s
+  CARDIOID 0.373087 s
+
+=== Measured balanced rounds ===
+
+round 01/20 order=OMNI -> CARDIOID -> CF2
+  OMNI     time=0.269293 s | energy_mean=1.561485859e+00 | peak_rss=117.9 MB
+  CARDIOID time=0.276097 s | energy_mean=5.160974623e-01 | peak_rss=117.9 MB
+  CF2      time=13.449345 s | energy_mean=1.063846624e-01 | peak_rss=117.9 MB
+
+round 02/20 order=CARDIOID -> CF2 -> OMNI
+  CARDIOID time=0.273750 s | energy_mean=5.160974623e-01 | peak_rss=117.9 MB
+  CF2      time=12.634323 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.263318 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+
+round 03/20 order=CF2 -> OMNI -> CARDIOID
+  CF2      time=12.190449 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.308592 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+  CARDIOID time=0.388907 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+
+round 04/20 order=OMNI -> CARDIOID -> CF2
+  OMNI     time=0.267797 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+  CARDIOID time=0.269419 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+  CF2      time=12.206372 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+
+round 05/20 order=CARDIOID -> CF2 -> OMNI
+  CARDIOID time=0.311244 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+  CF2      time=12.777139 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.284383 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+
+round 06/20 order=CF2 -> OMNI -> CARDIOID
+  CF2      time=12.390412 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.355446 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+  CARDIOID time=0.278596 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+
+round 07/20 order=OMNI -> CARDIOID -> CF2
+  OMNI     time=0.285257 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+  CARDIOID time=0.421228 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+  CF2      time=12.528956 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+
+round 08/20 order=CARDIOID -> CF2 -> OMNI
+  CARDIOID time=0.283651 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+  CF2      time=12.486561 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.271575 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+
+round 09/20 order=CF2 -> OMNI -> CARDIOID
+  CF2      time=12.644417 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.271438 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+  CARDIOID time=0.281206 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+
+round 10/20 order=OMNI -> CARDIOID -> CF2
+  OMNI     time=0.269851 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+  CARDIOID time=0.285626 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+  CF2      time=12.470034 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+
+round 11/20 order=CARDIOID -> CF2 -> OMNI
+  CARDIOID time=0.299963 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+  CF2      time=12.720723 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.274814 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+
+round 12/20 order=CF2 -> OMNI -> CARDIOID
+  CF2      time=11.962085 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.264390 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+  CARDIOID time=0.268265 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+
+round 13/20 order=OMNI -> CARDIOID -> CF2
+  OMNI     time=0.259445 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+  CARDIOID time=0.272778 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+  CF2      time=11.914712 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+
+round 14/20 order=CARDIOID -> CF2 -> OMNI
+  CARDIOID time=0.264695 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+  CF2      time=11.829038 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.259147 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+
+round 15/20 order=CF2 -> OMNI -> CARDIOID
+  CF2      time=12.229366 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.264314 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+  CARDIOID time=0.286382 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+
+round 16/20 order=OMNI -> CARDIOID -> CF2
+  OMNI     time=0.270859 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+  CARDIOID time=0.276928 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+  CF2      time=12.447094 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+
+round 17/20 order=CARDIOID -> CF2 -> OMNI
+  CARDIOID time=0.275479 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+  CF2      time=12.491485 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.268546 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+
+round 18/20 order=CF2 -> OMNI -> CARDIOID
+  CF2      time=12.270878 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.286839 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+  CARDIOID time=0.288923 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+
+round 19/20 order=OMNI -> CARDIOID -> CF2
+  OMNI     time=0.268941 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+  CARDIOID time=0.278082 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+  CF2      time=12.456105 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+
+round 20/20 order=CARDIOID -> CF2 -> OMNI
+  CARDIOID time=0.284063 s | energy_mean=5.160974623e-01 | peak_rss=118.0 MB
+  CF2      time=12.549591 s | energy_mean=1.063846624e-01 | peak_rss=118.0 MB
+  OMNI     time=0.272936 s | energy_mean=1.561485859e+00 | peak_rss=118.0 MB
+
+====================================================================================================
+FINAL BENCHMARK SUMMARY
+====================================================================================================
+OMNI     | median=0.270355 s | mean=0.276859 s | std=0.021711 s | min=0.259147 s | max=0.355446 s | vs_omni=1.000x | overhead=+0.0% | energy_vs_omni=+0.000 dB
+CARDIOID | median=0.279901 s | mean=0.293264 s | std=0.040047 s | min=0.264695 s | max=0.421228 s | vs_omni=1.035x | overhead=+3.5% | energy_vs_omni=-4.808 dB
+CF2      | median=12.463069 s | mean=12.432454 s | std=0.354334 s | min=11.829038 s | max=13.449345 s | vs_omni=46.099x | overhead=+4509.9% | energy_vs_omni=-11.667 dB
+
+=== Determinism ===
+OMNI     energy_span=0.000e+00
+CARDIOID energy_span=0.000e+00
+CF2      energy_span=0.000e+00
+
+=== Files ===
+/app/results/multiband_directivity_benchmark/runs.csv
+/app/results/multiband_directivity_benchmark/summary.csv
+/app/results/multiband_directivity_benchmark/mics_first_run.csv
+/app/results/multiband_directivity_benchmark/determinism.csv
+/app/results/multiband_directivity_benchmark/config.json
+
+=== Interpretation guardrails ===
+- Compare timing only among these Stage-2 multiband runs, not against the old single-band Stage-1 timing.
+- CF2 build time is reported separately and excluded from compute_rir timing.
+- This benchmark measures ISM source-directivity cost at fs=16 kHz and max_order=10.
+- Ray tracing is not part of this benchmark.

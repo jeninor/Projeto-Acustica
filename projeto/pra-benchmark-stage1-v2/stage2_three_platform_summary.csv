@@ -1,0 +1,10 @@
+environment,cpu,python,case,median_compute_rir_s,overhead_vs_omni_pct
+local-docker-fast,Intel Core i7-6700 @ 3.40 GHz,3.11.16,OMNI,0.260612,0.0
+local-docker-fast,Intel Core i7-6700 @ 3.40 GHz,3.11.16,CARDIOID,0.267995,2.8
+local-docker-fast,Intel Core i7-6700 @ 3.40 GHz,3.11.16,CF2,0.288081,10.5
+colab-fast,Intel Xeon @ 2.20 GHz (Colab reported),3.13.x,OMNI,0.316270010500034,0.0
+colab-fast,Intel Xeon @ 2.20 GHz (Colab reported),3.13.x,CARDIOID,0.32171539249998204,1.7217509783
+colab-fast,Intel Xeon @ 2.20 GHz (Colab reported),3.13.x,CF2,0.36174278900000445,14.3778344422
+ufv-cluster-py311,Intel Xeon Gold 6212U @ 2.40 GHz,3.11.2,OMNI,0.2077836543321609,0.0
+ufv-cluster-py311,Intel Xeon Gold 6212U @ 2.40 GHz,3.11.2,CARDIOID,0.2114684320986271,1.77337229836938
+ufv-cluster-py311,Intel Xeon Gold 6212U @ 2.40 GHz,3.11.2,CF2,0.2266809754073619,9.094710137782048

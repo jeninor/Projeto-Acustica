@@ -1,0 +1,60 @@
+=== PRA custom multiband directivity contract probe v3 ===
+pyroomacoustics: 0.10.1
+fs: 16000
+PRA centers Hz: [125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0]
+room.is_multi_band: True
+wall0_absorption_shape: (7,)
+wall0_absorption: [0.35 0.35 0.35 0.35 0.35 0.35 0.35]
+
+--- OMNI CONTROL ---
+room.is_multi_band: True
+compute_rir: SUCCESS
+rir_len: 689
+rir_peak: 0.8173463715108021
+rir_energy: 1.3982924669066685
+
+--- CUSTOM 7-BAND UNITY ---
+room.is_multi_band: True
+stored_directivity_type: <class '__main__.SevenBandDirectivity'>
+band_gains: [1. 1. 1. 1. 1. 1. 1.]
+SevenBandDirectivity.get_response: azimuth_shape= (25,) return_shape= (7, 25)
+compute_rir: SUCCESS
+rir_len: 689
+rir_all_finite: True
+rir_peak: 0.8173463715108021
+rir_energy: 1.3982924669066685
+
+--- CUSTOM 7-BAND DISTINCT GAINS ---
+room.is_multi_band: True
+stored_directivity_type: <class '__main__.SevenBandDirectivity'>
+band_gains: [1.  0.9 0.8 0.7 0.6 0.5 0.4]
+SevenBandDirectivity.get_response: azimuth_shape= (25,) return_shape= (7, 25)
+compute_rir: SUCCESS
+rir_len: 689
+rir_all_finite: True
+rir_peak: 0.45147199017876166
+rir_energy: 0.4322838246754188
+
+=== RIR COMPARISON: OMNI vs UNITY ===
+length_equal: True
+max_abs_sample_error: 0.0
+rmse: 0.0
+relative_l2_error: 0.0
+energy_a: 1.3982924669066685
+energy_b: 1.3982924669066685
+energy_UNITY_vs_OMNI_db: 0.0
+
+=== RIR COMPARISON: OMNI vs SHAPED ===
+length_equal: True
+max_abs_sample_error: 0.3658743813320405
+rmse: 0.021624082296828762
+relative_l2_error: 0.48000779215177164
+energy_a: 1.3982924669066685
+energy_b: 0.4322838246754188
+energy_SHAPED_vs_OMNI_db: -5.098290326836973
+
+====================================================================================================
+INTERPRETATION
+====================================================================================================
+PASS: effective ISM contract is consistent with (n_bands, n_images), and unity multiband gains reproduce OMNI.
+Distinct-gain case also ran successfully; this establishes the minimal runtime path needed for a 7-band CF2Directivity ISM test.

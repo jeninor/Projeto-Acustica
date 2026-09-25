@@ -1,0 +1,106 @@
+<!doctype html><html><head><meta charset='utf-8'>
+<title>Stage-2 Acoustic Heatmaps</title>
+<style>
+body{font-family:Arial,sans-serif;margin:32px;line-height:1.45}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(280px,1fr));gap:18px}
+.card{border:1px solid #ddd;padding:10px;border-radius:8px}
+img{width:100%;height:auto}
+table{border-collapse:collapse;margin:16px 0}
+th,td{border:1px solid #ccc;padding:7px 10px;text-align:right}
+th:first-child,td:first-child{text-align:left}
+</style></head><body>
+<h1>Stage-2: mapas de calor acústicos — Local vs Colab vs UFV Cluster</h1>
+<p>Plano horizontal de evaluación a z=1.2 m. Los colores representan <b>10·log10(sum(RIR²))</b>, es decir, nivel relativo de energía de la RIR; <b>no es SPL físico calibrado</b>. La zona coloreada corresponde al dominio cubierto por la malla de 25 micrófonos. El contorno exterior muestra la sala 6×5 m.</p>
+<h2>OMNI</h2><div class='grid'>
+<div class='card'><h3>Local — i7-6700</h3><img src='omni_local_surface_z1p2m.png'></div>
+<div class='card'><h3>Google Colab</h3><img src='omni_colab_surface_z1p2m.png'></div>
+<div class='card'><h3>UFV Cluster — Xeon Gold 6212U</h3><img src='omni_cluster_surface_z1p2m.png'></div>
+</div>
+<h2>CARDIOID</h2><div class='grid'>
+<div class='card'><h3>Local — i7-6700</h3><img src='cardioid_local_surface_z1p2m.png'></div>
+<div class='card'><h3>Google Colab</h3><img src='cardioid_colab_surface_z1p2m.png'></div>
+<div class='card'><h3>UFV Cluster — Xeon Gold 6212U</h3><img src='cardioid_cluster_surface_z1p2m.png'></div>
+</div>
+<h2>CF2</h2><div class='grid'>
+<div class='card'><h3>Local — i7-6700</h3><img src='cf2_local_surface_z1p2m.png'></div>
+<div class='card'><h3>Google Colab</h3><img src='cf2_colab_surface_z1p2m.png'></div>
+<div class='card'><h3>UFV Cluster — Xeon Gold 6212U</h3><img src='cf2_cluster_surface_z1p2m.png'></div>
+</div>
+<h2>Diferencias numéricas respecto al Local</h2>
+<p>Estas diferencias están en µdB y sirven para visualizar errores numéricos que serían invisibles en los mapas acústicos principales.</p>
+<h3>OMNI</h3><div class='grid'>
+<div class='card'><h4>Google Colab − Local</h4><img src='omni_colab_minus_local_difference_microdb.png'></div>
+<div class='card'><h4>UFV Cluster — Xeon Gold 6212U − Local</h4><img src='omni_cluster_minus_local_difference_microdb.png'></div>
+</div>
+<h3>CARDIOID</h3><div class='grid'>
+<div class='card'><h4>Google Colab − Local</h4><img src='cardioid_colab_minus_local_difference_microdb.png'></div>
+<div class='card'><h4>UFV Cluster — Xeon Gold 6212U − Local</h4><img src='cardioid_cluster_minus_local_difference_microdb.png'></div>
+</div>
+<h3>CF2</h3><div class='grid'>
+<div class='card'><h4>Google Colab − Local</h4><img src='cf2_colab_minus_local_difference_microdb.png'></div>
+<div class='card'><h4>UFV Cluster — Xeon Gold 6212U − Local</h4><img src='cf2_cluster_minus_local_difference_microdb.png'></div>
+</div>
+<h2>Resumen de reproducibilidad</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>case</th>
+      <th>comparison</th>
+      <th>max_abs_difference_db</th>
+      <th>max_abs_difference_microdb</th>
+      <th>mean_difference_microdb</th>
+      <th>rmse_difference_microdb</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>OMNI</td>
+      <td>colab-local</td>
+      <td>1.15019105e-13</td>
+      <td>1.15019105e-07</td>
+      <td>-4.0312198e-09</td>
+      <td>4.95235726e-08</td>
+    </tr>
+    <tr>
+      <td>OMNI</td>
+      <td>cluster-local</td>
+      <td>1.66619989e-08</td>
+      <td>0.0166619989</td>
+      <td>-0.000232440286</td>
+      <td>0.00672661927</td>
+    </tr>
+    <tr>
+      <td>CARDIOID</td>
+      <td>colab-local</td>
+      <td>2.49244751e-07</td>
+      <td>0.249244751</td>
+      <td>0.0130928287</td>
+      <td>0.0557453946</td>
+    </tr>
+    <tr>
+      <td>CARDIOID</td>
+      <td>cluster-local</td>
+      <td>2.76863566e-07</td>
+      <td>0.276863566</td>
+      <td>-0.0596057284</td>
+      <td>0.121103742</td>
+    </tr>
+    <tr>
+      <td>CF2</td>
+      <td>colab-local</td>
+      <td>2.2873017e-06</td>
+      <td>2.2873017</td>
+      <td>0.685494135</td>
+      <td>0.924426679</td>
+    </tr>
+    <tr>
+      <td>CF2</td>
+      <td>cluster-local</td>
+      <td>2.69810448e-06</td>
+      <td>2.69810448</td>
+      <td>-0.99039871</td>
+      <td>1.20405858</td>
+    </tr>
+  </tbody>
+</table>
+</body></html>

@@ -1,0 +1,303 @@
+{
+  "environment": {
+    "environment": "local-docker-fast",
+    "python": "3.11.16",
+    "pyroomacoustics": "0.10.1",
+    "numpy": "2.4.6",
+    "platform": "Linux-6.12.76-linuxkit-x86_64-with-glibc2.41",
+    "cpu": "Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz",
+    "cpu_count_os": 8,
+    "cpu_affinity_count": 8,
+    "pra_num_threads": "1",
+    "omp_num_threads": "1",
+    "openblas_num_threads": "1",
+    "mkl_num_threads": "1"
+  },
+  "room_dim_m": [
+    6.0,
+    5.0,
+    3.0
+  ],
+  "source_pos_m": [
+    2.0,
+    2.5,
+    1.5
+  ],
+  "n_mics": 25,
+  "microphones": [
+    {
+      "mic_index": 0,
+      "row": 0,
+      "col": 0,
+      "x": 1.0,
+      "y": 0.75,
+      "z": 1.2
+    },
+    {
+      "mic_index": 1,
+      "row": 0,
+      "col": 1,
+      "x": 2.0,
+      "y": 0.75,
+      "z": 1.2
+    },
+    {
+      "mic_index": 2,
+      "row": 0,
+      "col": 2,
+      "x": 3.0,
+      "y": 0.75,
+      "z": 1.2
+    },
+    {
+      "mic_index": 3,
+      "row": 0,
+      "col": 3,
+      "x": 4.0,
+      "y": 0.75,
+      "z": 1.2
+    },
+    {
+      "mic_index": 4,
+      "row": 0,
+      "col": 4,
+      "x": 5.0,
+      "y": 0.75,
+      "z": 1.2
+    },
+    {
+      "mic_index": 5,
+      "row": 1,
+      "col": 0,
+      "x": 1.0,
+      "y": 1.625,
+      "z": 1.2
+    },
+    {
+      "mic_index": 6,
+      "row": 1,
+      "col": 1,
+      "x": 2.0,
+      "y": 1.625,
+      "z": 1.2
+    },
+    {
+      "mic_index": 7,
+      "row": 1,
+      "col": 2,
+      "x": 3.0,
+      "y": 1.625,
+      "z": 1.2
+    },
+    {
+      "mic_index": 8,
+      "row": 1,
+      "col": 3,
+      "x": 4.0,
+      "y": 1.625,
+      "z": 1.2
+    },
+    {
+      "mic_index": 9,
+      "row": 1,
+      "col": 4,
+      "x": 5.0,
+      "y": 1.625,
+      "z": 1.2
+    },
+    {
+      "mic_index": 10,
+      "row": 2,
+      "col": 0,
+      "x": 1.0,
+      "y": 2.5,
+      "z": 1.2
+    },
+    {
+      "mic_index": 11,
+      "row": 2,
+      "col": 1,
+      "x": 2.0,
+      "y": 2.5,
+      "z": 1.2
+    },
+    {
+      "mic_index": 12,
+      "row": 2,
+      "col": 2,
+      "x": 3.0,
+      "y": 2.5,
+      "z": 1.2
+    },
+    {
+      "mic_index": 13,
+      "row": 2,
+      "col": 3,
+      "x": 4.0,
+      "y": 2.5,
+      "z": 1.2
+    },
+    {
+      "mic_index": 14,
+      "row": 2,
+      "col": 4,
+      "x": 5.0,
+      "y": 2.5,
+      "z": 1.2
+    },
+    {
+      "mic_index": 15,
+      "row": 3,
+      "col": 0,
+      "x": 1.0,
+      "y": 3.375,
+      "z": 1.2
+    },
+    {
+      "mic_index": 16,
+      "row": 3,
+      "col": 1,
+      "x": 2.0,
+      "y": 3.375,
+      "z": 1.2
+    },
+    {
+      "mic_index": 17,
+      "row": 3,
+      "col": 2,
+      "x": 3.0,
+      "y": 3.375,
+      "z": 1.2
+    },
+    {
+      "mic_index": 18,
+      "row": 3,
+      "col": 3,
+      "x": 4.0,
+      "y": 3.375,
+      "z": 1.2
+    },
+    {
+      "mic_index": 19,
+      "row": 3,
+      "col": 4,
+      "x": 5.0,
+      "y": 3.375,
+      "z": 1.2
+    },
+    {
+      "mic_index": 20,
+      "row": 4,
+      "col": 0,
+      "x": 1.0,
+      "y": 4.25,
+      "z": 1.2
+    },
+    {
+      "mic_index": 21,
+      "row": 4,
+      "col": 1,
+      "x": 2.0,
+      "y": 4.25,
+      "z": 1.2
+    },
+    {
+      "mic_index": 22,
+      "row": 4,
+      "col": 2,
+      "x": 3.0,
+      "y": 4.25,
+      "z": 1.2
+    },
+    {
+      "mic_index": 23,
+      "row": 4,
+      "col": 3,
+      "x": 4.0,
+      "y": 4.25,
+      "z": 1.2
+    },
+    {
+      "mic_index": 24,
+      "row": 4,
+      "col": 4,
+      "x": 5.0,
+      "y": 4.25,
+      "z": 1.2
+    }
+  ],
+  "fs_hz": 16000,
+  "max_order": 10,
+  "absorption_per_band": 0.35,
+  "band_centers_hz": [
+    125.0,
+    250.0,
+    500.0,
+    1000.0,
+    2000.0,
+    4000.0,
+    8000.0
+  ],
+  "source_orientation": {
+    "azimuth_deg": 0.0,
+    "colatitude_deg": 90.0,
+    "roll_deg": 0.0
+  },
+  "cases": [
+    "OMNI",
+    "CARDIOID",
+    "CF2"
+  ],
+  "warmup_rounds": 3,
+  "repetitions_per_case": 20,
+  "balanced_order": [
+    [
+      "OMNI",
+      "CARDIOID",
+      "CF2"
+    ],
+    [
+      "CARDIOID",
+      "CF2",
+      "OMNI"
+    ],
+    [
+      "CF2",
+      "OMNI",
+      "CARDIOID"
+    ]
+  ],
+  "cf2": {
+    "path_as_invoked": "/app/speaker.cf2",
+    "base_offset": 14232,
+    "handedness": "top_to_left",
+    "interpolation_domain": "db",
+    "adapter_implementation": "vectorized-fast",
+    "valid_frequencies_hz": [
+      100.0,
+      125.0,
+      160.0,
+      200.0,
+      250.0,
+      315.0,
+      400.0,
+      500.0,
+      630.0,
+      800.0,
+      1000.0,
+      1250.0,
+      1600.0,
+      2000.0,
+      2500.0,
+      3150.0,
+      4000.0,
+      5000.0,
+      6300.0,
+      8000.0,
+      10000.0
+    ],
+    "build_elapsed_s": 0.001764657000023817
+  },
+  "timing_scope": "Only room.compute_rir(); room construction and CF2 adapter construction excluded.",
+  "acoustic_metric_note": "Time-domain RIR metrics are reported. PRA octave-band re-analysis is not used as an exact CF2 validation metric."
+}

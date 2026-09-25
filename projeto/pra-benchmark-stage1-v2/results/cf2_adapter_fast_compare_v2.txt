@@ -1,0 +1,25 @@
+=== Legacy vs vectorized CF2 adapter ===
+pyroomacoustics: 0.10.1
+n_random_directions: 5000
+
+=== get_response correctness + microbenchmark ===
+response_shape: (7, 5006)
+max_abs_amplitude_error: 1.0975664821444298e-12
+max_abs_db_error: 9.638453028205452e-12
+legacy_get_response_median_s: 1.5359555079999154
+fast_get_response_median_s: 0.002514266999924075
+get_response_speedup_x: 610.8959422552567
+amplitude_tolerance: 1e-11
+db_tolerance: 1e-10
+get_response_equivalence: PASS
+
+=== Full 25-mic max_order=10 room comparison ===
+legacy_compute_rir_s: 12.539569037999854
+fast_compute_rir_s: 0.3152313559999129
+room_speedup_x: 39.77893949738718
+max_abs_RIR_sample_error: 0.0
+max_relative_L2_RIR_error: 0.0
+worst_mic: None
+
+PASS: vectorized adapter is acoustically equivalent to the validated legacy adapter.
+The reported speedup can be used to decide whether to replace the scalar adapter before Colab/cluster.

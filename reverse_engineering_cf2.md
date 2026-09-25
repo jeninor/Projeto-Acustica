@@ -100,7 +100,9 @@ Isso resultou em:
 = 5472 pontos por modelo
 ```
 
-![Automação e captura no CATT-Acoustic](./img/ezgif-7a76bdb22440949b.gif)
+<!-- ![Automação e captura no CATT-Acoustic](./img/ezgif-7a76bdb22440949b.gif) -->
+
+![Automação e captura no CATT-Acoustic](./img/record_2026-09-1816-08-17.gif)
 
 
 Como o CATT não fornecia diretamente todos os valores numéricos da

@@ -1,0 +1,44 @@
+=== CF2 multiband ISM synthesis closure test ===
+pyroomacoustics: 0.10.1
+fs: 16000
+max_order: 0
+bands_hz: [125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0]
+CF2: /app/speaker.cf2
+
+=== CF2 gain matrix ===
+shape: (7, 6)
+FRONT  : [0. 0. 0. 0. 0. 0. 0.] dB
+TOP    : [ -2.6  -6.9 -19.2 -20.  -11.6 -25.1 -28.2] dB
+LEFT   : [ -1.6  -2.7  -5.4  -4.5 -11.2 -14.2 -20.5] dB
+RIGHT  : [ -1.6  -2.7  -5.4  -4.5 -11.2 -14.2 -20.5] dB
+BOTTOM : [ -2.6  -6.9 -19.2 -20.  -11.6 -25.1 -28.2] dB
+BACK   : [ -2.1689  -1.8202  -5.9145  -7.2518 -17.5387 -25.8119 -28.4324] dB
+
+=== Building seven PRA synthesis basis RIR sets ===
+basis 0 (125 Hz): compute_rir=0.060300 s | rir_len=176
+basis 1 (250 Hz): compute_rir=0.055445 s | rir_len=176
+basis 2 (500 Hz): compute_rir=0.029115 s | rir_len=176
+basis 3 (1000 Hz): compute_rir=0.033195 s | rir_len=176
+basis 4 (2000 Hz): compute_rir=0.030544 s | rir_len=176
+basis 5 (4000 Hz): compute_rir=0.028157 s | rir_len=176
+basis 6 (8000 Hz): compute_rir=0.030292 s | rir_len=176
+
+=== Running actual CF2 room ===
+CF2 compute_rir_elapsed_s: 0.03161650600009125
+
+=== Linear synthesis closure ===
+FRONT   max_abs=1.586e-07 | rmse=1.596e-08 | rel_l2=4.262e-07 | actual_vs_pred_energy=-3.235243e-06 dB
+TOP     max_abs=2.442e-09 | rmse=4.044e-10 | rel_l2=6.072e-08 | actual_vs_pred_energy=-1.035135e-07 dB
+LEFT    max_abs=3.227e-08 | rmse=3.106e-09 | rel_l2=2.630e-07 | actual_vs_pred_energy=-1.501317e-06 dB
+RIGHT   max_abs=3.227e-08 | rmse=3.106e-09 | rel_l2=2.630e-07 | actual_vs_pred_energy=-1.501317e-06 dB
+BOTTOM  max_abs=3.688e-09 | rmse=6.535e-10 | rel_l2=9.812e-08 | actual_vs_pred_energy=+5.446909e-07 dB
+BACK    max_abs=3.644e-09 | rmse=5.447e-10 | rel_l2=5.991e-08 | actual_vs_pred_energy=-2.280173e-07 dB
+
+=== Global closure summary ===
+global_max_abs_sample_error: 1.585729201281083e-07
+global_max_rmse: 1.5961813837318466e-08
+global_max_relative_l2_error: 4.2616231855428125e-07
+
+=== Interpretation ===
+FAIL
+The actual CF2 RIR does not close against the seven synthesis basis RIRs. Inspect ISM reconstruction before benchmarking.

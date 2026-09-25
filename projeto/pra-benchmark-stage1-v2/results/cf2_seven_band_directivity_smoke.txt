@@ -1,0 +1,92 @@
+=== CF2 custom 7-band Directivity smoke test ===
+pyroomacoustics: 0.10.1
+CF2: /app/speaker.cf2
+base_offset: 14232
+PRA_band_centers_hz: [125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0]
+rotation_handedness: top_to_left
+interpolation_domain: db
+valid_cf2_frequencies_hz: [100.0, 125.0, 160.0, 200.0, 250.0, 315.0, 400.0, 500.0, 630.0, 800.0, 1000.0, 1250.0, 1600.0, 2000.0, 2500.0, 3150.0, 4000.0, 5000.0, 6300.0, 8000.0, 10000.0]
+
+=== Adapter contract ===
+isinstance(Directivity): True
+is_impulse_response: False
+filter_len_ir: 1
+response_shape: (7, 6)
+expected_shape: (7, 6)
+
+=== Raw CF2 vs adapter: 6 canonical directions x 7 PRA bands ===
+
+125 Hz
+  FRONT   raw=   0.0000 dB | adapter=   0.0000 dB | error=+0.000e+00 dB
+  TOP     raw=  -2.6000 dB | adapter=  -2.6000 dB | error=+0.000e+00 dB
+  LEFT    raw=  -1.6000 dB | adapter=  -1.6000 dB | error=-4.441e-16 dB
+  RIGHT   raw=  -1.6000 dB | adapter=  -1.6000 dB | error=-4.441e-16 dB
+  BOTTOM  raw=  -2.6000 dB | adapter=  -2.6000 dB | error=+0.000e+00 dB
+  BACK    raw=  -2.1689 dB | adapter=  -2.1689 dB | error=+8.882e-16 dB
+
+250 Hz
+  FRONT   raw=   0.0000 dB | adapter=   0.0000 dB | error=+0.000e+00 dB
+  TOP     raw=  -6.9000 dB | adapter=  -6.9000 dB | error=+0.000e+00 dB
+  LEFT    raw=  -2.7000 dB | adapter=  -2.7000 dB | error=+0.000e+00 dB
+  RIGHT   raw=  -2.7000 dB | adapter=  -2.7000 dB | error=+0.000e+00 dB
+  BOTTOM  raw=  -6.9000 dB | adapter=  -6.9000 dB | error=+0.000e+00 dB
+  BACK    raw=  -1.8202 dB | adapter=  -1.8202 dB | error=+0.000e+00 dB
+
+500 Hz
+  FRONT   raw=   0.0000 dB | adapter=   0.0000 dB | error=+0.000e+00 dB
+  TOP     raw= -19.2000 dB | adapter= -19.2000 dB | error=+0.000e+00 dB
+  LEFT    raw=  -5.4000 dB | adapter=  -5.4000 dB | error=+8.882e-16 dB
+  RIGHT   raw=  -5.4000 dB | adapter=  -5.4000 dB | error=+8.882e-16 dB
+  BOTTOM  raw= -19.2000 dB | adapter= -19.2000 dB | error=+0.000e+00 dB
+  BACK    raw=  -5.9145 dB | adapter=  -5.9145 dB | error=+8.882e-16 dB
+
+1000 Hz
+  FRONT   raw=   0.0000 dB | adapter=   0.0000 dB | error=+0.000e+00 dB
+  TOP     raw= -20.0000 dB | adapter= -20.0000 dB | error=+0.000e+00 dB
+  LEFT    raw=  -4.5000 dB | adapter=  -4.5000 dB | error=+0.000e+00 dB
+  RIGHT   raw=  -4.5000 dB | adapter=  -4.5000 dB | error=-8.882e-16 dB
+  BOTTOM  raw= -20.0000 dB | adapter= -20.0000 dB | error=+0.000e+00 dB
+  BACK    raw=  -7.2518 dB | adapter=  -7.2518 dB | error=+0.000e+00 dB
+
+2000 Hz
+  FRONT   raw=   0.0000 dB | adapter=   0.0000 dB | error=+0.000e+00 dB
+  TOP     raw= -11.6000 dB | adapter= -11.6000 dB | error=+0.000e+00 dB
+  LEFT    raw= -11.2000 dB | adapter= -11.2000 dB | error=+0.000e+00 dB
+  RIGHT   raw= -11.2000 dB | adapter= -11.2000 dB | error=+0.000e+00 dB
+  BOTTOM  raw= -11.6000 dB | adapter= -11.6000 dB | error=+0.000e+00 dB
+  BACK    raw= -17.5387 dB | adapter= -17.5387 dB | error=+0.000e+00 dB
+
+4000 Hz
+  FRONT   raw=   0.0000 dB | adapter=   0.0000 dB | error=+0.000e+00 dB
+  TOP     raw= -25.1000 dB | adapter= -25.1000 dB | error=+0.000e+00 dB
+  LEFT    raw= -14.2000 dB | adapter= -14.2000 dB | error=+0.000e+00 dB
+  RIGHT   raw= -14.2000 dB | adapter= -14.2000 dB | error=-7.105e-15 dB
+  BOTTOM  raw= -25.1000 dB | adapter= -25.1000 dB | error=+0.000e+00 dB
+  BACK    raw= -25.8119 dB | adapter= -25.8119 dB | error=+0.000e+00 dB
+
+8000 Hz
+  FRONT   raw=   0.0000 dB | adapter=   0.0000 dB | error=+0.000e+00 dB
+  TOP     raw= -28.2000 dB | adapter= -28.2000 dB | error=+0.000e+00 dB
+  LEFT    raw= -20.5000 dB | adapter= -20.5000 dB | error=+0.000e+00 dB
+  RIGHT   raw= -20.5000 dB | adapter= -20.5000 dB | error=-7.105e-15 dB
+  BOTTOM  raw= -28.2000 dB | adapter= -28.2000 dB | error=+0.000e+00 dB
+  BACK    raw= -28.4324 dB | adapter= -28.4324 dB | error=+0.000e+00 dB
+
+max_abs_error_db: 7.105427357601002e-15
+
+=== Orientation smoke check: speaker azimuth=90 deg ===
+world_direction: [0.0, 1.0, 0.0]
+PRA_angles_deg: (90.0, 90.0)
+    125 Hz raw_front=   0.0000 dB | rotated_adapter=   0.0000 dB | error=+0.000e+00 dB
+    250 Hz raw_front=   0.0000 dB | rotated_adapter=   0.0000 dB | error=+0.000e+00 dB
+    500 Hz raw_front=   0.0000 dB | rotated_adapter=   0.0000 dB | error=+0.000e+00 dB
+   1000 Hz raw_front=   0.0000 dB | rotated_adapter=   0.0000 dB | error=+0.000e+00 dB
+   2000 Hz raw_front=   0.0000 dB | rotated_adapter=   0.0000 dB | error=+0.000e+00 dB
+   4000 Hz raw_front=   0.0000 dB | rotated_adapter=   0.0000 dB | error=+0.000e+00 dB
+   8000 Hz raw_front=   0.0000 dB | rotated_adapter=   0.0000 dB | error=+0.000e+00 dB
+rotated_front_max_abs_error_db: 0.0
+
+=== Interpretation ===
+PASS
+The custom 7-band adapter reproduces the raw CF2 canonical nodes and applies loudspeaker azimuth correctly.
+Next step: insert this adapter into an explicit 7-band PRA room through SoundSource + Room.add(), then compare room-level RIRs.

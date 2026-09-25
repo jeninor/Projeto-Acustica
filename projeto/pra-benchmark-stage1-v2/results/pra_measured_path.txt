@@ -1,0 +1,440 @@
+pyroomacoustics: 0.10.1
+package_root: /usr/local/lib/python3.11/site-packages/pyroomacoustics
+measured.py: /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py
+room.py: /usr/local/lib/python3.11/site-packages/pyroomacoustics/room.py
+
+====================================================================================================
+MeasuredDirectivity exact implementation
+/usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:136-280
+====================================================================================================
+  136: class MeasuredDirectivity(Directivity):
+  137:     """
+  138:     A class to store directivity patterns obtained by measurements.
+  139: 
+  140:     Parameters
+  141:     ----------
+  142:     orientation: Rotation3D
+  143:         A rotation to apply to the pattern
+  144:     grid: doa.Grid
+  145:         The grid of unit vectors where the measurements were taken
+  146:     impulse_responses: np.ndarray, (n_grid, n_ir)
+  147:         The impulse responses corresponding to the grid points
+  148:     fs: int
+  149:         The sampling frequency of the impulse responses
+  150:     """
+  151: 
+  152:     def __init__(self, orientation, grid, impulse_responses, fs):
+  153:         if not isinstance(orientation, Rotation3D):
+  154:             raise ValueError("Orientation must be a Rotation3D object")
+  155: 
+  156:         if not isinstance(grid, Grid):
+  157:             raise ValueError("Grid must be a Grid object")
+  158: 
+  159:         self._original_grid = grid
+  160:         self._irs = impulse_responses
+  161:         self.fs = fs
+  162: 
+  163:         self._compute_band_energies()
+  164: 
+  165:         # set the initial orientation
+  166:         self.set_orientation(orientation)
+  167: 
+  168:     @property
+  169:     def is_impulse_response(self):
+  170:         return True
+  171: 
+  172:     @property
+  173:     def filter_len_ir(self):
+  174:         """Length of the impulse response in samples"""
+  175:         return self._irs.shape[-1]
+  176: 
+  177:     def get_direction_vectors(self):
+  178:         """
+  179:         Get the direction vectors of the measurements.
+  180: 
+  181:         Returns
+  182:         -------
+  183:         A (n_directions, 3) numpy ndarray of unit vectors.
+  184:         """
+  185:         return self._grid.cartesian.T
+  186: 
+  187:     def _compute_band_energies(self):
+  188:         # Use an energy preserving octave band to compute the per octave
+  189:         # band energy of the impulse responses.
+  190:         octave_bands = AntoniOctaveFilterBank(
+  191:             base_frequency=constants.get("octave_bands_base_freq"),
+  192:             fs=self.fs,
+  193:             n_fft=constants.get("octave_bands_n_fft"),
+  194:         )
+  195: 
+  196:         # Energies per direction and octave band, shape == (n_grid, n_bands).
+  197:         # Normalized per bandwidth and area.
+  198:         self.areas = robust_spherical_voronoi_areas(self._original_grid.cartesian.T)
+  199:         norm = octave_bands.get_bw() / np.sum(octave_bands.get_bw())
+  200:         self.energies = np.array([octave_bands.energy(ir) / norm for ir in self._irs])
+  201: 
+  202:         # The total energy per direction over all bands.
+  203:         self.energy_per_direction = self.energies.sum(axis=-1)
+  204: 
+  205:         # We need to normalize by the total band energy because the rays are drawn
+  206:         # over all the bands together.
+  207:         self.total_energy = np.sum(self.energies * self.areas[:, None])
+  208: 
+  209:         # Ray energies to use with the deterministic sampler.
+  210:         self.energies_coeff_deterministic = self.energies
+  211: 
+  212:         # Ray energies to use with the random sampler.
+  213:         norm = (self.energy_per_direction / self.total_energy)[:, None]
+  214:         self.energies_coeff_random = self.energies / norm
+  215: 
+  216:     def set_orientation(self, orientation):
+  217:         """
+  218:         Set orientation of directivity pattern.
+  219: 
+  220:         Parameters
+  221:         ----------
+  222:         orientation : Rotation3D
+  223:             New direction for the directivity pattern.
+  224:         """
+  225:         if not isinstance(orientation, Rotation3D):
+  226:             raise ValueError("Orientation must be a Rotation3D object")
+  227: 
+  228:         self._orientation = orientation
+  229: 
+  230:         # rotate the grid and re-build the KD-tree
+  231:         self._grid = GridSphere(
+  232:             cartesian_points=self._orientation.rotate(self._original_grid.cartesian)
+  233:         )
+  234: 
+  235:         # create the kd-tree
+  236:         self._kdtree = cKDTree(self._grid.cartesian.T)
+  237: 
+  238:         # Create the energy directional distribution.
+  239:         self.energy_distribution = MeasuredDirectivityEnergyDistribution(
+  240:             self._kdtree, self.energy_per_direction, areas=self.areas
+  241:         )
+  242: 
+  243:     def get_response_cartesian(self, directions, magnitude=False):
+  244:         """
+  245:         Get response for provided direction cartesian vectors.
+  246: 
+  247:         Parameters
+  248:         ----------
+  249:         cartesian: np.ndarray, (n_points, 3)
+  250:             The direction of the desired responses
+  251:         magnitude: bool
+  252:             Ignored
+  253: 
+  254:         Returns
+  255:         -------
+  256:         resp : :py:class:`~numpy.ndarray`
+  257:             Response at provided directions.
+  258:         """
+  259:         _, index = self._kdtree.query(directions)
+  260:         return self._irs[index, :]
+  261: 
+  262:     def get_response(self, azimuth, colatitude=None, magnitude=False, degrees=True):
+  263:         """
+  264:         Get response for provided angles.
+  265: 
+  266:         Parameters
+  267:         ----------
+  268:         azimuth: np.ndarray, (n_points,)
+  269:             The azimuth of the desired responses
+  270:         colatitude: np.ndarray, (n_points,)
+  271:             The colatitude of the desired responses
+  272:         magnitude: bool
+  273:             Ignored
+  274:         degrees: bool
+  275:             If ``True``, indicates that azimuth and colatitude are provided in degrees
+  276:         """
+  277:         if degrees:
+  278:             azimuth = np.radians(azimuth)
+  279:             colatitude = np.radians(colatitude)
+  280: 
+
+====================================================================================================
+MeasuredDirectivityFile object construction
+/usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:520-605
+====================================================================================================
+  520:         measurement_id: int or str
+  521:             The id of the source
+  522:         """
+  523:         mid = self._get_measurement_index(measurement_id, self.source_labels)
+  524: 
+  525:         if not (0 <= mid < self.source_locs.shape[1]):
+  526:             raise ValueError(f"Source id {mid} not found")
+  527: 
+  528:         # convert to cartesian since the sources are stored by
+  529:         # default in spherical coordinates
+  530:         pos = spher2cart(*self.source_locs[:, mid])
+  531: 
+  532:         return pos
+  533: 
+  534:     def get_mic_directivity(self, measurement_id, orientation):
+  535:         """
+  536:         Get a directivity for a microphone
+  537: 
+  538:         Parameters
+  539:         ----------
+  540:         measurement_id: int or str
+  541:             The id of the microphone
+  542:         orientation: Rotation3D
+  543:             The orientation of the directivity pattern
+  544:         """
+  545:         mid = self._get_measurement_index(measurement_id, self.mic_labels)
+  546: 
+  547:         if not (0 <= mid < self.mic_locs.shape[1]):
+  548:             raise ValueError(f"Microphone id {mid} not found")
+  549: 
+  550:         # select the measurements corresponding to the mic id
+  551:         ir = self.impulse_responses[:, mid, :]
+  552:         src_grid = GridSphere(spherical_points=self.source_locs[:2])
+  553: 
+  554:         # interpolate the IR
+  555:         grid, ir = self._interpolate("mic", mid, src_grid, ir)
+  556: 
+  557:         dir_obj = MeasuredDirectivity(orientation, grid, ir, self.fs)
+  558:         return dir_obj
+  559: 
+  560:     def get_source_directivity(self, measurement_id, orientation):
+  561:         """
+  562:         Get a directivity for a source
+  563: 
+  564:         Parameters
+  565:         ----------
+  566:         measurement_id: int or str
+  567:             The id of the source
+  568:         orientation: Rotation3D
+  569:             The orientation of the directivity pattern
+  570:         """
+  571:         mid = self._get_measurement_index(measurement_id, self.source_labels)
+  572: 
+  573:         if not (0 <= mid < self.source_locs.shape[1]):
+  574:             raise ValueError(f"Source id {mid} not found")
+  575: 
+  576:         # select the measurements corresponding to the mic id
+  577:         ir = self.impulse_responses[mid, :, :]
+  578: 
+  579:         # here we need to swap the coordinate types
+  580:         mic_pos = np.array(cart2spher(self.mic_locs))
+  581:         mic_grid = GridSphere(spherical_points=mic_pos[:2])
+  582: 
+  583:         # interpolate the IR
+  584:         grid, ir = self._interpolate("source", mid, mic_grid, ir)
+  585: 
+  586:         dir_obj = MeasuredDirectivity(orientation, grid, ir, self.fs)
+  587:         return dir_obj
+
+====================================================================================================
+room.py around MeasuredDirectivity handling
+/usr/local/lib/python3.11/site-packages/pyroomacoustics/room.py:2050-2110
+====================================================================================================
+ 2050:             if self.simulator_state["rt_needed"] and mic_array.is_directive:
+ 2051:                 raise NotImplementedError("Directivity not supported with ray tracing.")
+ 2052: 
+ 2053:         return self.add(mic_array)
+ 2054: 
+ 2055:     def add_source(self, position, signal=None, delay=0, directivity=None):
+ 2056:         """
+ 2057:         Adds a sound source given by its position in the room. Optionally
+ 2058:         a source signal and a delay can be provided.
+ 2059: 
+ 2060:         Parameters
+ 2061:         -----------
+ 2062:         position: ndarray, shape: (2,) or (3,)
+ 2063:             The location of the source in the room
+ 2064:         signal: ndarray, shape: (n_samples,), optional
+ 2065:             The signal played by the source
+ 2066:         delay: float, optional
+ 2067:             A time delay until the source signal starts
+ 2068:             in the simulation
+ 2069: 
+ 2070:         Returns
+ 2071:         -------
+ 2072:         :py:obj:`~pyroomacoustics.room.Room`
+ 2073:             The room is returned for further tweaking.
+ 2074:         """
+ 2075: 
+ 2076:         if self.dim != 3 and directivity is not None:
+ 2077:             raise NotImplementedError("Directivity is only supported for 3D rooms.")
+ 2078: 
+ 2079:         if isinstance(position, SoundSource):
+ 2080:             if directivity is not None:
+ 2081:                 if isinstance(directivity, CardioidFamily) or isinstance(
+ 2082:                     directivity, MeasuredDirectivity
+ 2083:                 ):
+ 2084:                     return self.add(SoundSource(position, directivity=directivity))
+ 2085:             else:
+ 2086:                 return self.add(position)
+ 2087:         else:
+ 2088:             if directivity is not None:
+ 2089:                 if isinstance(directivity, CardioidFamily) or isinstance(
+ 2090:                     directivity, MeasuredDirectivity
+ 2091:                 ):
+ 2092:                     return self.add(
+ 2093:                         SoundSource(
+ 2094:                             position,
+ 2095:                             signal=signal,
+ 2096:                             delay=delay,
+ 2097:                             directivity=directivity,
+ 2098:                         )
+ 2099:                     )
+ 2100: 
+ 2101:             else:
+ 2102:                 return self.add(SoundSource(position, signal=signal, delay=delay))
+ 2103: 
+ 2104:     def add_soundsource(self, sndsrc, directivity=None):
+ 2105:         """
+ 2106:         Adds a :py:obj:`pyroomacoustics.soundsource.SoundSource` object to the room.
+ 2107: 
+ 2108:         Parameters
+ 2109:         ----------
+ 2110:         sndsrc: :py:obj:`~pyroomacoustics.soundsource.SoundSource` object
+
+====================================================================================================
+room.py around later MeasuredDirectivity handling
+/usr/local/lib/python3.11/site-packages/pyroomacoustics/room.py:2185-2240
+====================================================================================================
+ 2185:             return
+ 2186: 
+ 2187:         n_rays = self.rt_args["n_rays"]
+ 2188:         n_dirs = self.rt_args["receiver_n_directions"]
+ 2189:         n_bands = len(self.octave_bands.get_bw()) if self.is_multi_band else 1
+ 2190: 
+ 2191:         # Check if all sources/receivers are omnidirectional.
+ 2192:         mic_all_omni = all([d is None for d in self.mic_array.directivity])
+ 2193:         src_all_omni = all([s.directivity is None for s in self.sources])
+ 2194:         is_all_omni = mic_all_omni and src_all_omni
+ 2195: 
+ 2196:         # For directive sources, we need to define directions.
+ 2197:         default_source_directions = fibonacci_spherical_sampling(n_rays).T
+ 2198:         default_source_energies = np.ones((n_rays, n_bands))
+ 2199: 
+ 2200:         # For directive microphones, we need to enable direction sensitive receivers.
+ 2201:         default_directions = fibonacci_spherical_sampling(n_dirs).T
+ 2202:         self.rt_directional_responses = []
+ 2203:         for r, directivity in enumerate(self.mic_array.directivity):
+ 2204:             if directivity is None:
+ 2205:                 # When no directivity is provided, the microphones are omnidirectional.
+ 2206:                 self.room_engine.microphones[r].make_omnidirectional()
+ 2207:                 self.rt_directional_responses.append(
+ 2208:                     {
+ 2209:                         "response": np.ones(1),
+ 2210:                         "is_impulse_response": False,
+ 2211:                     }
+ 2212:                 )
+ 2213:             else:
+ 2214:                 if isinstance(directivity, MeasuredDirectivity):
+ 2215:                     # Measured directivities already have a direction grid
+ 2216:                     # that we can reuse.
+ 2217:                     dir_vectors = directivity.get_direction_vectors()
+ 2218:                 else:
+ 2219:                     # Otherwise, we use the default directions.
+ 2220:                     dir_vectors = default_directions
+ 2221:                 self.room_engine.microphones[r].set_directions(dir_vectors)
+ 2222:                 self.rt_directional_responses.append(
+ 2223:                     {
+ 2224:                         "response": directivity.get_response_cartesian(dir_vectors),
+ 2225:                         "is_impulse_response": directivity.is_impulse_response,
+ 2226:                     }
+ 2227:                 )
+ 2228: 
+ 2229:         # this will be a list of lists with
+ 2230:         # shape (n_mics, n_src, n_directions, n_bands, n_time_bins)
+ 2231:         self.rt_histograms = [[] for r in range(self.mic_array.M)]
+ 2232: 
+ 2233:         for s, src in enumerate(self.sources):
+ 2234:             # Create the directivity pattern if needed.
+ 2235:             if src.directivity is None:
+ 2236:                 source_directions = default_source_directions
+ 2237:                 source_energies = default_source_energies
+ 2238:             else:
+ 2239:                 source_directions, source_energies = src.directivity.sample_rays(n_rays)
+ 2240:                 source_energies = np.broadcast_to(source_energies, (n_rays, n_bands))
+
+####################################################################################################
+SEARCH: mic_dir.get_response
+####################################################################################################
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/simulation/ism.py:148 ---
+    130:         np.sum((images - mic[:, None]) ** 2, axis=0)
+    131:     )  # Calculate distance between image sources and for each microphone
+    132: 
+    133:     # dist shape (n) : n0 of image sources
+    134:     time = dist / c  # Calculate time of arrival for each image source
+    135: 
+    136:     oct_band_amplitude = att / dist
+    137:     full_band_imp_resp = []
+    138: 
+    139:     if air_abs_coeffs is not None:
+    140:         oct_band_amplitude = apply_air_aborption(
+    141:             oct_band_amplitude, air_abs_coeffs, dist
+    142:         )
+    143: 
+    144:     if mic_dir is not None:
+    145:         angle_function_array = angle_function(images, mic)
+    146:         azimuth_m = angle_function_array[0]
+    147:         colatitude_m = angle_function_array[1]
+>>  148:         mic_gain = mic_dir.get_response(
+    149:             azimuth=azimuth_m,
+    150:             colatitude=colatitude_m,
+    151:             degrees=False,
+    152:         )
+    153: 
+    154:         if mic_dir.is_impulse_response:
+    155:             full_band_imp_resp.append(mic_gain)
+    156:         else:
+    157:             oct_band_amplitude *= mic_gain
+    158: 
+    159:     if src.directivity is not None:
+    160:         azimuth_s, colatitude_s, _ = doa.cart2spher(src_directions[:, is_visible])
+    161:         src_gain = src.directivity.get_response(
+    162:             azimuth=azimuth_s,
+    163:             colatitude=colatitude_s,
+    164:             degrees=False,
+    165:         )
+    166: 
+
+####################################################################################################
+SEARCH: src.directivity.get_response
+####################################################################################################
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/simulation/ism.py:161 ---
+    143: 
+    144:     if mic_dir is not None:
+    145:         angle_function_array = angle_function(images, mic)
+    146:         azimuth_m = angle_function_array[0]
+    147:         colatitude_m = angle_function_array[1]
+    148:         mic_gain = mic_dir.get_response(
+    149:             azimuth=azimuth_m,
+    150:             colatitude=colatitude_m,
+    151:             degrees=False,
+    152:         )
+    153: 
+    154:         if mic_dir.is_impulse_response:
+    155:             full_band_imp_resp.append(mic_gain)
+    156:         else:
+    157:             oct_band_amplitude *= mic_gain
+    158: 
+    159:     if src.directivity is not None:
+    160:         azimuth_s, colatitude_s, _ = doa.cart2spher(src_directions[:, is_visible])
+>>  161:         src_gain = src.directivity.get_response(
+    162:             azimuth=azimuth_s,
+    163:             colatitude=colatitude_s,
+    164:             degrees=False,
+    165:         )
+    166: 
+    167:         if src.directivity.is_impulse_response:
+    168:             full_band_imp_resp.append(src_gain)
+    169:         else:
+    170:             oct_band_amplitude *= src_gain
+    171: 
+    172:     # there should be 3 possibile shapes for the gains
+    173:     # 1) (n_images,) for freq flat sources
+    174:     # 2) (n_images, n_octave_bands) for directivites defined by octave bands
+    175:     # 3) (n_images, n_taps) for directivites defined as impulse responses
+    176:     # Cases 2-3 are ambiguous, although we will usually have no_of_octave_bands == 7
+    177:     # and n_taps > 7.
+    178:     # This is disambiguated by the ``Directivity.is_impulse_response`` attribute.
+    179:     #

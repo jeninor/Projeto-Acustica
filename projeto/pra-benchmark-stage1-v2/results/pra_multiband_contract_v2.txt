@@ -1,0 +1,130 @@
+=== PRA custom multiband directivity contract probe v2 ===
+pyroomacoustics: 0.10.1
+fs: 16000
+PRA target centers Hz: [125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0]
+
+====================================================================================================
+CURRENT SINGLE-BAND ROOM: Material(0.35)
+====================================================================================================
+room_type: <class 'pyroomacoustics.room.ShoeBox'>
+is_multi_band: False
+octave_bands_type: <class 'pyroomacoustics.acoustics.AntoniOctaveFilterBank'>
+get_bw(): [ 186.77042802  155.64202335  373.54085603  684.82490272 1431.90661479
+ 2801.55642023 2365.75875486]
+octave_bands.__dict__:
+{'base_freq': 125.0,
+ 'fs': 16000,
+ 'n_fft': 512,
+ 'overlap_ratio': 0.5,
+ 'slope': 0,
+ 'bands': array([[   88.38834765,   176.7766953 ],
+       [  176.7766953 ,   353.55339059],
+       [  353.55339059,   707.10678119],
+       [  707.10678119,  1414.21356237],
+       [ 1414.21356237,  2828.42712475],
+       [ 2828.42712475,  5656.85424949],
+       [ 5656.85424949, 11313.70849898]]),
+ 'centers': array([ 125.,  250.,  500., 1000., 2000., 4000., 8000.]),
+ 'n_bands': 7,
+ 'filters': array([[1., 0., 0., ..., 0., 0., 0.],
+       [1., 0., 0., ..., 0., 0., 0.],
+       [1., 0., 0., ..., 0., 0., 0.],
+       ...,
+       [0., 0., 0., ..., 0., 0., 1.],
+       [0., 0., 0., ..., 0., 0., 1.],
+       [0., 0., 0., ..., 0., 0., 1.]], shape=(257, 7))}
+wall_absorption_shapes:
+  wall[0] absorption.shape= (1,) value= [0.35]
+  wall[1] absorption.shape= (1,) value= [0.35]
+  wall[2] absorption.shape= (1,) value= [0.35]
+
+====================================================================================================
+EXPLICIT 7-BAND ROOM: 0.35 repeated at PRA centers
+====================================================================================================
+room_type: <class 'pyroomacoustics.room.ShoeBox'>
+is_multi_band: True
+octave_bands_type: <class 'pyroomacoustics.acoustics.AntoniOctaveFilterBank'>
+get_bw(): [ 186.77042802  155.64202335  373.54085603  684.82490272 1431.90661479
+ 2801.55642023 2365.75875486]
+octave_bands.__dict__:
+{'base_freq': 125.0,
+ 'fs': 16000,
+ 'n_fft': 512,
+ 'overlap_ratio': 0.5,
+ 'slope': 0,
+ 'bands': array([[   88.38834765,   176.7766953 ],
+       [  176.7766953 ,   353.55339059],
+       [  353.55339059,   707.10678119],
+       [  707.10678119,  1414.21356237],
+       [ 1414.21356237,  2828.42712475],
+       [ 2828.42712475,  5656.85424949],
+       [ 5656.85424949, 11313.70849898]]),
+ 'centers': array([ 125.,  250.,  500., 1000., 2000., 4000., 8000.]),
+ 'n_bands': 7,
+ 'filters': array([[1., 0., 0., ..., 0., 0., 0.],
+       [1., 0., 0., ..., 0., 0., 0.],
+       [1., 0., 0., ..., 0., 0., 0.],
+       ...,
+       [0., 0., 0., ..., 0., 0., 1.],
+       [0., 0., 0., ..., 0., 0., 1.],
+       [0., 0., 0., ..., 0., 0., 1.]], shape=(257, 7))}
+wall_absorption_shapes:
+  wall[0] absorption.shape= (7,) value= [0.35 0.35 0.35 0.35 0.35 0.35 0.35]
+  wall[1] absorption.shape= (7,) value= [0.35 0.35 0.35 0.35 0.35 0.35 0.35]
+  wall[2] absorption.shape= (7,) value= [0.35 0.35 0.35 0.35 0.35 0.35 0.35]
+
+====================================================================================================
+TEST A: Room.add_source custom Directivity subclass
+====================================================================================================
+isinstance(dummy, Directivity): True
+dummy.is_impulse_response: False
+dummy.filter_len_ir: 1
+sources_before: 0
+add_source_return: None
+sources_after: 0
+
+====================================================================================================
+TEST B1: SoundSource + Room.add() in SINGLE-BAND room
+====================================================================================================
+room.is_multi_band: False
+isinstance(dummy, Directivity): True
+dummy.band_gains: [1.  0.9 0.8 0.7 0.6 0.5 0.4]
+SoundSource_constructed: True
+SoundSource.directivity: <class '__main__.DummySevenBandDirectivity'>
+room.add_return_type: <class 'pyroomacoustics.room.ShoeBox'>
+sources_after_room_add: 1
+stored_directivity_type: <class '__main__.DummySevenBandDirectivity'>
+
+Attempting room.compute_rir() ...
+Dummy.get_response: azimuth_shape= (25,) colatitude_shape= (25,) return_shape= (25, 7)
+compute_rir: FAILED
+compute_rir_exception: ValueError('operands could not be broadcast together with shapes (1,25) (25,7) (1,25) ')
+
+====================================================================================================
+TEST B2: SoundSource + Room.add() in EXPLICIT 7-BAND room
+====================================================================================================
+room.is_multi_band: True
+isinstance(dummy, Directivity): True
+dummy.band_gains: [1.  0.9 0.8 0.7 0.6 0.5 0.4]
+SoundSource_constructed: True
+SoundSource.directivity: <class '__main__.DummySevenBandDirectivity'>
+room.add_return_type: <class 'pyroomacoustics.room.ShoeBox'>
+sources_after_room_add: 1
+stored_directivity_type: <class '__main__.DummySevenBandDirectivity'>
+
+Attempting room.compute_rir() ...
+Dummy.get_response: azimuth_shape= (25,) colatitude_shape= (25,) return_shape= (25, 7)
+compute_rir: FAILED
+compute_rir_exception: ValueError('operands could not be broadcast together with shapes (7,25) (25,7) (7,25) ')
+
+====================================================================================================
+SUMMARY
+====================================================================================================
+B1_single_band: {'constructed': True, 'added': True, 'compute_success': False, 'exception': "ValueError('operands could not be broadcast together with shapes (1,25) (25,7) (1,25) ')"}
+B2_seven_band: {'constructed': True, 'added': True, 'compute_success': False, 'exception': "ValueError('operands could not be broadcast together with shapes (7,25) (25,7) (7,25) ')"}
+
+Interpretation rules:
+- If B1 succeeds: custom (n_images,7) gains work even with room.is_multi_band=False.
+- If B1 fails but B2 succeeds: custom multiband Directivity is viable, but the benchmark room must also be explicitly multiband.
+- If B2 fails: do NOT proceed to CF2Directivity yet; inspect the exact ISM array shapes/error first.
+- This probe does NOT validate ray tracing; sample_rays is intentionally unimplemented.

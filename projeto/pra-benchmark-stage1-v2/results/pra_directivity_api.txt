@@ -1,0 +1,1917 @@
+=== Pyroomacoustics directivity API inspection ===
+pyroomacoustics version: 0.10.1
+pyroomacoustics package: /usr/local/lib/python3.11/site-packages/pyroomacoustics/__init__.py
+directivities module: /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/__init__.py
+
+=== Names exported by pyroomacoustics.directivities ===
+Cardioid, CardioidEnergyDistribution, CardioidFamily, DirectionVector, Directivity, FigureEight, HyperCardioid, MeasuredDirectivity, MeasuredDirectivityEnergyDistribution, MeasuredDirectivityFile, Omnidirectional, RealSphericalHarmonicsDirectivity, Rotation3D, SphericalHistogram, SubCardioid, analytic, base, cardioid_energy, cardioid_func, direction, harmonics, histogram, integration, interp, measured, robust_spherical_voronoi_areas, sofa, spherical_integral
+
+================================================================================
+CLASS: Directivity
+================================================================================
+object: <class 'pyroomacoustics.directivities.base.Directivity'>
+module: pyroomacoustics.directivities.base
+signature: ()
+MRO: Directivity -> ABC -> object
+
+--- Directivity.__init__ ---
+signature: (self, /, *args, **kwargs)
+doc:
+Initialize self.  See help(type(self)) for accurate signature.
+source:
+<source unavailable: module, class, method, function, traceback, frame, or code object was expected, got wrapper_descriptor>
+
+--- Directivity.get_response ---
+signature: (self, azimuth, colatitude=None, magnitude=False, degrees=True)
+doc:
+Get response for provided ``(azimuth, colatitude)`` pairs.
+
+Parameters
+----------
+azimuth : array_like, shape (n_directions,)
+    Azimuth angles to compute the response at.
+colatitude : array_like, optional, shape (n_directions,)
+    Corresponding colatitude angles. If ``None``, the default is
+    ``colatitude = np.pi / 2.0``, i.e., all directions are on the xy-plane.
+magnitude : bool, optional
+    Whether to return magnitude of response.
+degrees : bool, optional
+    If ``True`` (default), ``azimuth`` and ``colatitude`` are
+    interpreted as in degrees. Otherwise, they are in radians.
+
+Returns
+-------
+resp : :py:class:`~numpy.ndarray`
+    Response at requested directions. See the class docstring for the shape.
+source:
+    def get_response(self, azimuth, colatitude=None, magnitude=False, degrees=True):
+        """
+        Get response for provided ``(azimuth, colatitude)`` pairs.
+
+        Parameters
+        ----------
+        azimuth : array_like, shape (n_directions,)
+            Azimuth angles to compute the response at.
+        colatitude : array_like, optional, shape (n_directions,)
+            Corresponding colatitude angles. If ``None``, the default is
+            ``colatitude = np.pi / 2.0``, i.e., all directions are on the xy-plane.
+        magnitude : bool, optional
+            Whether to return magnitude of response.
+        degrees : bool, optional
+            If ``True`` (default), ``azimuth`` and ``colatitude`` are
+            interpreted as in degrees. Otherwise, they are in radians.
+
+        Returns
+        -------
+        resp : :py:class:`~numpy.ndarray`
+            Response at requested directions. See the class docstring for the shape.
+        """
+        cart = spher2cart(azimuth, colatitude, r=1, degrees=degrees)
+        return self.get_response_cartesian(cart, magnitude=magnitude)
+
+
+================================================================================
+CLASS: Cardioid
+================================================================================
+object: <class 'pyroomacoustics.directivities.analytic.Cardioid'>
+module: pyroomacoustics.directivities.analytic
+signature: (orientation, gain=1.0)
+MRO: Cardioid -> CardioidFamily -> Directivity -> ABC -> object
+
+--- Cardioid.__init__ ---
+signature: (self, orientation, gain=1.0)
+doc:
+Initialize self.  See help(type(self)) for accurate signature.
+source:
+    def __init__(self, orientation, gain=1.0):
+        super().__init__(orientation, p=_CARDIOID, gain=gain)
+        self._pattern_name = "cardioid"
+
+
+--- Cardioid.get_response ---
+signature: (self, azimuth, colatitude=None, magnitude=False, degrees=True)
+doc:
+Get response for provided angles.
+
+Parameters
+----------
+azimuth : array_like
+    Azimuth
+colatitude : array_like, optional
+    Colatitude. Default is to be on XY plane.
+magnitude : bool, optional
+    Whether to return magnitude of response.
+degrees : bool, optional
+    If ``True``, ``azimuth`` and ``colatitude`` are in degrees.
+    Otherwise, they are in radians.
+
+Returns
+-------
+resp : :py:class:`~numpy.ndarray`
+    Response at provided angles.
+source:
+    def get_response(self, azimuth, colatitude=None, magnitude=False, degrees=True):
+        """
+        Get response for provided angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth
+        colatitude : array_like, optional
+            Colatitude. Default is to be on XY plane.
+        magnitude : bool, optional
+            Whether to return magnitude of response.
+        degrees : bool, optional
+            If ``True``, ``azimuth`` and ``colatitude`` are in degrees.
+            Otherwise, they are in radians.
+
+        Returns
+        -------
+        resp : :py:class:`~numpy.ndarray`
+            Response at provided angles.
+        """
+
+        if colatitude is not None:
+            assert len(azimuth) == len(colatitude)
+
+        if self._p == 1.0:
+            return self._gain * np.ones(len(azimuth))
+
+        coord = spher2cart(azimuth=azimuth, colatitude=colatitude, degrees=degrees)
+
+        return self._get_response_from_cartesian_vector(coord, magnitude)
+
+
+--- Cardioid.set_orientation ---
+signature: (self, orientation)
+doc:
+Set orientation of directivity pattern.
+
+Parameters
+----------
+orientation : DirectionVector
+    New direction for the directivity pattern.
+source:
+    def set_orientation(self, orientation):
+        """
+        Set orientation of directivity pattern.
+
+        Parameters
+        ----------
+        orientation : DirectionVector
+            New direction for the directivity pattern.
+        """
+        assert isinstance(orientation, DirectionVector)
+        self._orientation = orientation
+
+
+--- Cardioid.plot_response ---
+signature: (self, azimuth, colatitude=None, degrees=True, ax=None, offset=None)
+doc:
+Plot directivity response at specified angles.
+
+Parameters
+----------
+azimuth : array_like
+    Azimuth values for plotting.
+colatitude : array_like, optional
+    Colatitude values for plotting. If not provided, 2D plot.
+degrees : bool
+    Whether provided values are in degrees (True) or radians (False).
+ax : axes object
+offset : list
+    3-D coordinates of the point where the response needs to be plotted.
+
+Return
+------
+ax : :py:class:`~matplotlib.axes.Axes`
+source:
+    @requires_matplotlib
+    def plot_response(
+        self, azimuth, colatitude=None, degrees=True, ax=None, offset=None
+    ):
+        """
+        Plot directivity response at specified angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth values for plotting.
+        colatitude : array_like, optional
+            Colatitude values for plotting. If not provided, 2D plot.
+        degrees : bool
+            Whether provided values are in degrees (True) or radians (False).
+        ax : axes object
+        offset : list
+            3-D coordinates of the point where the response needs to be plotted.
+
+        Return
+        ------
+        ax : :py:class:`~matplotlib.axes.Axes`
+        """
+        import matplotlib.pyplot as plt
+
+        if offset is not None:
+            x_offset = offset[0]
+            y_offset = offset[1]
+        else:
+            x_offset = 0
+            y_offset = 0
+
+        if degrees:
+            azimuth = np.radians(azimuth)
+
+        if colatitude is not None:
+            if degrees:
+                colatitude = np.radians(colatitude)
+
+            if ax is None:
+                fig = plt.figure()
+                ax = fig.add_subplot(1, 1, 1, projection="3d")
+
+            if offset is not None:
+                z_offset = offset[2]
+            else:
+                z_offset = 0
+
+            spher_coord = all_combinations(azimuth, colatitude)
+            azi_flat = spher_coord[:, 0]
+            col_flat = spher_coord[:, 1]
+
+            # compute response
+            resp = self.get_response(
+                azimuth=azi_flat, colatitude=col_flat, magnitude=True, degrees=False
+            )
+            RESP = resp.reshape(len(azimuth), len(colatitude))
+
+            # create surface plot, need cartesian coordinates
+            AZI, COL = np.meshgrid(azimuth, colatitude)
+            X = RESP.T * np.sin(COL) * np.cos(AZI) + x_offset
+            Y = RESP.T * np.sin(COL) * np.sin(AZI) + y_offset
+            Z = RESP.T * np.cos(COL) + z_offset
+
+            ax.plot_surface(X, Y, Z)
+
+            if ax is None:
+                ax.set_title(
+                    "{}, azimuth={}, colatitude={}".format(
+                        self.directivity_pattern,
+                        self.get_azimuth(),
+                        self.get_colatitude(),
+                    )
+                )
+            else:
+                ax.set_title("Directivity Plot")
+
+            ax.set_xlabel("x")
+            ax.set_ylabel("y")
+            ax.set_zlabel("z")
+
+        else:
+            if ax is None:
+                fig = plt.figure()
+                ax = plt.subplot(111)
+
+            # compute response
+            resp = self.get_response(azimuth=azimuth, magnitude=True, degrees=False)
+            RESP = resp
+
+            # create surface plot, need cartesian coordinates
+            X = RESP.T * np.cos(azimuth) + x_offset
+            Y = RESP.T * np.sin(azimuth) + y_offset
+            ax.plot(X, Y)
+
+        return ax
+
+
+================================================================================
+CLASS: FigureEight
+================================================================================
+object: <class 'pyroomacoustics.directivities.analytic.FigureEight'>
+module: pyroomacoustics.directivities.analytic
+signature: (orientation, gain=1.0)
+MRO: FigureEight -> CardioidFamily -> Directivity -> ABC -> object
+
+--- FigureEight.__init__ ---
+signature: (self, orientation, gain=1.0)
+doc:
+Initialize self.  See help(type(self)) for accurate signature.
+source:
+    def __init__(self, orientation, gain=1.0):
+        super().__init__(orientation, p=_FIGURE_EIGHT, gain=gain)
+        self._pattern_name = "figure-eight"
+
+
+--- FigureEight.get_response ---
+signature: (self, azimuth, colatitude=None, magnitude=False, degrees=True)
+doc:
+Get response for provided angles.
+
+Parameters
+----------
+azimuth : array_like
+    Azimuth
+colatitude : array_like, optional
+    Colatitude. Default is to be on XY plane.
+magnitude : bool, optional
+    Whether to return magnitude of response.
+degrees : bool, optional
+    If ``True``, ``azimuth`` and ``colatitude`` are in degrees.
+    Otherwise, they are in radians.
+
+Returns
+-------
+resp : :py:class:`~numpy.ndarray`
+    Response at provided angles.
+source:
+    def get_response(self, azimuth, colatitude=None, magnitude=False, degrees=True):
+        """
+        Get response for provided angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth
+        colatitude : array_like, optional
+            Colatitude. Default is to be on XY plane.
+        magnitude : bool, optional
+            Whether to return magnitude of response.
+        degrees : bool, optional
+            If ``True``, ``azimuth`` and ``colatitude`` are in degrees.
+            Otherwise, they are in radians.
+
+        Returns
+        -------
+        resp : :py:class:`~numpy.ndarray`
+            Response at provided angles.
+        """
+
+        if colatitude is not None:
+            assert len(azimuth) == len(colatitude)
+
+        if self._p == 1.0:
+            return self._gain * np.ones(len(azimuth))
+
+        coord = spher2cart(azimuth=azimuth, colatitude=colatitude, degrees=degrees)
+
+        return self._get_response_from_cartesian_vector(coord, magnitude)
+
+
+--- FigureEight.set_orientation ---
+signature: (self, orientation)
+doc:
+Set orientation of directivity pattern.
+
+Parameters
+----------
+orientation : DirectionVector
+    New direction for the directivity pattern.
+source:
+    def set_orientation(self, orientation):
+        """
+        Set orientation of directivity pattern.
+
+        Parameters
+        ----------
+        orientation : DirectionVector
+            New direction for the directivity pattern.
+        """
+        assert isinstance(orientation, DirectionVector)
+        self._orientation = orientation
+
+
+--- FigureEight.plot_response ---
+signature: (self, azimuth, colatitude=None, degrees=True, ax=None, offset=None)
+doc:
+Plot directivity response at specified angles.
+
+Parameters
+----------
+azimuth : array_like
+    Azimuth values for plotting.
+colatitude : array_like, optional
+    Colatitude values for plotting. If not provided, 2D plot.
+degrees : bool
+    Whether provided values are in degrees (True) or radians (False).
+ax : axes object
+offset : list
+    3-D coordinates of the point where the response needs to be plotted.
+
+Return
+------
+ax : :py:class:`~matplotlib.axes.Axes`
+source:
+    @requires_matplotlib
+    def plot_response(
+        self, azimuth, colatitude=None, degrees=True, ax=None, offset=None
+    ):
+        """
+        Plot directivity response at specified angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth values for plotting.
+        colatitude : array_like, optional
+            Colatitude values for plotting. If not provided, 2D plot.
+        degrees : bool
+            Whether provided values are in degrees (True) or radians (False).
+        ax : axes object
+        offset : list
+            3-D coordinates of the point where the response needs to be plotted.
+
+        Return
+        ------
+        ax : :py:class:`~matplotlib.axes.Axes`
+        """
+        import matplotlib.pyplot as plt
+
+        if offset is not None:
+            x_offset = offset[0]
+            y_offset = offset[1]
+        else:
+            x_offset = 0
+            y_offset = 0
+
+        if degrees:
+            azimuth = np.radians(azimuth)
+
+        if colatitude is not None:
+            if degrees:
+                colatitude = np.radians(colatitude)
+
+            if ax is None:
+                fig = plt.figure()
+                ax = fig.add_subplot(1, 1, 1, projection="3d")
+
+            if offset is not None:
+                z_offset = offset[2]
+            else:
+                z_offset = 0
+
+            spher_coord = all_combinations(azimuth, colatitude)
+            azi_flat = spher_coord[:, 0]
+            col_flat = spher_coord[:, 1]
+
+            # compute response
+            resp = self.get_response(
+                azimuth=azi_flat, colatitude=col_flat, magnitude=True, degrees=False
+            )
+            RESP = resp.reshape(len(azimuth), len(colatitude))
+
+            # create surface plot, need cartesian coordinates
+            AZI, COL = np.meshgrid(azimuth, colatitude)
+            X = RESP.T * np.sin(COL) * np.cos(AZI) + x_offset
+            Y = RESP.T * np.sin(COL) * np.sin(AZI) + y_offset
+            Z = RESP.T * np.cos(COL) + z_offset
+
+            ax.plot_surface(X, Y, Z)
+
+            if ax is None:
+                ax.set_title(
+                    "{}, azimuth={}, colatitude={}".format(
+                        self.directivity_pattern,
+                        self.get_azimuth(),
+                        self.get_colatitude(),
+                    )
+                )
+            else:
+                ax.set_title("Directivity Plot")
+
+            ax.set_xlabel("x")
+            ax.set_ylabel("y")
+            ax.set_zlabel("z")
+
+        else:
+            if ax is None:
+                fig = plt.figure()
+                ax = plt.subplot(111)
+
+            # compute response
+            resp = self.get_response(azimuth=azimuth, magnitude=True, degrees=False)
+            RESP = resp
+
+            # create surface plot, need cartesian coordinates
+            X = RESP.T * np.cos(azimuth) + x_offset
+            Y = RESP.T * np.sin(azimuth) + y_offset
+            ax.plot(X, Y)
+
+        return ax
+
+
+================================================================================
+CLASS: HyperCardioid
+================================================================================
+object: <class 'pyroomacoustics.directivities.analytic.HyperCardioid'>
+module: pyroomacoustics.directivities.analytic
+signature: (orientation, gain=1.0)
+MRO: HyperCardioid -> CardioidFamily -> Directivity -> ABC -> object
+
+--- HyperCardioid.__init__ ---
+signature: (self, orientation, gain=1.0)
+doc:
+Initialize self.  See help(type(self)) for accurate signature.
+source:
+    def __init__(self, orientation, gain=1.0):
+        CardioidFamily.__init__(self, orientation, p=_HYPERCARDIOID, gain=gain)
+        self._pattern_name = "hyper-cardioid"
+
+
+--- HyperCardioid.get_response ---
+signature: (self, azimuth, colatitude=None, magnitude=False, degrees=True)
+doc:
+Get response for provided angles.
+
+Parameters
+----------
+azimuth : array_like
+    Azimuth
+colatitude : array_like, optional
+    Colatitude. Default is to be on XY plane.
+magnitude : bool, optional
+    Whether to return magnitude of response.
+degrees : bool, optional
+    If ``True``, ``azimuth`` and ``colatitude`` are in degrees.
+    Otherwise, they are in radians.
+
+Returns
+-------
+resp : :py:class:`~numpy.ndarray`
+    Response at provided angles.
+source:
+    def get_response(self, azimuth, colatitude=None, magnitude=False, degrees=True):
+        """
+        Get response for provided angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth
+        colatitude : array_like, optional
+            Colatitude. Default is to be on XY plane.
+        magnitude : bool, optional
+            Whether to return magnitude of response.
+        degrees : bool, optional
+            If ``True``, ``azimuth`` and ``colatitude`` are in degrees.
+            Otherwise, they are in radians.
+
+        Returns
+        -------
+        resp : :py:class:`~numpy.ndarray`
+            Response at provided angles.
+        """
+
+        if colatitude is not None:
+            assert len(azimuth) == len(colatitude)
+
+        if self._p == 1.0:
+            return self._gain * np.ones(len(azimuth))
+
+        coord = spher2cart(azimuth=azimuth, colatitude=colatitude, degrees=degrees)
+
+        return self._get_response_from_cartesian_vector(coord, magnitude)
+
+
+--- HyperCardioid.set_orientation ---
+signature: (self, orientation)
+doc:
+Set orientation of directivity pattern.
+
+Parameters
+----------
+orientation : DirectionVector
+    New direction for the directivity pattern.
+source:
+    def set_orientation(self, orientation):
+        """
+        Set orientation of directivity pattern.
+
+        Parameters
+        ----------
+        orientation : DirectionVector
+            New direction for the directivity pattern.
+        """
+        assert isinstance(orientation, DirectionVector)
+        self._orientation = orientation
+
+
+--- HyperCardioid.plot_response ---
+signature: (self, azimuth, colatitude=None, degrees=True, ax=None, offset=None)
+doc:
+Plot directivity response at specified angles.
+
+Parameters
+----------
+azimuth : array_like
+    Azimuth values for plotting.
+colatitude : array_like, optional
+    Colatitude values for plotting. If not provided, 2D plot.
+degrees : bool
+    Whether provided values are in degrees (True) or radians (False).
+ax : axes object
+offset : list
+    3-D coordinates of the point where the response needs to be plotted.
+
+Return
+------
+ax : :py:class:`~matplotlib.axes.Axes`
+source:
+    @requires_matplotlib
+    def plot_response(
+        self, azimuth, colatitude=None, degrees=True, ax=None, offset=None
+    ):
+        """
+        Plot directivity response at specified angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth values for plotting.
+        colatitude : array_like, optional
+            Colatitude values for plotting. If not provided, 2D plot.
+        degrees : bool
+            Whether provided values are in degrees (True) or radians (False).
+        ax : axes object
+        offset : list
+            3-D coordinates of the point where the response needs to be plotted.
+
+        Return
+        ------
+        ax : :py:class:`~matplotlib.axes.Axes`
+        """
+        import matplotlib.pyplot as plt
+
+        if offset is not None:
+            x_offset = offset[0]
+            y_offset = offset[1]
+        else:
+            x_offset = 0
+            y_offset = 0
+
+        if degrees:
+            azimuth = np.radians(azimuth)
+
+        if colatitude is not None:
+            if degrees:
+                colatitude = np.radians(colatitude)
+
+            if ax is None:
+                fig = plt.figure()
+                ax = fig.add_subplot(1, 1, 1, projection="3d")
+
+            if offset is not None:
+                z_offset = offset[2]
+            else:
+                z_offset = 0
+
+            spher_coord = all_combinations(azimuth, colatitude)
+            azi_flat = spher_coord[:, 0]
+            col_flat = spher_coord[:, 1]
+
+            # compute response
+            resp = self.get_response(
+                azimuth=azi_flat, colatitude=col_flat, magnitude=True, degrees=False
+            )
+            RESP = resp.reshape(len(azimuth), len(colatitude))
+
+            # create surface plot, need cartesian coordinates
+            AZI, COL = np.meshgrid(azimuth, colatitude)
+            X = RESP.T * np.sin(COL) * np.cos(AZI) + x_offset
+            Y = RESP.T * np.sin(COL) * np.sin(AZI) + y_offset
+            Z = RESP.T * np.cos(COL) + z_offset
+
+            ax.plot_surface(X, Y, Z)
+
+            if ax is None:
+                ax.set_title(
+                    "{}, azimuth={}, colatitude={}".format(
+                        self.directivity_pattern,
+                        self.get_azimuth(),
+                        self.get_colatitude(),
+                    )
+                )
+            else:
+                ax.set_title("Directivity Plot")
+
+            ax.set_xlabel("x")
+            ax.set_ylabel("y")
+            ax.set_zlabel("z")
+
+        else:
+            if ax is None:
+                fig = plt.figure()
+                ax = plt.subplot(111)
+
+            # compute response
+            resp = self.get_response(azimuth=azimuth, magnitude=True, degrees=False)
+            RESP = resp
+
+            # create surface plot, need cartesian coordinates
+            X = RESP.T * np.cos(azimuth) + x_offset
+            Y = RESP.T * np.sin(azimuth) + y_offset
+            ax.plot(X, Y)
+
+        return ax
+
+
+================================================================================
+CLASS: SubCardioid
+================================================================================
+object: <class 'pyroomacoustics.directivities.analytic.SubCardioid'>
+module: pyroomacoustics.directivities.analytic
+signature: (orientation, gain=1.0)
+MRO: SubCardioid -> CardioidFamily -> Directivity -> ABC -> object
+
+--- SubCardioid.__init__ ---
+signature: (self, orientation, gain=1.0)
+doc:
+Initialize self.  See help(type(self)) for accurate signature.
+source:
+    def __init__(self, orientation, gain=1.0):
+        super().__init__(orientation, p=_SUBCARDIOID, gain=gain)
+        self._pattern_name = "sub-cardioid"
+
+
+--- SubCardioid.get_response ---
+signature: (self, azimuth, colatitude=None, magnitude=False, degrees=True)
+doc:
+Get response for provided angles.
+
+Parameters
+----------
+azimuth : array_like
+    Azimuth
+colatitude : array_like, optional
+    Colatitude. Default is to be on XY plane.
+magnitude : bool, optional
+    Whether to return magnitude of response.
+degrees : bool, optional
+    If ``True``, ``azimuth`` and ``colatitude`` are in degrees.
+    Otherwise, they are in radians.
+
+Returns
+-------
+resp : :py:class:`~numpy.ndarray`
+    Response at provided angles.
+source:
+    def get_response(self, azimuth, colatitude=None, magnitude=False, degrees=True):
+        """
+        Get response for provided angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth
+        colatitude : array_like, optional
+            Colatitude. Default is to be on XY plane.
+        magnitude : bool, optional
+            Whether to return magnitude of response.
+        degrees : bool, optional
+            If ``True``, ``azimuth`` and ``colatitude`` are in degrees.
+            Otherwise, they are in radians.
+
+        Returns
+        -------
+        resp : :py:class:`~numpy.ndarray`
+            Response at provided angles.
+        """
+
+        if colatitude is not None:
+            assert len(azimuth) == len(colatitude)
+
+        if self._p == 1.0:
+            return self._gain * np.ones(len(azimuth))
+
+        coord = spher2cart(azimuth=azimuth, colatitude=colatitude, degrees=degrees)
+
+        return self._get_response_from_cartesian_vector(coord, magnitude)
+
+
+--- SubCardioid.set_orientation ---
+signature: (self, orientation)
+doc:
+Set orientation of directivity pattern.
+
+Parameters
+----------
+orientation : DirectionVector
+    New direction for the directivity pattern.
+source:
+    def set_orientation(self, orientation):
+        """
+        Set orientation of directivity pattern.
+
+        Parameters
+        ----------
+        orientation : DirectionVector
+            New direction for the directivity pattern.
+        """
+        assert isinstance(orientation, DirectionVector)
+        self._orientation = orientation
+
+
+--- SubCardioid.plot_response ---
+signature: (self, azimuth, colatitude=None, degrees=True, ax=None, offset=None)
+doc:
+Plot directivity response at specified angles.
+
+Parameters
+----------
+azimuth : array_like
+    Azimuth values for plotting.
+colatitude : array_like, optional
+    Colatitude values for plotting. If not provided, 2D plot.
+degrees : bool
+    Whether provided values are in degrees (True) or radians (False).
+ax : axes object
+offset : list
+    3-D coordinates of the point where the response needs to be plotted.
+
+Return
+------
+ax : :py:class:`~matplotlib.axes.Axes`
+source:
+    @requires_matplotlib
+    def plot_response(
+        self, azimuth, colatitude=None, degrees=True, ax=None, offset=None
+    ):
+        """
+        Plot directivity response at specified angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth values for plotting.
+        colatitude : array_like, optional
+            Colatitude values for plotting. If not provided, 2D plot.
+        degrees : bool
+            Whether provided values are in degrees (True) or radians (False).
+        ax : axes object
+        offset : list
+            3-D coordinates of the point where the response needs to be plotted.
+
+        Return
+        ------
+        ax : :py:class:`~matplotlib.axes.Axes`
+        """
+        import matplotlib.pyplot as plt
+
+        if offset is not None:
+            x_offset = offset[0]
+            y_offset = offset[1]
+        else:
+            x_offset = 0
+            y_offset = 0
+
+        if degrees:
+            azimuth = np.radians(azimuth)
+
+        if colatitude is not None:
+            if degrees:
+                colatitude = np.radians(colatitude)
+
+            if ax is None:
+                fig = plt.figure()
+                ax = fig.add_subplot(1, 1, 1, projection="3d")
+
+            if offset is not None:
+                z_offset = offset[2]
+            else:
+                z_offset = 0
+
+            spher_coord = all_combinations(azimuth, colatitude)
+            azi_flat = spher_coord[:, 0]
+            col_flat = spher_coord[:, 1]
+
+            # compute response
+            resp = self.get_response(
+                azimuth=azi_flat, colatitude=col_flat, magnitude=True, degrees=False
+            )
+            RESP = resp.reshape(len(azimuth), len(colatitude))
+
+            # create surface plot, need cartesian coordinates
+            AZI, COL = np.meshgrid(azimuth, colatitude)
+            X = RESP.T * np.sin(COL) * np.cos(AZI) + x_offset
+            Y = RESP.T * np.sin(COL) * np.sin(AZI) + y_offset
+            Z = RESP.T * np.cos(COL) + z_offset
+
+            ax.plot_surface(X, Y, Z)
+
+            if ax is None:
+                ax.set_title(
+                    "{}, azimuth={}, colatitude={}".format(
+                        self.directivity_pattern,
+                        self.get_azimuth(),
+                        self.get_colatitude(),
+                    )
+                )
+            else:
+                ax.set_title("Directivity Plot")
+
+            ax.set_xlabel("x")
+            ax.set_ylabel("y")
+            ax.set_zlabel("z")
+
+        else:
+            if ax is None:
+                fig = plt.figure()
+                ax = plt.subplot(111)
+
+            # compute response
+            resp = self.get_response(azimuth=azimuth, magnitude=True, degrees=False)
+            RESP = resp
+
+            # create surface plot, need cartesian coordinates
+            X = RESP.T * np.cos(azimuth) + x_offset
+            Y = RESP.T * np.sin(azimuth) + y_offset
+            ax.plot(X, Y)
+
+        return ax
+
+
+================================================================================
+CLASS: Omnidirectional
+================================================================================
+object: <class 'pyroomacoustics.directivities.analytic.Omnidirectional'>
+module: pyroomacoustics.directivities.analytic
+signature: (gain=1.0)
+MRO: Omnidirectional -> CardioidFamily -> Directivity -> ABC -> object
+
+--- Omnidirectional.__init__ ---
+signature: (self, gain=1.0)
+doc:
+Initialize self.  See help(type(self)) for accurate signature.
+source:
+    def __init__(self, gain=1.0):
+        CardioidFamily.__init__(self, DirectionVector(0.0, 0.0), p=_OMNI, gain=gain)
+        self._pattern_name = "omni"
+
+
+--- Omnidirectional.get_response ---
+signature: (self, azimuth, colatitude=None, magnitude=False, degrees=True)
+doc:
+Get response for provided angles.
+
+Parameters
+----------
+azimuth : array_like
+    Azimuth
+colatitude : array_like, optional
+    Colatitude. Default is to be on XY plane.
+magnitude : bool, optional
+    Whether to return magnitude of response.
+degrees : bool, optional
+    If ``True``, ``azimuth`` and ``colatitude`` are in degrees.
+    Otherwise, they are in radians.
+
+Returns
+-------
+resp : :py:class:`~numpy.ndarray`
+    Response at provided angles.
+source:
+    def get_response(self, azimuth, colatitude=None, magnitude=False, degrees=True):
+        """
+        Get response for provided angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth
+        colatitude : array_like, optional
+            Colatitude. Default is to be on XY plane.
+        magnitude : bool, optional
+            Whether to return magnitude of response.
+        degrees : bool, optional
+            If ``True``, ``azimuth`` and ``colatitude`` are in degrees.
+            Otherwise, they are in radians.
+
+        Returns
+        -------
+        resp : :py:class:`~numpy.ndarray`
+            Response at provided angles.
+        """
+
+        if colatitude is not None:
+            assert len(azimuth) == len(colatitude)
+
+        if self._p == 1.0:
+            return self._gain * np.ones(len(azimuth))
+
+        coord = spher2cart(azimuth=azimuth, colatitude=colatitude, degrees=degrees)
+
+        return self._get_response_from_cartesian_vector(coord, magnitude)
+
+
+--- Omnidirectional.set_orientation ---
+signature: (self, orientation)
+doc:
+Set orientation of directivity pattern.
+
+Parameters
+----------
+orientation : DirectionVector
+    New direction for the directivity pattern.
+source:
+    def set_orientation(self, orientation):
+        """
+        Set orientation of directivity pattern.
+
+        Parameters
+        ----------
+        orientation : DirectionVector
+            New direction for the directivity pattern.
+        """
+        assert isinstance(orientation, DirectionVector)
+        self._orientation = orientation
+
+
+--- Omnidirectional.plot_response ---
+signature: (self, azimuth, colatitude=None, degrees=True, ax=None, offset=None)
+doc:
+Plot directivity response at specified angles.
+
+Parameters
+----------
+azimuth : array_like
+    Azimuth values for plotting.
+colatitude : array_like, optional
+    Colatitude values for plotting. If not provided, 2D plot.
+degrees : bool
+    Whether provided values are in degrees (True) or radians (False).
+ax : axes object
+offset : list
+    3-D coordinates of the point where the response needs to be plotted.
+
+Return
+------
+ax : :py:class:`~matplotlib.axes.Axes`
+source:
+    @requires_matplotlib
+    def plot_response(
+        self, azimuth, colatitude=None, degrees=True, ax=None, offset=None
+    ):
+        """
+        Plot directivity response at specified angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth values for plotting.
+        colatitude : array_like, optional
+            Colatitude values for plotting. If not provided, 2D plot.
+        degrees : bool
+            Whether provided values are in degrees (True) or radians (False).
+        ax : axes object
+        offset : list
+            3-D coordinates of the point where the response needs to be plotted.
+
+        Return
+        ------
+        ax : :py:class:`~matplotlib.axes.Axes`
+        """
+        import matplotlib.pyplot as plt
+
+        if offset is not None:
+            x_offset = offset[0]
+            y_offset = offset[1]
+        else:
+            x_offset = 0
+            y_offset = 0
+
+        if degrees:
+            azimuth = np.radians(azimuth)
+
+        if colatitude is not None:
+            if degrees:
+                colatitude = np.radians(colatitude)
+
+            if ax is None:
+                fig = plt.figure()
+                ax = fig.add_subplot(1, 1, 1, projection="3d")
+
+            if offset is not None:
+                z_offset = offset[2]
+            else:
+                z_offset = 0
+
+            spher_coord = all_combinations(azimuth, colatitude)
+            azi_flat = spher_coord[:, 0]
+            col_flat = spher_coord[:, 1]
+
+            # compute response
+            resp = self.get_response(
+                azimuth=azi_flat, colatitude=col_flat, magnitude=True, degrees=False
+            )
+            RESP = resp.reshape(len(azimuth), len(colatitude))
+
+            # create surface plot, need cartesian coordinates
+            AZI, COL = np.meshgrid(azimuth, colatitude)
+            X = RESP.T * np.sin(COL) * np.cos(AZI) + x_offset
+            Y = RESP.T * np.sin(COL) * np.sin(AZI) + y_offset
+            Z = RESP.T * np.cos(COL) + z_offset
+
+            ax.plot_surface(X, Y, Z)
+
+            if ax is None:
+                ax.set_title(
+                    "{}, azimuth={}, colatitude={}".format(
+                        self.directivity_pattern,
+                        self.get_azimuth(),
+                        self.get_colatitude(),
+                    )
+                )
+            else:
+                ax.set_title("Directivity Plot")
+
+            ax.set_xlabel("x")
+            ax.set_ylabel("y")
+            ax.set_zlabel("z")
+
+        else:
+            if ax is None:
+                fig = plt.figure()
+                ax = plt.subplot(111)
+
+            # compute response
+            resp = self.get_response(azimuth=azimuth, magnitude=True, degrees=False)
+            RESP = resp
+
+            # create surface plot, need cartesian coordinates
+            X = RESP.T * np.cos(azimuth) + x_offset
+            Y = RESP.T * np.sin(azimuth) + y_offset
+            ax.plot(X, Y)
+
+        return ax
+
+
+================================================================================
+CLASS: MeasuredDirectivity
+================================================================================
+object: <class 'pyroomacoustics.directivities.measured.MeasuredDirectivity'>
+module: pyroomacoustics.directivities.measured
+signature: (orientation, grid, impulse_responses, fs)
+MRO: MeasuredDirectivity -> Directivity -> ABC -> object
+
+--- MeasuredDirectivity.__init__ ---
+signature: (self, orientation, grid, impulse_responses, fs)
+doc:
+Initialize self.  See help(type(self)) for accurate signature.
+source:
+    def __init__(self, orientation, grid, impulse_responses, fs):
+        if not isinstance(orientation, Rotation3D):
+            raise ValueError("Orientation must be a Rotation3D object")
+
+        if not isinstance(grid, Grid):
+            raise ValueError("Grid must be a Grid object")
+
+        self._original_grid = grid
+        self._irs = impulse_responses
+        self.fs = fs
+
+        self._compute_band_energies()
+
+        # set the initial orientation
+        self.set_orientation(orientation)
+
+
+--- MeasuredDirectivity.get_response ---
+signature: (self, azimuth, colatitude=None, magnitude=False, degrees=True)
+doc:
+Get response for provided angles.
+
+Parameters
+----------
+azimuth: np.ndarray, (n_points,)
+    The azimuth of the desired responses
+colatitude: np.ndarray, (n_points,)
+    The colatitude of the desired responses
+magnitude: bool
+    Ignored
+degrees: bool
+    If ``True``, indicates that azimuth and colatitude are provided in degrees
+source:
+    def get_response(self, azimuth, colatitude=None, magnitude=False, degrees=True):
+        """
+        Get response for provided angles.
+
+        Parameters
+        ----------
+        azimuth: np.ndarray, (n_points,)
+            The azimuth of the desired responses
+        colatitude: np.ndarray, (n_points,)
+            The colatitude of the desired responses
+        magnitude: bool
+            Ignored
+        degrees: bool
+            If ``True``, indicates that azimuth and colatitude are provided in degrees
+        """
+        if degrees:
+            azimuth = np.radians(azimuth)
+            colatitude = np.radians(colatitude)
+
+        cart = spher2cart(azimuth, colatitude)
+
+        return self.get_response_cartesian(cart.T)
+
+
+--- MeasuredDirectivity.set_orientation ---
+signature: (self, orientation)
+doc:
+Set orientation of directivity pattern.
+
+Parameters
+----------
+orientation : Rotation3D
+    New direction for the directivity pattern.
+source:
+    def set_orientation(self, orientation):
+        """
+        Set orientation of directivity pattern.
+
+        Parameters
+        ----------
+        orientation : Rotation3D
+            New direction for the directivity pattern.
+        """
+        if not isinstance(orientation, Rotation3D):
+            raise ValueError("Orientation must be a Rotation3D object")
+
+        self._orientation = orientation
+
+        # rotate the grid and re-build the KD-tree
+        self._grid = GridSphere(
+            cartesian_points=self._orientation.rotate(self._original_grid.cartesian)
+        )
+
+        # create the kd-tree
+        self._kdtree = cKDTree(self._grid.cartesian.T)
+
+        # Create the energy directional distribution.
+        self.energy_distribution = MeasuredDirectivityEnergyDistribution(
+            self._kdtree, self.energy_per_direction, areas=self.areas
+        )
+
+
+================================================================================
+CLASS: DirectionVector
+================================================================================
+object: <class 'pyroomacoustics.directivities.direction.DirectionVector'>
+module: pyroomacoustics.directivities.direction
+signature: (azimuth, colatitude=None, degrees=True)
+MRO: DirectionVector -> object
+
+--- DirectionVector.__init__ ---
+signature: (self, azimuth, colatitude=None, degrees=True)
+doc:
+Initialize self.  See help(type(self)) for accurate signature.
+source:
+    def __init__(self, azimuth, colatitude=None, degrees=True):
+        if degrees is True:
+            azimuth = np.radians(azimuth)
+            if colatitude is not None:
+                colatitude = np.radians(colatitude)
+        self._azimuth = azimuth
+        if colatitude is None:
+            colatitude = np.pi / 2
+        assert colatitude <= np.pi and colatitude >= 0
+
+        self._colatitude = colatitude
+
+        self._unit_v = np.array(
+            [
+                np.cos(self._azimuth) * np.sin(self._colatitude),
+                np.sin(self._azimuth) * np.sin(self._colatitude),
+                np.cos(self._colatitude),
+            ]
+        )
+
+
+================================================================================
+PACKAGE CALL-SITE SCAN
+================================================================================
+package_root: /usr/local/lib/python3.11/site-packages/pyroomacoustics
+number_of_hits: 252
+__init__.py:50: :py:obj:`pyroomacoustics.directivities`
+__init__.py:51:     Directivity pattern objects and routines.
+__init__.py:131: from .directivities import *
+beamforming.py:35: from .directivities import DirectionVector, Directivity, Omnidirectional
+beamforming.py:267:     center, M, phi0, radius, fs, directivity=None, ax=None
+beamforming.py:270:     Create a microphone array with directivities pointing outwards (if provided).
+beamforming.py:285:     directivity: Directivity object, optional.
+beamforming.py:286:         Directivity pattern for each microphone which will be re-oriented to face outward. If not
+beamforming.py:289:         Axes on which to plot microphone array with its directivities.
+beamforming.py:303:     if directivity is not None:
+beamforming.py:304:         assert isinstance(directivity, Directivity)
+beamforming.py:306:         directivity = Omnidirectional()
+beamforming.py:317:     directivity_list = []
+beamforming.py:322:         directivity.set_orientation(orientation)
+beamforming.py:323:         directivity_list.append(copy.copy(directivity))
+beamforming.py:326:             ax = directivity.plot_response(
+beamforming.py:334:     return MicrophoneArray(R, fs, directivity_list)
+beamforming.py:346:     def __init__(self, R, fs, directivity=None):
+beamforming.py:365:         self.set_directivity(directivity)
+beamforming.py:390:         return any([d is not None for d in self.directivity])
+beamforming.py:392:     def set_directivity(self, directivities):
+beamforming.py:394:         This functions sets self.directivity as a list of directivities with
+beamforming.py:399:         directivities:
+beamforming.py:400:             A single directivity for all microphones or a list of directivities
+beamforming.py:405:         def _is_correct_type(directivity):
+beamforming.py:406:             return directivity is None or isinstance(directivity, Directivity)
+beamforming.py:408:         if isinstance(directivities, Sequence):
+beamforming.py:409:             # list of directivities specified
+beamforming.py:410:             for d in directivities:
+beamforming.py:413:                         "Directivities should be of Directivity type, or None (got "
+beamforming.py:416:             if not len(directivities) == self.nmic:
+beamforming.py:418:                     "Please provide a single Directivity for all microphones, or one "
+beamforming.py:419:                     f"per microphone. Got {len(directivities)} directivities for "
+beamforming.py:422:             self.directivity = list(directivities)
+beamforming.py:424:             if not _is_correct_type(directivities):
+beamforming.py:426:                     "Directivities should be of Directivity type, or None (got "
+beamforming.py:427:                     f"{type(directivities)})."
+beamforming.py:429:             # only 1 directivity specified
+beamforming.py:430:             self.directivity = [directivities] * self.nmic
+beamforming.py:540:             self.directivity += locs.directivity
+beamforming.py:544:             self.directivity += [None] * locs.shape[1]
+bss/__init__.py:55:     Nonnegative Matrix Factorization with Directivity-Aware Jointly-Diagonalizable Spatial
+bss/fastmnmf2.py:44:     Matrix Factorization With Directivity-Aware Jointly-Diagonalizable Spatial
+datasets/sofa.py:47:   - ``EM32_Directivity.sofa`` that contains the directional response of the
+datasets/sofa.py:50:     directivities. This file is dynamically downloaded upon its first use.
+datasets/sofa.py:59:         Viewer of 2D/3D Directivity Patterns of Sound Sources and Receivers,"
+directivities/__init__.py:1: # Directivity module that provides routines to use analytic and mesured directional
+directivities/__init__.py:39: The directivities are described by an object of a class derived from
+directivities/__init__.py:40: :py:class:`~pyroomacoustics.directivities.base.Directivity`.
+directivities/__init__.py:58:     dir = pra.directivities.Cardioid(
+directivities/__init__.py:61:     room.add_source([3.75, 2.13, 1.41], directivity=dir)
+directivities/__init__.py:64:     hrtf = MeasuredDirectivityFile(
+directivities/__init__.py:74:     # choose and interpolate the directivities
+directivities/__init__.py:75:     dir_left = hrtf.get_mic_directivity("left", orientation=orientation)
+directivities/__init__.py:76:     dir_right = hrtf.get_mic_directivity("right", orientation=orientation)
+directivities/__init__.py:80:     room.add_microphone(mic_pos, directivity=dir)
+directivities/__init__.py:81:     room.add_microphone(mic_pos, directivity=dir)
+directivities/__init__.py:95: from .base import Directivity
+directivities/__init__.py:97: from .harmonics import RealSphericalHarmonicsDirectivity
+directivities/__init__.py:101:     MeasuredDirectivity,
+directivities/__init__.py:102:     MeasuredDirectivityEnergyDistribution,
+directivities/__init__.py:103:     MeasuredDirectivityFile,
+directivities/__init__.py:111:     "Directivity",
+directivities/__init__.py:114:     "MeasuredDirectivity",
+directivities/__init__.py:115:     "MeasuredDirectivityEnergyDistribution",
+directivities/__init__.py:116:     "MeasuredDirectivityFile",
+directivities/__init__.py:118:     "RealSphericalHarmonicsDirectivity",
+directivities/analytic.py:1: # Directivity module that provides routines to use analytic and mesured directional
+directivities/analytic.py:44: :py:class:`~pyroomacoustics.directivities.analytic.Cardioid`,
+directivities/analytic.py:45: :py:class:`~pyroomacoustics.directivities.analytic.FigureEight`,
+directivities/analytic.py:46: :py:class:`~pyroomacoustics.directivities.analytic.SubCardioid`,
+directivities/analytic.py:47: :py:class:`~pyroomacoustics.directivities.analytic.HyperCardioid`,
+directivities/analytic.py:48: and :py:class:`~pyroomacoustics.directivities.analytic.Omnidirectional` are provided
+directivities/analytic.py:50: The class :py:class:`~pyroomacoustics.directivities.analytic.CardioidFamily` can be used to make
+directivities/analytic.py:56:     from pyroomacoustics.directivities import CardioidFamily
+directivities/analytic.py:66: from .base import Directivity
+directivities/analytic.py:77: class CardioidFamily(Directivity):
+directivities/analytic.py:79:     Object for directivities coming from the
+directivities/analytic.py:104:         The linear gain of the directivity pattern (default is 1.0)
+directivities/analytic.py:129:         # distribution corresponding to the source energy directivity
+directivities/analytic.py:146:     def directivity_pattern(self):
+directivities/analytic.py:147:         """Name of cardioid directivity pattern."""
+directivities/analytic.py:158:         Set orientation of directivity pattern.
+directivities/analytic.py:163:             New direction for the directivity pattern.
+directivities/analytic.py:251:         Plot directivity response at specified angles.
+directivities/analytic.py:299:             resp = self.get_response(
+directivities/analytic.py:315:                         self.directivity_pattern,
+directivities/analytic.py:321:                 ax.set_title("Directivity Plot")
+directivities/analytic.py:333:             resp = self.get_response(azimuth=azimuth, magnitude=True, degrees=False)
+directivities/analytic.py:346:     Cardioid directivity pattern.
+directivities/analytic.py:353:         The linear gain of the directivity pattern (default is 1.0)
+directivities/analytic.py:363:     Figure-of-eight directivity pattern.
+directivities/analytic.py:370:         The linear gain of the directivity pattern (default is 1.0)
+directivities/analytic.py:380:     Sub-cardioid directivity pattern.
+directivities/analytic.py:387:         The linear gain of the directivity pattern (default is 1.0)
+directivities/analytic.py:397:     Hyper-cardioid directivity pattern.
+directivities/analytic.py:404:         The linear gain of the directivity pattern (default is 1.0)
+directivities/analytic.py:414:     Hyper-cardioid directivity pattern.
+directivities/analytic.py:421:         The linear gain of the directivity pattern (default is 1.0)
+directivities/analytic.py:506:         The linear gain of the directivity pattern (default is 1.0)
+directivities/base.py:1: # Directivity module that provides routines to use analytic and mesured directional
+directivities/base.py:26: The `Directivity` class is an abstract class that can be subclassed to create new
+directivities/base.py:27: types of directivities. The class provides a common interface to access the
+directivities/base.py:28: directivity patterns.
+directivities/base.py:34: - ``sample_rays`` returns rays and corresponding energy for the directivity.
+directivities/base.py:35: - ``is_impulse_response`` to indicate whether the directivity is an impulse response or
+directivities/base.py:38:   if the directivity is not an impulse response.
+directivities/base.py:46: class Directivity(abc.ABC):
+directivities/base.py:48:     Abstract class for directivity patterns.
+directivities/base.py:50:     Directivity can be of three different types in the way it treats frequency.
+directivities/base.py:70:         # as the ones defined here in Directivity.
+directivities/base.py:72:             cls.get_response_cartesian is not Directivity.get_response_cartesian
+directivities/base.py:74:         overrides_sph = cls.get_response_cartesian is not Directivity.get_response
+directivities/base.py:120:         return self.get_response(
+directivities/direction.py:25: Using directivities makes sources and microphones having a different response
+directivities/direction.py:29: Some types of directivities such as ``CardioidFamily`` and derived classes
+directivities/direction.py:33: However, in general, not all directivities are symmetric in this way.
+directivities/harmonics.py:24: This class can be used to set a Real Spherical Harmonics directivities.
+directivities/harmonics.py:30: Here is a simple example of capturing room impulse response using real spherical harmonics directivities:
+directivities/harmonics.py:44:             directivity=pra.directivities.RealSphericalHarmonicsDirectivity(
+directivities/harmonics.py:56: from .base import Directivity
+directivities/harmonics.py:133: class RealSphericalHarmonicsDirectivity(Directivity):
+directivities/harmonics.py:135:     A class for real spherical harmonic directivity patterns.
+directivities/harmonics.py:163:         return self.get_response(
+directivities/measured.py:25: Source and microphone directivities can be measured in an anechoic chamber.
+directivities/measured.py:34: The workhorse of this module is the class :py:class:`MeasuredDirectivityFile`
+directivities/measured.py:38: from individual sources and turn them into a py:class:`MeasuredDirectivity` object
+directivities/measured.py:40: with this directivity.
+directivities/measured.py:44: desired direction is used instead. To avoid sharp transitions, the py:class:`MeasuredDirectivityFile`
+directivities/measured.py:49: the directivities for left and right ears of a dummy head HRTF.
+directivities/measured.py:53:     from pyroomacoustics.directivities import MeasuredDirectivityFile, Rotation3D
+directivities/measured.py:56:     # if the file contains multiple directivities, they are all read
+directivities/measured.py:57:     hrtf = MeasuredDirectivityFile(
+directivities/measured.py:67:     # we can then choose which directivities we want from the file
+directivities/measured.py:68:     dir_left = hrtf.get_mic_directivity("left", orientation=orientation)
+directivities/measured.py:69:     dir_right = hrtf.get_mic_directivity("right", orientation=orientation)
+directivities/measured.py:82: from ..directivities.integration import spherical_integral
+directivities/measured.py:86: from .base import Directivity
+directivities/measured.py:93: class MeasuredDirectivityEnergyDistribution(random.distributions.Distribution):
+directivities/measured.py:136: class MeasuredDirectivity(Directivity):
+directivities/measured.py:138:     A class to store directivity patterns obtained by measurements.
+directivities/measured.py:218:         Set orientation of directivity pattern.
+directivities/measured.py:223:             New direction for the directivity pattern.
+directivities/measured.py:239:         self.energy_distribution = MeasuredDirectivityEnergyDistribution(
+directivities/measured.py:300:         Plot the directivity pattern at a given frequency.
+directivities/measured.py:316:             An offset to apply to the directivity pattern
+directivities/measured.py:321:             The axes on which the directivity is plotted
+directivities/measured.py:377: class MeasuredDirectivityFile:
+directivities/measured.py:379:     This class reads measured directivities from a
+directivities/measured.py:534:     def get_mic_directivity(self, measurement_id, orientation):
+directivities/measured.py:536:         Get a directivity for a microphone
+directivities/measured.py:543:             The orientation of the directivity pattern
+directivities/measured.py:557:         dir_obj = MeasuredDirectivity(orientation, grid, ir, self.fs)
+directivities/measured.py:560:     def get_source_directivity(self, measurement_id, orientation):
+directivities/measured.py:562:         Get a directivity for a source
+directivities/measured.py:569:             The orientation of the directivity pattern
+directivities/measured.py:586:         dir_obj = MeasuredDirectivity(orientation, grid, ir, self.fs)
+room.py:187: Adding source or microphone directivity
+room.py:190: The directivity pattern of a source or microphone can be conveniently set
+room.py:191: through the ``directivity`` keyword argument.
+room.py:193: First, a :py:obj:`pyroomacoustics.directivities.Directivity` object needs to be created. As of
+room.py:194: Sep 6, 2021, only frequency-independent directivities from the
+room.py:198: Below is how a :py:obj:`pyroomacoustics.directivities.Directivity` object can be created, for
+room.py:204:     # create directivity object
+room.py:205:     from pyroomacoustics.directivities import (
+room.py:206:         DirectivityPattern,
+room.py:212:         pattern_enum=DirectivityPattern.HYPERCARDIOID,
+room.py:215: After creating a :py:obj:`pyroomacoustics.directivities.Directivity` object, it is straightforward
+room.py:216: to set the directivity of a source, microphone, or microphone array, namely by using the
+room.py:217: ``directivity`` keyword argument.
+room.py:219: For example, to set a source's directivity:
+room.py:224:     room.add_source(position=[2.5, 3.73, 1.76], directivity=dir_obj)
+room.py:226: To set a single microphone's directivity:
+room.py:231:     room.add_microphone(loc=[2.5, 5, 1.76], directivity=dir_obj)
+room.py:233: The same directivity pattern can be used for all microphones in an array:
+room.py:243:     room.add_microphone_array(mic_locs, directivity=dir_obj)
+room.py:245: Or a different directivity can be used for each microphone by passing a list of
+room.py:246: :py:obj:`pyroomacoustics.directivities.Directivity` objects:
+room.py:251:     room.add_microphone_array(mic_locs, directivity=[dir_1, dir_2])
+room.py:255:     As of Sep 6, 2021, setting directivity patterns for sources and microphone is only supported for
+room.py:720: from .directivities import (
+room.py:722:     MeasuredDirectivity,
+room.py:1471:         plot_directivity=True,
+room.py:1528:                     if plot_directivity and self.mic_array.directivity[i] is not None:
+room.py:1532:                         ax = self.mic_array.directivity[i].plot_response(
+room.py:1607:                 if plot_directivity and source.directivity is not None:
+room.py:1611:                     ax = source.directivity.plot_response(
+room.py:1687:                 if plot_directivity and source.directivity is not None:
+room.py:1694:                     ax = source.directivity.plot_response(
+room.py:1743:                     if plot_directivity and self.mic_array.directivity[i] is not None:
+room.py:1750:                         ax = self.mic_array.directivity[i].plot_response(
+room.py:1973:     def add_microphone(self, loc, fs=None, directivity=None):
+room.py:1990:         if self.dim != 3 and directivity is not None:
+room.py:1991:             raise NotImplementedError("Directivity is only supported for 3D rooms.")
+room.py:2003:         return self.add(MicrophoneArray(loc, fs, directivity))
+room.py:2005:     def add_microphone_array(self, mic_array, directivity=None):
+room.py:2019:         directivity: list of Directivity objects, optional
+room.py:2021:             :py:obj:`~pyroomacoustics.directivities.Directivity` object or
+room.py:2032:         if self.simulator_state["rt_needed"] and directivity is not None:
+room.py:2033:             raise NotImplementedError("Directivity not supported with ray tracing.")
+
+================================================================================
+IMPORTANT CONTEXTS
+================================================================================
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/__init__.py:64 ---
+      58:     dir = pra.directivities.Cardioid(
+      59:         DirectionVector(azimuth=-65, colatitude=90) , gain=1.0
+      60:     )
+      61:     room.add_source([3.75, 2.13, 1.41], directivity=dir)
+      62: 
+      63:     # add a dummy head receiver from the MIT KEMAR database
+>>    64:     hrtf = MeasuredDirectivityFile(
+      65:         path="mit_kemar_normal_pinna.sofa",  # SOFA file is in the database
+      66:         fs=room.fs,
+      67:         interp_order=12,  # interpolation order
+      68:         interp_n_points=1000,  # number of points in the interpolation grid
+      69:     )
+      70: 
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/__init__.py:101 ---
+      95: from .base import Directivity
+      96: from .direction import DirectionVector, Rotation3D
+      97: from .harmonics import RealSphericalHarmonicsDirectivity
+      98: from .histogram import SphericalHistogram
+      99: from .integration import robust_spherical_voronoi_areas, spherical_integral
+     100: from .measured import (
+>>   101:     MeasuredDirectivity,
+     102:     MeasuredDirectivityEnergyDistribution,
+     103:     MeasuredDirectivityFile,
+     104: )
+     105: 
+     106: __all__ = [
+     107:     "Cardioid",
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/__init__.py:102 ---
+      96: from .direction import DirectionVector, Rotation3D
+      97: from .harmonics import RealSphericalHarmonicsDirectivity
+      98: from .histogram import SphericalHistogram
+      99: from .integration import robust_spherical_voronoi_areas, spherical_integral
+     100: from .measured import (
+     101:     MeasuredDirectivity,
+>>   102:     MeasuredDirectivityEnergyDistribution,
+     103:     MeasuredDirectivityFile,
+     104: )
+     105: 
+     106: __all__ = [
+     107:     "Cardioid",
+     108:     "CardioidEnergyDistribution",
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/__init__.py:103 ---
+      97: from .harmonics import RealSphericalHarmonicsDirectivity
+      98: from .histogram import SphericalHistogram
+      99: from .integration import robust_spherical_voronoi_areas, spherical_integral
+     100: from .measured import (
+     101:     MeasuredDirectivity,
+     102:     MeasuredDirectivityEnergyDistribution,
+>>   103:     MeasuredDirectivityFile,
+     104: )
+     105: 
+     106: __all__ = [
+     107:     "Cardioid",
+     108:     "CardioidEnergyDistribution",
+     109:     "CardioidFamily",
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/__init__.py:114 ---
+     108:     "CardioidEnergyDistribution",
+     109:     "CardioidFamily",
+     110:     "DirectionVector",
+     111:     "Directivity",
+     112:     "FigureEight",
+     113:     "HyperCardioid",
+>>   114:     "MeasuredDirectivity",
+     115:     "MeasuredDirectivityEnergyDistribution",
+     116:     "MeasuredDirectivityFile",
+     117:     "Omnidirectional",
+     118:     "RealSphericalHarmonicsDirectivity",
+     119:     "Rotation3D",
+     120:     "SphericalHistogram",
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/__init__.py:115 ---
+     109:     "CardioidFamily",
+     110:     "DirectionVector",
+     111:     "Directivity",
+     112:     "FigureEight",
+     113:     "HyperCardioid",
+     114:     "MeasuredDirectivity",
+>>   115:     "MeasuredDirectivityEnergyDistribution",
+     116:     "MeasuredDirectivityFile",
+     117:     "Omnidirectional",
+     118:     "RealSphericalHarmonicsDirectivity",
+     119:     "Rotation3D",
+     120:     "SphericalHistogram",
+     121:     "SubCardioid",
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/__init__.py:116 ---
+     110:     "DirectionVector",
+     111:     "Directivity",
+     112:     "FigureEight",
+     113:     "HyperCardioid",
+     114:     "MeasuredDirectivity",
+     115:     "MeasuredDirectivityEnergyDistribution",
+>>   116:     "MeasuredDirectivityFile",
+     117:     "Omnidirectional",
+     118:     "RealSphericalHarmonicsDirectivity",
+     119:     "Rotation3D",
+     120:     "SphericalHistogram",
+     121:     "SubCardioid",
+     122:     "cardioid_energy",
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/analytic.py:299 ---
+     293: 
+     294:             spher_coord = all_combinations(azimuth, colatitude)
+     295:             azi_flat = spher_coord[:, 0]
+     296:             col_flat = spher_coord[:, 1]
+     297: 
+     298:             # compute response
+>>   299:             resp = self.get_response(
+     300:                 azimuth=azi_flat, colatitude=col_flat, magnitude=True, degrees=False
+     301:             )
+     302:             RESP = resp.reshape(len(azimuth), len(colatitude))
+     303: 
+     304:             # create surface plot, need cartesian coordinates
+     305:             AZI, COL = np.meshgrid(azimuth, colatitude)
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/analytic.py:333 ---
+     327:         else:
+     328:             if ax is None:
+     329:                 fig = plt.figure()
+     330:                 ax = plt.subplot(111)
+     331: 
+     332:             # compute response
+>>   333:             resp = self.get_response(azimuth=azimuth, magnitude=True, degrees=False)
+     334:             RESP = resp
+     335: 
+     336:             # create surface plot, need cartesian coordinates
+     337:             X = RESP.T * np.cos(azimuth) + x_offset
+     338:             Y = RESP.T * np.sin(azimuth) + y_offset
+     339:             ax.plot(X, Y)
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/base.py:120 ---
+     114:         Returns
+     115:         -------
+     116:         resp : :py:class:`~numpy.ndarray`
+     117:             Response at provided directions. See the class docstring for the shape.
+     118:         """
+     119:         azimuth, colatitude, _ = cart2spher(directions.T)
+>>   120:         return self.get_response(
+     121:             azimuth, colatitude=colatitude, magnitude=magnitude, degrees=False
+     122:         )
+     123: 
+     124:     def get_response(self, azimuth, colatitude=None, magnitude=False, degrees=True):
+     125:         """
+     126:         Get response for provided ``(azimuth, colatitude)`` pairs.
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/harmonics.py:163 ---
+     157:     @property
+     158:     def filter_len_ir(self):
+     159:         return 1
+     160: 
+     161:     def get_response_cartesian(self, directions, magnitude=False, frequency=None):
+     162:         az, co, _ = cart2spher(directions.T)
+>>   163:         return self.get_response(
+     164:             az, co, magnitude=magnitude, frequency=frequency, degrees=False
+     165:         )
+     166: 
+     167:     def get_response(
+     168:         self, azimuth, colatitude=None, magnitude=False, frequency=None, degrees=True
+     169:     ):
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:34 ---
+      28: The `SOFA file format <https://www.sofaconventions.org>`_ has been proposed
+      29: as a standard for the storage of such measurements.
+      30: 
+      31: This sub-module offers a way to read such measurements from (SOFA) files and
+      32: use the measurement to obtain a more faithful simulation.
+      33: 
+>>    34: The workhorse of this module is the class :py:class:`MeasuredDirectivityFile`
+      35: which reads the content of a file and standardize the data for futher use.
+      36: A single SOFA file can contain multiple measurements (for example corresponding
+      37: to different devices). The class provies a method to retrieve measurements
+      38: from individual sources and turn them into a py:class:`MeasuredDirectivity` object
+      39: that can be used to create a py:class:`pyroomacoustics.MicrophoneArray` object
+      40: with this directivity.
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:38 ---
+      32: use the measurement to obtain a more faithful simulation.
+      33: 
+      34: The workhorse of this module is the class :py:class:`MeasuredDirectivityFile`
+      35: which reads the content of a file and standardize the data for futher use.
+      36: A single SOFA file can contain multiple measurements (for example corresponding
+      37: to different devices). The class provies a method to retrieve measurements
+>>    38: from individual sources and turn them into a py:class:`MeasuredDirectivity` object
+      39: that can be used to create a py:class:`pyroomacoustics.MicrophoneArray` object
+      40: with this directivity.
+      41: 
+      42: Such measurements do not provide impulse responses for every possible impinging
+      43: direction. Instead, during simulation the impulse response closest to the
+      44: desired direction is used instead. To avoid sharp transitions, the py:class:`MeasuredDirectivityFile`
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:44 ---
+      38: from individual sources and turn them into a py:class:`MeasuredDirectivity` object
+      39: that can be used to create a py:class:`pyroomacoustics.MicrophoneArray` object
+      40: with this directivity.
+      41: 
+      42: Such measurements do not provide impulse responses for every possible impinging
+      43: direction. Instead, during simulation the impulse response closest to the
+>>    44: desired direction is used instead. To avoid sharp transitions, the py:class:`MeasuredDirectivityFile`
+      45: provides an interpolation method in the spherical harmonics domain.
+      46: This can be activated by providing an order for the interpolation, e.g, `interp_order=12`.
+      47: 
+      48: Here is an example of loading a head-related transfer function and load
+      49: the directivities for left and right ears of a dummy head HRTF.
+      50: 
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:53 ---
+      47: 
+      48: Here is an example of loading a head-related transfer function and load
+      49: the directivities for left and right ears of a dummy head HRTF.
+      50: 
+      51: .. code-block:: python
+      52: 
+>>    53:     from pyroomacoustics.directivities import MeasuredDirectivityFile, Rotation3D
+      54: 
+      55:     # the file reader object reads the file and optionally performs interpolation
+      56:     # if the file contains multiple directivities, they are all read
+      57:     hrtf = MeasuredDirectivityFile(
+      58:         path="mit_kemar_normal_pinna.sofa",  # SOFA file is in the database
+      59:         fs=fs,
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:57 ---
+      51: .. code-block:: python
+      52: 
+      53:     from pyroomacoustics.directivities import MeasuredDirectivityFile, Rotation3D
+      54: 
+      55:     # the file reader object reads the file and optionally performs interpolation
+      56:     # if the file contains multiple directivities, they are all read
+>>    57:     hrtf = MeasuredDirectivityFile(
+      58:         path="mit_kemar_normal_pinna.sofa",  # SOFA file is in the database
+      59:         fs=fs,
+      60:         interp_order=12,
+      61:         interp_n_points=1000,
+      62:     )
+      63: 
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:93 ---
+      87: from .direction import Rotation3D
+      88: from .integration import robust_spherical_voronoi_areas
+      89: from .interp import spherical_interpolation
+      90: from .sofa import open_sofa_file
+      91: 
+      92: 
+>>    93: class MeasuredDirectivityEnergyDistribution(random.distributions.Distribution):
+      94:     """
+      95:     This object draws samples from the distribution defined by the energy
+      96:     of the measured directional response object.
+      97: 
+      98:     Parameters
+      99:     ----------
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:136 ---
+     130:         return self._pattern(x) / self._normalizing_constant
+     131: 
+     132:     def sample(self, size=None, rng=None):
+     133:         return self._sampler(size=size, rng=rng)
+     134: 
+     135: 
+>>   136: class MeasuredDirectivity(Directivity):
+     137:     """
+     138:     A class to store directivity patterns obtained by measurements.
+     139: 
+     140:     Parameters
+     141:     ----------
+     142:     orientation: Rotation3D
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:239 ---
+     233:         )
+     234: 
+     235:         # create the kd-tree
+     236:         self._kdtree = cKDTree(self._grid.cartesian.T)
+     237: 
+     238:         # Create the energy directional distribution.
+>>   239:         self.energy_distribution = MeasuredDirectivityEnergyDistribution(
+     240:             self._kdtree, self.energy_per_direction, areas=self.areas
+     241:         )
+     242: 
+     243:     def get_response_cartesian(self, directions, magnitude=False):
+     244:         """
+     245:         Get response for provided direction cartesian vectors.
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:377 ---
+     371:             X, Y, Z, facecolors=cmap.to_rgba(V), linewidth=0, antialiased=False
+     372:         )
+     373: 
+     374:         return ax
+     375: 
+     376: 
+>>   377: class MeasuredDirectivityFile:
+     378:     """
+     379:     This class reads measured directivities from a
+     380:     `SOFA`_ format file.
+     381:     Optionally, it can perform interpolation of the impulse responses onto a finer grid.
+     382:     The interpolation is done in the spherical harmonics domain.
+     383: 
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:557 ---
+     551:         ir = self.impulse_responses[:, mid, :]
+     552:         src_grid = GridSphere(spherical_points=self.source_locs[:2])
+     553: 
+     554:         # interpolate the IR
+     555:         grid, ir = self._interpolate("mic", mid, src_grid, ir)
+     556: 
+>>   557:         dir_obj = MeasuredDirectivity(orientation, grid, ir, self.fs)
+     558:         return dir_obj
+     559: 
+     560:     def get_source_directivity(self, measurement_id, orientation):
+     561:         """
+     562:         Get a directivity for a source
+     563: 
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/directivities/measured.py:586 ---
+     580:         mic_pos = np.array(cart2spher(self.mic_locs))
+     581:         mic_grid = GridSphere(spherical_points=mic_pos[:2])
+     582: 
+     583:         # interpolate the IR
+     584:         grid, ir = self._interpolate("source", mid, mic_grid, ir)
+     585: 
+>>   586:         dir_obj = MeasuredDirectivity(orientation, grid, ir, self.fs)
+     587:         return dir_obj
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/room.py:722 ---
+     716: from . import beamforming as bf
+     717: from . import libroom, random
+     718: from .acoustics import AntoniOctaveFilterBank, rt60_eyring, rt60_sabine
+     719: from .beamforming import MicrophoneArray
+     720: from .directivities import (
+     721:     CardioidFamily,
+>>   722:     MeasuredDirectivity,
+     723:     robust_spherical_voronoi_areas,
+     724: )
+     725: from .doa import fibonacci_spherical_sampling
+     726: from .experimental import measure_rt60
+     727: from .libroom import Wall, Wall2D
+     728: from .parameters import Material, Physics, constants, eps, make_materials
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/room.py:2082 ---
+    2076:         if self.dim != 3 and directivity is not None:
+    2077:             raise NotImplementedError("Directivity is only supported for 3D rooms.")
+    2078: 
+    2079:         if isinstance(position, SoundSource):
+    2080:             if directivity is not None:
+    2081:                 if isinstance(directivity, CardioidFamily) or isinstance(
+>>  2082:                     directivity, MeasuredDirectivity
+    2083:                 ):
+    2084:                     return self.add(SoundSource(position, directivity=directivity))
+    2085:             else:
+    2086:                 return self.add(position)
+    2087:         else:
+    2088:             if directivity is not None:
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/room.py:2090 ---
+    2084:                     return self.add(SoundSource(position, directivity=directivity))
+    2085:             else:
+    2086:                 return self.add(position)
+    2087:         else:
+    2088:             if directivity is not None:
+    2089:                 if isinstance(directivity, CardioidFamily) or isinstance(
+>>  2090:                     directivity, MeasuredDirectivity
+    2091:                 ):
+    2092:                     return self.add(
+    2093:                         SoundSource(
+    2094:                             position,
+    2095:                             signal=signal,
+    2096:                             delay=delay,
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/room.py:2214 ---
+    2208:                     {
+    2209:                         "response": np.ones(1),
+    2210:                         "is_impulse_response": False,
+    2211:                     }
+    2212:                 )
+    2213:             else:
+>>  2214:                 if isinstance(directivity, MeasuredDirectivity):
+    2215:                     # Measured directivities already have a direction grid
+    2216:                     # that we can reuse.
+    2217:                     dir_vectors = directivity.get_direction_vectors()
+    2218:                 else:
+    2219:                     # Otherwise, we use the default directions.
+    2220:                     dir_vectors = default_directions
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/simulation/ism.py:148 ---
+     142:         )
+     143: 
+     144:     if mic_dir is not None:
+     145:         angle_function_array = angle_function(images, mic)
+     146:         azimuth_m = angle_function_array[0]
+     147:         colatitude_m = angle_function_array[1]
+>>   148:         mic_gain = mic_dir.get_response(
+     149:             azimuth=azimuth_m,
+     150:             colatitude=colatitude_m,
+     151:             degrees=False,
+     152:         )
+     153: 
+     154:         if mic_dir.is_impulse_response:
+
+--- /usr/local/lib/python3.11/site-packages/pyroomacoustics/simulation/ism.py:161 ---
+     155:             full_band_imp_resp.append(mic_gain)
+     156:         else:
+     157:             oct_band_amplitude *= mic_gain
+     158: 
+     159:     if src.directivity is not None:
+     160:         azimuth_s, colatitude_s, _ = doa.cart2spher(src_directions[:, is_visible])
+>>   161:         src_gain = src.directivity.get_response(
+     162:             azimuth=azimuth_s,
+     163:             colatitude=colatitude_s,
+     164:             degrees=False,
+     165:         )
+     166: 
+     167:         if src.directivity.is_impulse_response:
+
+================================================================================
+END
+================================================================================

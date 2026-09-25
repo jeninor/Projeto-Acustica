@@ -1,0 +1,993 @@
+pyroomacoustics: 0.10.1
+package: /usr/local/lib/python3.11/site-packages/pyroomacoustics/__init__.py
+
+====================================================================================================
+Directivity class
+====================================================================================================
+object: <class 'pyroomacoustics.directivities.base.Directivity'>
+signature: ()
+MRO: Directivity -> ABC -> object
+source:
+class Directivity(abc.ABC):
+    """
+    Abstract class for directivity patterns.
+
+    Directivity can be of three different types in the way it treats frequency.
+    Depending on this type, the shape returned by ``get_response`` and
+    ``get_response_cartesian`` differ.
+
+    1. Frequency flat: the response is the same at all frequencies. In this case,
+       ``is_impulse_response == False`` and the returned shape is ``(n_directions,)``.
+    2. Octave bands: the response is provided per octave bands. Then
+       ``is_impulse_response == False`` and ``shape == (n_directions, n_bands)``.
+    3. Impulse response: there is a rich frequency response provided as an
+       impulse response. Then, ``is_impulse_response == True`` and ``shape
+       == (n_directions, n_taps)``.
+
+    For ray tracing, the ray energies are tracked only in octave bands. I.e.,
+    `sample_rays` returns an energy array with ``shape == (n_rays, n_bands)``.
+    """
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+        # Check if the get_response methods in the NEW class are the same objects
+        # as the ones defined here in Directivity.
+        overrides_cart = (
+            cls.get_response_cartesian is not Directivity.get_response_cartesian
+        )
+        overrides_sph = cls.get_response_cartesian is not Directivity.get_response
+
+        if not (overrides_cart or overrides_sph):
+            raise TypeError(
+                f"Can't define {cls.__name__}: you must override "
+                "either 'get_response_cartesian' or 'get_response'."
+            )
+
+    @property
+    @abc.abstractmethod
+    def is_impulse_response(self):
+        """
+        Indicates whether the array contains coefficients for octave bands
+        (returns ``False``) or is a full-size impulse response (returns
+        ``True``).
+        """
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def filter_len_ir(self):
+        """
+        When ``is_impulse_response`` returns ``True``, this property returns the
+        lengths of the impulse responses returned.
+        All impulse responses are assumed to have the same length.
+        """
+        raise NotImplementedError
+
+    def get_response_cartesian(self, directions, magnitude=False):
+        """
+        Get response for provided direction cartesian vectors.
+
+        Parameters
+        ----------
+        directions: np.ndarray, (n_points, 3)
+            The directions of the desired responses expressed as Cartesian
+            unit vectors stacked in the rows of a matrix.
+        magnitude: bool
+            Ignored
+
+        Returns
+        -------
+        resp : :py:class:`~numpy.ndarray`
+            Response at provided directions. See the class docstring for the shape.
+        """
+        azimuth, colatitude, _ = cart2spher(directions.T)
+        return self.get_response(
+            azimuth, colatitude=colatitude, magnitude=magnitude, degrees=False
+        )
+
+    def get_response(self, azimuth, colatitude=None, magnitude=False, degrees=True):
+        """
+        Get response for provided ``(azimuth, colatitude)`` pairs.
+
+        Parameters
+        ----------
+        azimuth : array_like, shape (n_directions,)
+            Azimuth angles to compute the response at.
+        colatitude : array_like, optional, shape (n_directions,)
+            Corresponding colatitude angles. If ``None``, the default is
+            ``colatitude = np.pi / 2.0``, i.e., all directions are on the xy-plane.
+        magnitude : bool, optional
+            Whether to return magnitude of response.
+        degrees : bool, optional
+            If ``True`` (default), ``azimuth`` and ``colatitude`` are
+            interpreted as in degrees. Otherwise, they are in radians.
+
+        Returns
+        -------
+        resp : :py:class:`~numpy.ndarray`
+            Response at requested directions. See the class docstring for the shape.
+        """
+        cart = spher2cart(azimuth, colatitude, r=1, degrees=degrees)
+        return self.get_response_cartesian(cart, magnitude=magnitude)
+
+    @abc.abstractmethod
+    def sample_rays(self, n_rays, rng=None):
+        """
+        This method samples unit vectors from the sphere according to
+        the distribution of the source
+
+        Parameters
+        ----------
+        n_rays: int
+            The number of rays to sample
+        rng: numpy.random.Generator or None, optional
+            A random number generator object from numpy or None.
+            If None is passed numpy.random.default_rng is used to create
+            a Generator object.
+
+        Returns
+        -------
+        ray_directions: numpy.ndarray, shape (n_rays, n_dim)
+            An array containing the unit vectors in its columns
+        energies: numpy.ndarray, shape (n_rays, n_bands)
+            An energy carried per ray so that the expectation over all the rays
+            is the energy of the band, i.e., np.mean(energies) == band energy.
+        """
+        raise NotImplementedError
+
+
+====================================================================================================
+Directivity.is_impulse_response
+====================================================================================================
+object: <property object at 0x7f3ff9f6e930>
+signature: <unavailable: <property object at 0x7f3ff9f6e930> is not a callable object>
+source:
+<unavailable: module, class, method, function, traceback, frame, or code object was expected, got property>
+
+====================================================================================================
+CardioidFamily class
+====================================================================================================
+object: <class 'pyroomacoustics.directivities.analytic.CardioidFamily'>
+signature: (orientation, p, gain=1.0)
+MRO: CardioidFamily -> Directivity -> ABC -> object
+source:
+class CardioidFamily(Directivity):
+    r"""
+    Object for directivities coming from the
+    `cardioid family`_.
+    In three dimensions, for an orientation given by unit vector :math:`\boldsymbol{d}`, a parameter :math:`p \in [0, 1]`,
+    and a gain :math:`G`, the pattern is given by the following equation.
+
+    .. math::
+        f(\boldsymbol{r}\,;\,\boldsymbol{d}, p, G) = G (p + (1 - p) \boldsymbol{d}^\top \boldsymbol{r}),
+
+    Different values of :math:`p` correspond to different patterns: 0 for
+    figure-eight, 0.25 for hyper-cardioid, 0.5 for cardioid, 0.75 for
+    sub-cardioid, and 1 for omni.
+
+    Note that all the patterns are cylindrically symmetric around the
+    orientation vector.
+
+    Parameters
+    ----------
+    orientation: DirectionVector or numpy.ndarray
+        Indicates direction of the pattern.
+    p: float
+        Parameter of the cardioid pattern. A value of 0 corresponds to a
+        figure-eight pattern, 0.5 to a cardioid pattern, and 1 to an omni
+        pattern
+        The parameter must be between 0 and 1
+    gain: float
+        The linear gain of the directivity pattern (default is 1.0)
+    """
+
+    def __init__(self, orientation, p, gain=1.0):
+        if isinstance(orientation, list) or hasattr(orientation, "__array__"):
+            orientation = np.array(orientation)
+            # check if valid direction vector, normalize, make object
+            if orientation.shape != (3,):
+                raise ValueError("Orientation must be a 3D vector.")
+            orientation = orientation / np.linalg.norm(orientation)
+            azimuth, colatitude, _ = cart2spher(orientation)  # returns radians
+            self._orientation = DirectionVector(azimuth, colatitude, degrees=False)
+        elif isinstance(orientation, DirectionVector):
+            self._orientation = orientation
+        else:
+            raise ValueError("Orientation must be a DirectionVector or a 3D vector.")
+
+        self._p = p
+        if not 0 <= self._p <= 1:
+            raise ValueError("The parameter p must be between 0 and 1.")
+
+        self._gain = gain
+        self._pattern_name = f"cardioid family, p={self._p}"
+
+        # this is the object that will allow to sample rays according to the
+        # distribution corresponding to the source energy directivity
+        self.energy_distribution = CardioidEnergyDistribution(
+            loc=self._orientation.unit_vector, p=self._p, gain=self._gain
+        )
+
+    @property
+    def is_impulse_response(self):
+        # this is not an impulse response, do not make docstring to avoid clutter in the
+        # documentation
+        return False
+
+    @property
+    def filter_len_ir(self):
+        # no impulse response means length 1
+        return 1
+
+    @property
+    def directivity_pattern(self):
+        """Name of cardioid directivity pattern."""
+        return self._pattern_name
+
+    def get_azimuth(self, degrees=True):
+        return self._orientation.get_azimuth(degrees, degrees=degrees)
+
+    def get_colatitude(self, degrees=True):
+        return self._orientation.get_colatitude(degrees, degrees=degrees)
+
+    def set_orientation(self, orientation):
+        """
+        Set orientation of directivity pattern.
+
+        Parameters
+        ----------
+        orientation : DirectionVector
+            New direction for the directivity pattern.
+        """
+        assert isinstance(orientation, DirectionVector)
+        self._orientation = orientation
+
+    def _get_response_from_cartesian_vector(self, vectors, magnitude):
+        """vectors.shape == (3, n_points)."""
+        return self._gain * (
+            self._p + (1 - self._p) * np.matmul(self._orientation.unit_vector, vectors)
+        )
+        cos_angle = np.matmul(self._orientation.unit_vector, vectors)
+        resp = self._gain * (self._p + (1 - self._p) * cos_angle)
+        if magnitude:
+            resp = np.abs(resp)
+        return resp
+
+    def get_response_cartesian(self, directions, magnitude=False):
+        """
+        Get response for provided direction cartesian vectors.
+
+        Parameters
+        ----------
+        cartesian: np.ndarray, (n_points, 3)
+            The direction of the desired responses
+        magnitude: bool
+            Ignored
+
+        Returns
+        -------
+        resp : :py:class:`~numpy.ndarray`
+            Response at provided directions.
+        """
+        if self._p == 1.0:
+            return self._gain * np.ones(directions.shape[0])
+        # Normalize.
+        directions = directions / np.linalg.norm(directions, axis=1, keepdims=True)
+        return self._get_response_from_cartesian_vector(directions.T, magnitude)
+
+    def get_response(self, azimuth, colatitude=None, magnitude=False, degrees=True):
+        """
+        Get response for provided angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth
+        colatitude : array_like, optional
+            Colatitude. Default is to be on XY plane.
+        magnitude : bool, optional
+            Whether to return magnitude of response.
+        degrees : bool, optional
+            If ``True``, ``azimuth`` and ``colatitude`` are in degrees.
+            Otherwise, they are in radians.
+
+        Returns
+        -------
+        resp : :py:class:`~numpy.ndarray`
+            Response at provided angles.
+        """
+
+        if colatitude is not None:
+            assert len(azimuth) == len(colatitude)
+
+        if self._p == 1.0:
+            return self._gain * np.ones(len(azimuth))
+
+        coord = spher2cart(azimuth=azimuth, colatitude=colatitude, degrees=degrees)
+
+        return self._get_response_from_cartesian_vector(coord, magnitude)
+
+    def sample_rays(self, n_rays, rng=None):
+        if rng is None:
+            rays = fibonacci_spherical_sampling(n_points=n_rays).T
+            resp = self._get_response_from_cartesian_vector(rays.T, magnitude=False)
+            energies = resp**2
+        else:
+            rays = self.energy_distribution.sample(n_rays, rng=rng)
+            energies = (
+                np.ones(n_rays) * self.energy_distribution.total_energy / (4.0 * np.pi)
+            )
+        # Cardioid have a single band.
+        return rays, energies[:, np.newaxis]
+
+    @requires_matplotlib
+    def plot_response(
+        self, azimuth, colatitude=None, degrees=True, ax=None, offset=None
+    ):
+        """
+        Plot directivity response at specified angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth values for plotting.
+        colatitude : array_like, optional
+            Colatitude values for plotting. If not provided, 2D plot.
+        degrees : bool
+            Whether provided values are in degrees (True) or radians (False).
+        ax : axes object
+        offset : list
+            3-D coordinates of the point where the response needs to be plotted.
+
+        Return
+        ------
+        ax : :py:class:`~matplotlib.axes.Axes`
+        """
+        import matplotlib.pyplot as plt
+
+        if offset is not None:
+            x_offset = offset[0]
+            y_offset = offset[1]
+        else:
+            x_offset = 0
+            y_offset = 0
+
+        if degrees:
+            azimuth = np.radians(azimuth)
+
+        if colatitude is not None:
+            if degrees:
+                colatitude = np.radians(colatitude)
+
+            if ax is None:
+                fig = plt.figure()
+                ax = fig.add_subplot(1, 1, 1, projection="3d")
+
+            if offset is not None:
+                z_offset = offset[2]
+            else:
+                z_offset = 0
+
+            spher_coord = all_combinations(azimuth, colatitude)
+            azi_flat = spher_coord[:, 0]
+            col_flat = spher_coord[:, 1]
+
+            # compute response
+            resp = self.get_response(
+                azimuth=azi_flat, colatitude=col_flat, magnitude=True, degrees=False
+            )
+            RESP = resp.reshape(len(azimuth), len(colatitude))
+
+            # create surface plot, need cartesian coordinates
+            AZI, COL = np.meshgrid(azimuth, colatitude)
+            X = RESP.T * np.sin(COL) * np.cos(AZI) + x_offset
+            Y = RESP.T * np.sin(COL) * np.sin(AZI) + y_offset
+            Z = RESP.T * np.cos(COL) + z_offset
+
+            ax.plot_surface(X, Y, Z)
+
+            if ax is None:
+                ax.set_title(
+                    "{}, azimuth={}, colatitude={}".format(
+                        self.directivity_pattern,
+                        self.get_azimuth(),
+                        self.get_colatitude(),
+                    )
+                )
+            else:
+                ax.set_title("Directivity Plot")
+
+            ax.set_xlabel("x")
+            ax.set_ylabel("y")
+            ax.set_zlabel("z")
+
+        else:
+            if ax is None:
+                fig = plt.figure()
+                ax = plt.subplot(111)
+
+            # compute response
+            resp = self.get_response(azimuth=azimuth, magnitude=True, degrees=False)
+            RESP = resp
+
+            # create surface plot, need cartesian coordinates
+            X = RESP.T * np.cos(azimuth) + x_offset
+            Y = RESP.T * np.sin(azimuth) + y_offset
+            ax.plot(X, Y)
+
+        return ax
+
+
+====================================================================================================
+CardioidFamily.__init__
+====================================================================================================
+object: <function CardioidFamily.__init__ at 0x7f3ff9f80680>
+signature: (self, orientation, p, gain=1.0)
+source:
+    def __init__(self, orientation, p, gain=1.0):
+        if isinstance(orientation, list) or hasattr(orientation, "__array__"):
+            orientation = np.array(orientation)
+            # check if valid direction vector, normalize, make object
+            if orientation.shape != (3,):
+                raise ValueError("Orientation must be a 3D vector.")
+            orientation = orientation / np.linalg.norm(orientation)
+            azimuth, colatitude, _ = cart2spher(orientation)  # returns radians
+            self._orientation = DirectionVector(azimuth, colatitude, degrees=False)
+        elif isinstance(orientation, DirectionVector):
+            self._orientation = orientation
+        else:
+            raise ValueError("Orientation must be a DirectionVector or a 3D vector.")
+
+        self._p = p
+        if not 0 <= self._p <= 1:
+            raise ValueError("The parameter p must be between 0 and 1.")
+
+        self._gain = gain
+        self._pattern_name = f"cardioid family, p={self._p}"
+
+        # this is the object that will allow to sample rays according to the
+        # distribution corresponding to the source energy directivity
+        self.energy_distribution = CardioidEnergyDistribution(
+            loc=self._orientation.unit_vector, p=self._p, gain=self._gain
+        )
+
+
+====================================================================================================
+CardioidFamily.get_response
+====================================================================================================
+object: <function CardioidFamily.get_response at 0x7f3ff9f81940>
+signature: (self, azimuth, colatitude=None, magnitude=False, degrees=True)
+source:
+    def get_response(self, azimuth, colatitude=None, magnitude=False, degrees=True):
+        """
+        Get response for provided angles.
+
+        Parameters
+        ----------
+        azimuth : array_like
+            Azimuth
+        colatitude : array_like, optional
+            Colatitude. Default is to be on XY plane.
+        magnitude : bool, optional
+            Whether to return magnitude of response.
+        degrees : bool, optional
+            If ``True``, ``azimuth`` and ``colatitude`` are in degrees.
+            Otherwise, they are in radians.
+
+        Returns
+        -------
+        resp : :py:class:`~numpy.ndarray`
+            Response at provided angles.
+        """
+
+        if colatitude is not None:
+            assert len(azimuth) == len(colatitude)
+
+        if self._p == 1.0:
+            return self._gain * np.ones(len(azimuth))
+
+        coord = spher2cart(azimuth=azimuth, colatitude=colatitude, degrees=degrees)
+
+        return self._get_response_from_cartesian_vector(coord, magnitude)
+
+
+====================================================================================================
+SoundSource class
+====================================================================================================
+object: <class 'pyroomacoustics.soundsource.SoundSource'>
+signature: (position, images=None, damping=None, generators=None, walls=None, orders=None, signal=None, delay=0, directivity=None)
+MRO: SoundSource -> object
+source:
+class SoundSource(object):
+    """
+    A class to represent sound sources.
+
+    This object represents a sound source in a room by a list containing the original source position
+    as well as all the image sources, up to some maximum order.
+
+    It also keeps track of the sequence of generated images and the index of the walls (in the original room)
+    that generated the reflection.
+    """
+
+    def __init__(
+        self,
+        position,
+        images=None,  # source position
+        damping=None,
+        generators=None,  # parent source
+        walls=None,  # generating wall
+        orders=None,
+        signal=None,
+        delay=0,
+        directivity=None,
+    ):
+        position = np.array(position)
+        self.dim = position.shape[0]
+
+        # Check the shape of the passed array
+        if self.dim != 2 and self.dim != 3:
+            dim_mismatch = True
+        else:
+            dim_mismatch = False
+
+        if position.ndim == 2 and position.shape[1] == 1:
+            position = position[:, 0]
+
+        if position.ndim != 1 or dim_mismatch:
+            raise ValueError(
+                "The source location of microphones should be provided as an object "
+                "that can be converted to a numpy.ndarray. The array should be of "
+                "shape `(2,)`, `(2, 1)`, `(3,)`, or `(3, 1)`."
+            )
+
+        self.position = position
+
+        if images is None:
+            # set to empty list if nothing provided
+            self.images = np.asfortranarray(np.array([position], dtype=np.float32).T)
+            self.damping = np.array([[1.0]])
+            self.generators = np.array([-1], dtype=np.int32)
+            self.walls = np.array([-1], dtype=np.int32)
+            self.orders = np.array([0], dtype=np.int32)
+
+        else:
+            # we need to have damping factors for every image
+            if damping is None:
+                # set to one if not set
+                damping = np.ones((1, images.shape[1]))
+
+            if images.shape[1] != damping.shape[1]:
+                raise NameError("Images and damping must have same shape")
+
+            if generators is not None and generators.shape[0] != images.shape[1]:
+                raise NameError("Images and generators must have same shape")
+
+            if walls is not None and walls.shape[0] != images.shape[1]:
+                raise NameError("Images and walls must have same shape")
+
+            if orders is not None and orders.shape[0] != images.shape[1]:
+                raise NameError("Images and orders must have same shape")
+
+            self.images = np.array(images, order="F", dtype=np.float32)
+            self.damping = damping
+            self.walls = np.array(walls, dtype=np.int32)
+            self.generators = np.array(generators, dtype=np.int32)
+            self.orders = np.array(orders, dtype=np.int32)
+
+        # store the natural ordering for the images
+        self.I = np.arange(self.images.shape[1])
+
+        # the natural ordering is per generation
+        self.ordering = "order"
+
+        # The sound signal of the source
+        self.signal = signal
+        self.delay = delay
+        self.max_order = np.max(self.orders)
+
+        # The directivity of the source
+        self.directivity = None
+        if directivity is not None:
+            self.set_directivity(directivity)
+
+    def set_directivity(self, directivity):
+        """
+        Sets self.directivity as a list of directivities with 1 entry
+        """
+        assert isinstance(directivity, Directivity)
+        self.directivity = directivity
+
+    def add_signal(self, signal):
+        """Sets `signal` attribute
+
+        Parameters
+        ----------
+        signal: ndarray
+            a N-length ndarray, representing a sequence of samples generated by the source.
+        """
+        self.signal = signal
+
+    def distance(self, ref_point):
+        return np.sqrt(np.sum((self.images - ref_point[:, np.newaxis]) ** 2, axis=0))
+
+    def set_ordering(self, ordering, ref_point=None):
+        """
+        Set the order in which we retrieve images sources.
+        Can be: 'nearest', 'strongest', 'order'
+        Optional argument: ref_point
+        """
+
+        self.ordering = ordering
+
+        if ref_point is not None and ref_point.ndim > 1:
+            ref_point = ref_point[:, 0]
+
+        if ordering == "nearest":
+            if ref_point is None:
+                raise NameError("For nearest ordering, a reference point is needed.")
+
+            self.I = self.distance(ref_point).argsort()
+
+        elif ordering == "strongest":
+            if ref_point is None:
+                raise NameError("For strongest ordering, a reference point is needed.")
+
+            strength = np.linalg.norm(self.damping, 0) / (self.distance(ref_point))
+            self.I = strength.argsort()
+
+        elif ordering == "order":
+            self.ordering = "order"
+
+        else:
+            raise NameError("Ordering can be nearest, strongest, order.")
+
+    def __getitem__(self, index):
+        """Overload the bracket operator to access a subset image sources"""
+
+        if isinstance(index, slice) or isinstance(index, int):
+            if self.ordering == "order":
+                p_orders = np.arange(0, self.max_order + 1)[index]
+                # we use the any operator and broadcasting to get match on
+                # all image source of order contained in p_orders
+                I = np.any(
+                    self.orders[:, np.newaxis] == p_orders[np.newaxis, :], axis=1
+                )
+                s = SoundSource(
+                    self.position,
+                    images=self.images[:, I],
+                    damping=self.damping[:, I],
+                    orders=self.orders[I],
+                    signal=self.signal,
+                    delay=self.delay,
+                    generators=self.generators[I],
+                    walls=self.walls[I],
+                )
+            else:
+                s = SoundSource(
+                    self.position,
+                    images=self.images[:, self.I[index]],
+                    damping=self.damping[:, self.I[index]],
+                    orders=self.orders[self.I[index]],
+                    signal=self.signal,
+                    delay=self.delay,
+                    generators=self.generators[self.I[index]],
+                    walls=self.walls[self.I[index]],
+                )
+        else:
+            s = SoundSource(
+                self.position,
+                images=self.images[:, index],
+                damping=self.damping[:, index],
+                orders=self.orders[index],
+                signal=self.signal,
+                delay=self.delay,
+                generators=self.generators[index],
+                walls=self.walls[index],
+            )
+
+        return s
+
+    def get_images(
+        self, max_order=None, max_distance=None, n_nearest=None, ref_point=None
+    ):
+        """
+        Keep this for compatibility
+        Now replaced by the bracket operator and the setOrdering function.
+        """
+
+        # TO DO: Add also n_strongest
+
+        # TO DO: Make some of these thing exclusive (e.g. can't have n_nearest
+        # AND n_strongest (although could have max_order AND n_nearest)
+
+        # TO DO: Make this more efficient if bottleneck (unlikely)
+
+        if max_order is None:
+            max_order = np.max(self.orders)
+
+        # stack source and all images
+        I_ord = self.orders <= max_order
+        img = self.images[:, I_ord]
+
+        if n_nearest is not None:
+            dist = np.sum((img - ref_point) ** 2, axis=0)
+            I_near = dist.argsort()[0:n_nearest]
+            img = img[:, I_near]
+
+        return img
+
+    def get_damping(self, max_order=None):
+        if max_order is None:
+            max_order = len(np.max(self.orders))
+
+        return self.damping[:, self.orders <= max_order]
+
+    def wall_sequence(self, i):
+        """
+        Print the wall sequence for the image source indexed by i
+        """
+        p = self.generators[i]
+        if np.isnan(p):
+            return []
+        w = [self.walls[i]]
+        while not np.isnan(p):
+            w.append(self.walls[p])
+            p = self.generators[p]
+        return w
+
+
+====================================================================================================
+SoundSource.__init__
+====================================================================================================
+object: <function SoundSource.__init__ at 0x7f3ff9b6cb80>
+signature: (self, position, images=None, damping=None, generators=None, walls=None, orders=None, signal=None, delay=0, directivity=None)
+source:
+    def __init__(
+        self,
+        position,
+        images=None,  # source position
+        damping=None,
+        generators=None,  # parent source
+        walls=None,  # generating wall
+        orders=None,
+        signal=None,
+        delay=0,
+        directivity=None,
+    ):
+        position = np.array(position)
+        self.dim = position.shape[0]
+
+        # Check the shape of the passed array
+        if self.dim != 2 and self.dim != 3:
+            dim_mismatch = True
+        else:
+            dim_mismatch = False
+
+        if position.ndim == 2 and position.shape[1] == 1:
+            position = position[:, 0]
+
+        if position.ndim != 1 or dim_mismatch:
+            raise ValueError(
+                "The source location of microphones should be provided as an object "
+                "that can be converted to a numpy.ndarray. The array should be of "
+                "shape `(2,)`, `(2, 1)`, `(3,)`, or `(3, 1)`."
+            )
+
+        self.position = position
+
+        if images is None:
+            # set to empty list if nothing provided
+            self.images = np.asfortranarray(np.array([position], dtype=np.float32).T)
+            self.damping = np.array([[1.0]])
+            self.generators = np.array([-1], dtype=np.int32)
+            self.walls = np.array([-1], dtype=np.int32)
+            self.orders = np.array([0], dtype=np.int32)
+
+        else:
+            # we need to have damping factors for every image
+            if damping is None:
+                # set to one if not set
+                damping = np.ones((1, images.shape[1]))
+
+            if images.shape[1] != damping.shape[1]:
+                raise NameError("Images and damping must have same shape")
+
+            if generators is not None and generators.shape[0] != images.shape[1]:
+                raise NameError("Images and generators must have same shape")
+
+            if walls is not None and walls.shape[0] != images.shape[1]:
+                raise NameError("Images and walls must have same shape")
+
+            if orders is not None and orders.shape[0] != images.shape[1]:
+                raise NameError("Images and orders must have same shape")
+
+            self.images = np.array(images, order="F", dtype=np.float32)
+            self.damping = damping
+            self.walls = np.array(walls, dtype=np.int32)
+            self.generators = np.array(generators, dtype=np.int32)
+            self.orders = np.array(orders, dtype=np.int32)
+
+        # store the natural ordering for the images
+        self.I = np.arange(self.images.shape[1])
+
+        # the natural ordering is per generation
+        self.ordering = "order"
+
+        # The sound signal of the source
+        self.signal = signal
+        self.delay = delay
+        self.max_order = np.max(self.orders)
+
+        # The directivity of the source
+        self.directivity = None
+        if directivity is not None:
+            self.set_directivity(directivity)
+
+
+====================================================================================================
+Room.add
+====================================================================================================
+object: <function Room.add at 0x7f3ff9b81d00>
+signature: (self, obj)
+source:
+    def add(self, obj):
+        """
+        Adds a sound source or microphone to a room
+
+        Parameters
+        ----------
+        obj: :py:obj:`~pyroomacoustics.soundsource.SoundSource` or :py:obj:`~pyroomacoustics.beamforming.Microphone` object
+            The object to add
+
+        Returns
+        -------
+        :py:obj:`~pyroomacoustics.room.Room`
+            The room is returned for further tweaking.
+        """
+
+        if isinstance(obj, SoundSource):
+            if obj.dim != self.dim:
+                raise ValueError(
+                    (
+                        "The Room and SoundSource objects must be of the same "
+                        "dimensionality. The Room is {}D but the SoundSource "
+                        "is {}D"
+                    ).format(self.dim, obj.dim)
+                )
+
+            if not self.is_inside(np.array(obj.position)):
+                raise ValueError("The source must be added inside the room.")
+
+            self.sources.append(obj)
+
+        elif isinstance(obj, MicrophoneArray):
+            if obj.dim != self.dim:
+                raise ValueError(
+                    (
+                        "The Room and MicrophoneArray objects must be of the same "
+                        "dimensionality. The Room is {}D but the MicrophoneArray "
+                        "is {}D"
+                    ).format(self.dim, obj.dim)
+                )
+
+            if not hasattr(self, "mic_array") or self.mic_array is None:
+                self.mic_array = obj
+            else:
+                self.mic_array.append(obj)
+
+            # microphone need to be added to the room_engine
+            for m in range(len(obj)):
+                self.room_engine.add_mic(obj.R[:, None, m])
+
+        else:
+            raise TypeError(
+                "The add method from Room only takes SoundSource or "
+                "MicrophoneArray objects as parameter"
+            )
+
+        return self
+
+
+====================================================================================================
+Room.add_source
+====================================================================================================
+object: <function Room.add_source at 0x7f3ff9b81ee0>
+signature: (self, position, signal=None, delay=0, directivity=None)
+source:
+    def add_source(self, position, signal=None, delay=0, directivity=None):
+        """
+        Adds a sound source given by its position in the room. Optionally
+        a source signal and a delay can be provided.
+
+        Parameters
+        -----------
+        position: ndarray, shape: (2,) or (3,)
+            The location of the source in the room
+        signal: ndarray, shape: (n_samples,), optional
+            The signal played by the source
+        delay: float, optional
+            A time delay until the source signal starts
+            in the simulation
+
+        Returns
+        -------
+        :py:obj:`~pyroomacoustics.room.Room`
+            The room is returned for further tweaking.
+        """
+
+        if self.dim != 3 and directivity is not None:
+            raise NotImplementedError("Directivity is only supported for 3D rooms.")
+
+        if isinstance(position, SoundSource):
+            if directivity is not None:
+                if isinstance(directivity, CardioidFamily) or isinstance(
+                    directivity, MeasuredDirectivity
+                ):
+                    return self.add(SoundSource(position, directivity=directivity))
+            else:
+                return self.add(position)
+        else:
+            if directivity is not None:
+                if isinstance(directivity, CardioidFamily) or isinstance(
+                    directivity, MeasuredDirectivity
+                ):
+                    return self.add(
+                        SoundSource(
+                            position,
+                            signal=signal,
+                            delay=delay,
+                            directivity=directivity,
+                        )
+                    )
+
+            else:
+                return self.add(SoundSource(position, signal=signal, delay=delay))
+
+
+====================================================================================================
+CURRENT STAGE-1 ROOM BAND MODEL
+====================================================================================================
+room type: <class 'pyroomacoustics.room.ShoeBox'>
+fs: 16000
+is_multi_band: False
+octave_bands type: <class 'pyroomacoustics.acoustics.AntoniOctaveFilterBank'>
+get_center_freqs: <not present>
+get_bw: [ 186.77042802  155.64202335  373.54085603  684.82490272 1431.90661479
+ 2801.55642023 2365.75875486]
+n_bands: 7
+centers: [ 125.  250.  500. 1000. 2000. 4000. 8000.]
+center_freqs: <not present>
+octave_bands __dict__:
+base_freq = 125.0
+fs = 16000
+n_fft = 512
+overlap_ratio = 0.5
+slope = 0
+bands shape= (7, 2) value= [[   88.38834765   176.7766953 ]
+ [  176.7766953    353.55339059]
+ [  353.55339059   707.10678119]
+ [  707.10678119  1414.21356237]
+ [ 1414.21356237  2828.42712475]
+ [ 2828.42712475  5656.85424949]
+ [ 5656.85424949 11313.70849898]]
+centers shape= (7,) value= [ 125.  250.  500. 1000. 2000. 4000. 8000.]
+n_bands = 7
+filters shape= (257, 7) value= [[1. 0. 0. ... 0. 0. 0.]
+ [1. 0. 0. ... 0. 0. 0.]
+ [1. 0. 0. ... 0. 0. 0.]
+ ...
+ [0. 0. 0. ... 0. 0. 1.]
+ [0. 0. 0. ... 0. 0. 1.]
+ [0. 0. 0. ... 0. 0. 1.]]
+
+room __dict__ selected:
+is_multi_band = False
+max_order = 10
+air_absorption = None
+
+source directivity:
+type: <class 'pyroomacoustics.directivities.analytic.Cardioid'>
+is_impulse_response: False
+Cardioid get_response test shape: (3,)
+Cardioid get_response test values: [1.         0.85355339 0.5       ]

@@ -1,0 +1,94 @@
+=== CF2 7-band Room ISM smoke test ===
+pyroomacoustics: 0.10.1
+fs: 16000
+room_dim_m: [12.0, 12.0, 12.0]
+source_pos_m: [6.0, 6.0, 6.0]
+receiver_radius_m: 2.0
+max_order: 0
+PRA_band_centers_hz: [125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0]
+CF2: /app/speaker.cf2
+valid_cf2_frequencies_hz: [100.0, 125.0, 160.0, 200.0, 250.0, 315.0, 400.0, 500.0, 630.0, 800.0, 1000.0, 1250.0, 1600.0, 2000.0, 2500.0, 3150.0, 4000.0, 5000.0, 6300.0, 8000.0, 10000.0]
+
+=== OMNI reference room ===
+room.is_multi_band: True
+compute_rir_elapsed_s: 0.032922671000051196
+
+=== CF2 room ===
+room.is_multi_band: True
+compute_rir_elapsed_s: 0.03926403299988124
+stored_directivity_type: <class 'cf2_pra_directivity.CF2SevenBandDirectivity'>
+
+=== OMNI equal-distance structural control ===
+omni_max_abs_sample_difference: 0.0
+
+=== End-to-end octave-band comparison ===
+
+FRONT
+      125 Hz expected=   0.0000 dB | RIR_band=   0.0000 dB | error=  +0.0000 dB
+      250 Hz expected=   0.0000 dB | RIR_band=  -0.0000 dB | error=  -0.0000 dB
+      500 Hz expected=   0.0000 dB | RIR_band=   0.0000 dB | error=  +0.0000 dB
+     1000 Hz expected=   0.0000 dB | RIR_band=  -0.0000 dB | error=  -0.0000 dB
+     2000 Hz expected=   0.0000 dB | RIR_band=  -0.0000 dB | error=  -0.0000 dB
+     4000 Hz expected=   0.0000 dB | RIR_band=  -0.0000 dB | error=  -0.0000 dB
+     8000 Hz expected=   0.0000 dB | RIR_band=  -0.0000 dB | error=  -0.0000 dB
+
+TOP
+      125 Hz expected=  -2.6000 dB | RIR_band=  -2.5719 dB | error=  +0.0281 dB
+      250 Hz expected=  -6.9000 dB | RIR_band=  -7.2424 dB | error=  -0.3424 dB
+      500 Hz expected= -19.2000 dB | RIR_band= -16.4097 dB | error=  +2.7903 dB
+     1000 Hz expected= -20.0000 dB | RIR_band= -17.5807 dB | error=  +2.4193 dB
+     2000 Hz expected= -11.6000 dB | RIR_band= -12.8996 dB | error=  -1.2996 dB
+     4000 Hz expected= -25.1000 dB | RIR_band= -22.1759 dB | error=  +2.9241 dB
+     8000 Hz expected= -28.2000 dB | RIR_band= -27.4985 dB | error=  +0.7015 dB
+
+LEFT
+      125 Hz expected=  -1.6000 dB | RIR_band=  -1.8634 dB | error=  -0.2634 dB
+      250 Hz expected=  -2.7000 dB | RIR_band=  -2.9563 dB | error=  -0.2563 dB
+      500 Hz expected=  -5.4000 dB | RIR_band=  -5.0062 dB | error=  +0.3938 dB
+     1000 Hz expected=  -4.5000 dB | RIR_band=  -5.2634 dB | error=  -0.7634 dB
+     2000 Hz expected= -11.2000 dB | RIR_band= -10.5858 dB | error=  +0.6142 dB
+     4000 Hz expected= -14.2000 dB | RIR_band= -14.4986 dB | error=  -0.2986 dB
+     8000 Hz expected= -20.5000 dB | RIR_band= -18.7466 dB | error=  +1.7534 dB
+
+RIGHT
+      125 Hz expected=  -1.6000 dB | RIR_band=  -1.8634 dB | error=  -0.2634 dB
+      250 Hz expected=  -2.7000 dB | RIR_band=  -2.9563 dB | error=  -0.2563 dB
+      500 Hz expected=  -5.4000 dB | RIR_band=  -5.0062 dB | error=  +0.3938 dB
+     1000 Hz expected=  -4.5000 dB | RIR_band=  -5.2634 dB | error=  -0.7634 dB
+     2000 Hz expected= -11.2000 dB | RIR_band= -10.5858 dB | error=  +0.6142 dB
+     4000 Hz expected= -14.2000 dB | RIR_band= -14.4986 dB | error=  -0.2986 dB
+     8000 Hz expected= -20.5000 dB | RIR_band= -18.7466 dB | error=  +1.7534 dB
+
+BOTTOM
+      125 Hz expected=  -2.6000 dB | RIR_band=  -2.5719 dB | error=  +0.0281 dB
+      250 Hz expected=  -6.9000 dB | RIR_band=  -7.2424 dB | error=  -0.3424 dB
+      500 Hz expected= -19.2000 dB | RIR_band= -16.4097 dB | error=  +2.7903 dB
+     1000 Hz expected= -20.0000 dB | RIR_band= -17.5807 dB | error=  +2.4193 dB
+     2000 Hz expected= -11.6000 dB | RIR_band= -12.8996 dB | error=  -1.2996 dB
+     4000 Hz expected= -25.1000 dB | RIR_band= -22.1759 dB | error=  +2.9241 dB
+     8000 Hz expected= -28.2000 dB | RIR_band= -27.4985 dB | error=  +0.7015 dB
+
+BACK
+      125 Hz expected=  -2.1689 dB | RIR_band=  -2.3514 dB | error=  -0.1825 dB
+      250 Hz expected=  -1.8202 dB | RIR_band=  -2.4643 dB | error=  -0.6441 dB
+      500 Hz expected=  -5.9145 dB | RIR_band=  -5.5653 dB | error=  +0.3492 dB
+     1000 Hz expected=  -7.2518 dB | RIR_band=  -8.0009 dB | error=  -0.7492 dB
+     2000 Hz expected= -17.5387 dB | RIR_band= -16.0952 dB | error=  +1.4435 dB
+     4000 Hz expected= -25.8119 dB | RIR_band= -24.8409 dB | error=  +0.9709 dB
+     8000 Hz expected= -28.4324 dB | RIR_band= -27.8566 dB | error=  +0.5758 dB
+
+=== Error summary ===
+max_abs_room_error_db: 2.9241288987227563
+    125 Hz mean_abs_error_db=0.127562 | max_abs_error_db=0.263364
+    250 Hz mean_abs_error_db=0.306900 | max_abs_error_db=0.644093
+    500 Hz mean_abs_error_db=1.119566 | max_abs_error_db=2.790271
+   1000 Hz mean_abs_error_db=1.185741 | max_abs_error_db=2.419285
+   2000 Hz mean_abs_error_db=0.878501 | max_abs_error_db=1.443500
+   4000 Hz mean_abs_error_db=1.236072 | max_abs_error_db=2.924129
+   8000 Hz mean_abs_error_db=0.914260 | max_abs_error_db=1.753398
+
+=== Interpretation ===
+PASS: room-level CF2 ISM integration is structurally valid.
+The dB errors above are an end-to-end diagnostic after PRA octave-band RIR synthesis and re-analysis; they are not parser/interpolator errors.
+Do not apply a strict acoustic tolerance until we observe this first room-level result.
+If the errors are acceptably small and systematic, the next step is the 25-microphone Stage-1 benchmark with OMNI/CARDIOID/CF2.
