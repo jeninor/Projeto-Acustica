@@ -1081,6 +1081,8 @@ Cluster - Local
 
 em escala de micro-dB, tornando visíveis diferenças numéricas que seriam praticamente imperceptíveis nos mapas acústicos principais.
 
+https://jeninor.github.io/Projeto-Acustica/projeto/stage2_heatmaps_local_colab_cluster/heatmap_report.html
+
 ### 22.2 Mapas do sweep fino de orientação
 
 Também foram produzidos mapas para todas as 21 orientações do sweep:
