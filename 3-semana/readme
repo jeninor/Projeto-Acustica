@@ -1,0 +1,22 @@
+https://chatgpt.com/c/6ab85ec2-c9f0-83e9-a473-4a612960e3de
+
+python extract_balloon_spectra_v1_2.py \
+  --dataset-root clfviewer_balloon_spectra_final \
+  --output-dir extracted_balloon_spectra_v12_all \
+  --format wide
+
+
+
+python compare_viewer_vs_parser_v5_corpus_v1_1.py \
+  --parser cf2_parser_v5.py \
+  --cf2-dir speaker_cf2 \
+  --viewer-root extracted_balloon_spectra_v12_all \
+  --output-dir viewer_vs_parser_v5_corpus \
+  --sample-points 3000 \
+  --top-k 8
+
+
+
+https://chatgpt.com/c/6ab67fb5-1864-83e9-a138-4412040cd0e2
+
+python experiment6a_write_freefielddirectivitytf_v2.py --parser cf2_parser_v5.py --cf2 "speaker_cf2\AXYS4549.CF2" --npz "clfviewer_validation\experiment5g_complex2522\canonical_complex_example.npz" --output "clfviewer_validation\experiment6a_sofa_AXYS4549\AXYS4549_FreeFieldDirectivityTF.sofa"
