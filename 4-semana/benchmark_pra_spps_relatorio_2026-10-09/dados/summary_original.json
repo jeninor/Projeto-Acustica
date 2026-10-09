@@ -1,0 +1,76 @@
+{
+  "method": "complex RIR transfer at 1000 Hz, one calibration from PRA OMNI to free-field",
+  "source_position_m": [
+    2,
+    2.5,
+    1.5
+  ],
+  "n_receivers": 25,
+  "n_valid": 24,
+  "excluded_source_overlap": [
+    "Receiver 8"
+  ],
+  "cf2_sha256": "6a972321f3ab7f4875f5b5f7c206ba7eeeb7f9a3f1d991bb01084173a3ee1668",
+  "spps_omni_csv_sha256": "e28d08ced90ff1e107c7393e2f2a64eb8124710fd7179586a4ea26ab5f8c0e01",
+  "spps_cf2_csv_sha256": "d49c6573292c3d2c4249711fe590e74381b335fe69541920bc8ca154c9125812",
+  "calibration_omni_offset_db": 54.71318174495602,
+  "spps_cf2_effect_valid": {
+    "rmse_db": 6.560146830106686,
+    "mae_db": 4.912253929495801,
+    "bias_db": -4.912253929495801,
+    "max_abs_db": 15.145623950557535
+  },
+  "cases": {
+    "PRA_OMNI_16K": {
+      "compute_rir_s": 0.2701518340036273,
+      "pra_minus_spps": {
+        "rmse_db": 0.18702562708483622,
+        "mae_db": 0.16211046597898182,
+        "bias_db": -0.11754889978339911,
+        "max_abs_db": 0.40026635936084176
+      }
+    },
+    "PRA_CF2_V5_16K": {
+      "compute_rir_s": 0.24402055800601374,
+      "pra_minus_spps": {
+        "rmse_db": 0.6907900260793373,
+        "mae_db": 0.5052727612852029,
+        "bias_db": 0.37846531570062564,
+        "max_abs_db": 2.125544647996044
+      },
+      "pra_effect_vs_spps_effect": {
+        "rmse_db": 0.7859096210638852,
+        "mae_db": 0.5895290821863536,
+        "bias_db": 0.4960142154840252,
+        "max_abs_db": 2.434198770965525
+      },
+      "pra_effect_vs_cf2_input_gain": {
+        "rmse_db": 0.08404239191980738,
+        "mae_db": 0.03823345392287599,
+        "bias_db": -0.03742748003700847,
+        "max_abs_db": 0.2803437284918111
+      }
+    },
+    "PRA_CF2_FAST_16K": {
+      "compute_rir_s": 0.36724354699254036,
+      "pra_minus_spps": {
+        "rmse_db": 0.6907899813719964,
+        "mae_db": 0.5052727467555685,
+        "bias_db": 0.37846530117099125,
+        "max_abs_db": 2.125544299284819
+      },
+      "pra_effect_vs_spps_effect": {
+        "rmse_db": 0.785909576061234,
+        "mae_db": 0.5895290676567193,
+        "bias_db": 0.49601420095439086,
+        "max_abs_db": 2.4341984222543007
+      },
+      "pra_effect_vs_cf2_input_gain": {
+        "rmse_db": 0.0840423919198938,
+        "mae_db": 0.03823346845251035,
+        "bias_db": -0.03742749456664283,
+        "max_abs_db": 0.2803437284918111
+      }
+    }
+  }
+}
