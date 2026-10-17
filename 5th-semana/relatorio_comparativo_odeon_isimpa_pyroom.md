@@ -201,40 +201,4 @@ No I-Simpa, **−8° maximiza levemente o SPL médio**, enquanto **−16° apres
 6. **Limitação da demo de ODEON:** a execução foi feita com um recinto de exemplo fornecido com a instalação. Restrições de edição, cálculo e exportação em outros ambientes precisam ser verificadas separadamente.
 7. **Incerteza estatística:** a semente 123 foi mantida nas três orientações I-Simpa para controle, mas não foram realizadas repetições suficientes com sementes independentes para estimar a incerteza do ranking. Empates e diferenças de cerca de 0,1 dB no ODEON merecem análise específica.
 
-## 7. Próximas etapas propostas
 
-1. **Auditoria de diretividade:** conferir coordenadas polares, sinal da atenuação, eixo frontal, convenção de elevação e interpolação a 1000 Hz; comparar o ganho angular previsto nas três ferramentas para um conjunto reduzido de direções conhecidas.
-2. **Harmonização física:** registrar a tabela real de α(f) por superfície, espalhamento, temperatura, umidade, perdas atmosféricas e condições de emissão; comparar resultados com scattering controlado.
-3. **Repetibilidade:** executar pelo menos três sementes independentes em I-Simpa e Pyroomacoustics para −8° e −16°, quantificando dispersão de C80 por receptor e estabilidade do ranking.
-4. **Calibração energética:** exportar SPL e potência espectral por banda do ODEON (quando possível) e documentar a amplitude usada no Pyroomacoustics; evitar diferenças em nível absoluto até essa equivalência estar demonstrada.
-5. **Extensão espectral:** repetir a comparação em 500, 2000 e 4000 Hz, garantindo agregação de terços e diretividade correspondente.
-6. **Validação experimental:** comparar ao menos um conjunto de métricas com medições de uma sala real (BRAS ou outro cenário medido), mantendo geometria e condições controladas.
-7. **Otimização:** utilizar média de C80, uniformidade de SPL e restrições de cobertura como objetivos; avaliar concordância dos rankings e desempenho próximo ao ótimo, não apenas RMSE absoluto.
-
-## 8. Reprodutibilidade e arquivos
-
-O pacote anexado inclui este relatório e os gráficos em `figuras/` (imagens PNG com caminhos relativos), além das tabelas recalculadas em `dados/`:
-
-- `dados/omni_25_receptores_analise.csv` — dados OMNI com média dos três, divergência, diferenças com sinal e R11 recuperado e incluído em todas as métricas temporais.
-- `dados/cf2_75_receptores_analise.csv` — 25 receptores × 3 orientações, todas as métricas e diferenças.
-- `dados/resumo_omni.csv` e `dados/resumo_cf2.csv` — médias e divergências por caso; a tabela OMNI foi recalculada com N=25.
-- `dados/omni_25_receptores_atualizado_bruto.csv` — valores OMNI atualizados, antes dos campos derivados de divergência.
-- `dados/comparacoes_pareadas_rmse.csv` — viés, MAE, RMSE e número de pares efetivamente comparados.
-
-As fontes auditadas incluem as tabelas consolidadas previamente geradas, as exportações textuais ODEON 0°, −8°, −16°, o ZIP OMNI atualizado I-Simpa de 21h04, os ZIPs CF2 I-Simpa de 19h42, 20h01 e 20h09 e o conjunto de resultados Pyroomacoustics com 50.000 raios. A figura 1 é uma visualização derivada do modelo reconstruído; as demais são gráficos calculados das tabelas de resultados, e não ilustrações hipotéticas.
-
-**Fontes de dados locais relevantes:**
-
-```text
-OMNI_25_RECEPTORES_ATUALIZADO_20261016.csv
-Comparacion_CF2_tres_simuladores_75_receptores.csv
-2026-10-16_21h04m27s.zip   (I-Simpa OMNI atualizado, 25/25)
-2026-10-16_19h42m00s.zip   (I-Simpa CF2 0°)
-2026-10-16_20h01m09s.zip   (I-Simpa −8°)
-2026-10-16_20h09m36s.zip   (I-Simpa −16°)
-PRA_CF2_75_receptores_50000.csv
-```
-
-## 9. Conclusão
-
-O estudo demonstra que o caso omnidirecional permite estabelecer a diferença de base entre algoritmos, ao passo que a fonte Bosch CF2 evidencia o efeito da orientação. **Os três simuladores concordam que a inclinação de −16° produz o maior C80 médio entre as três posições testadas**, apesar de divergências absolutas na estimativa de clareza e reverberação. O ranking da orientação por receptor também apresenta concordância significativa, mas incompleta (**19/25**). Esta evidência é útil para orientar um otimizador acústico que utilize simuladores de menor custo computacional; sua validade preditiva ainda deve ser testada com controle de parâmetros, repetições e medições físicas.
