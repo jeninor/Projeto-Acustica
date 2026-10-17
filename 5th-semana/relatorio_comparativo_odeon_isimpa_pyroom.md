@@ -2,10 +2,10 @@
 
 **Comparação ODEON 19.12 × I-Simpa 1.3.4 (SPPS) × Pyroomacoustics**  
 **Cenários:** fonte omnidirecional e Bosch LA1-UW24.CF2 (0°, −8°, −16°)  
-**Data de consolidação:** 16 de outubro de 2026  
+**Data de consolidação:** 16 de outubro de 2026 — revisão com o ZIP I-Simpa `2026-10-16_21h04m27s.zip`  
 **Natureza:** análise numérica comparativa entre simuladores, sem validação experimental contra medições físicas.
 
-> **Resumo executivo.** No cenário omnidirecional, os três métodos apresentam divergência média de **0,305 dB** nos perfis de nível relativo (25 receptores), **0,541 s** em EDT, **0,465 s** em T30 e **1,902 dB** em C80 (24 receptores com parâmetros temporais completos). Com a fonte direcional Bosch CF2, os três simuladores indicam a **melhor média espacial de C80 em −16°**, apesar das diferenças absolutas. O melhor ângulo por receptor coincide nos três programas em **19/25** posições.
+> **Resumo executivo.** No cenário omnidirecional, os três métodos apresentam divergência média de **0,305 dB** nos perfis de nível relativo (25 receptores), **0,545 s** em EDT, **0,467 s** em T30 e **1,884 dB** em C80 (25 receptores com parâmetros temporais completos). Com a fonte direcional Bosch CF2, os três simuladores indicam a **melhor média espacial de C80 em −16°**, apesar das diferenças absolutas. O melhor ângulo por receptor coincide nos três programas em **19/25** posições.
 
 ## 1. Objetivos e questões de pesquisa
 
@@ -60,44 +60,52 @@ RMSE A−B = raiz quadrada da média de [M(A,r) − M(B,r)]²
 
 ## 4. Resultados — fonte omnidirecional
 
-Os 25 receptores têm dados de nível, porém **R11 não possui os parâmetros temporais completos no arquivo I-Simpa**. As estatísticas e os mapas simultâneos de EDT, T30 e C80 usam **24 receptores válidos**. A posição ausente está indicada como `ND` nos gráficos. Não foram interpolados valores.
+**Atualização do conjunto OMNI.** O novo ZIP `2026-10-16_21h04m27s.zip` inclui os arquivos `Acoustic parameters.gabe` e `Schroeder curves.gabe` de **R11**, ausentes da exportação anterior. A geometria (`mesh.cbin`) é idêntica e os parâmetros numéricos dos outros 24 receptores não mudaram. Agora são **25/25 receptores com dados válidos** de SPL, EDT, T30, C80, C50, D50 e Ts no I-Simpa. As estatísticas e os mapas foram recalculados com os 25 pontos, sem qualquer interpolação.
+
+| Receptor recuperado | SPL (dB) | EDT (s) | T30 (s) | C80 (dB) | C50 (dB) | Ts (ms) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| R11 — (13,925; −5,000; 2,468) m | 55,289 | 3,661 | 3,740 | −3,101 | −5,887 | 274,63 |
 
 ### 4.1. Médias dos três simuladores e faixa de divergência
 
 | Parâmetro | N | ODEON | I-Simpa | Pyroom | Divergência média |
 | --- | --- | --- | --- | --- | --- |
-| Nível relativo (dB) | 25 | -0,000 | 0,000 | 0,000 | 0,305 |
-| EDT (s) | 24 | 3,265 | 3,662 | 3,784 | 0,541 |
-| T30 (s) | 24 | 3,319 | 3,755 | 3,769 | 0,465 |
-| C80 (dB) | 24 | -2,050 | -3,266 | -3,732 | 1,902 |
+| Nível relativo (dB) | 25 | -0,000 | -0,000 | 0,000 | 0,305 |
+| EDT (s) | 25 | 3,267 | 3,661 | 3,791 | 0,545 |
+| T30 (s) | 25 | 3,317 | 3,754 | 3,770 | 0,467 |
+| C80 (dB) | 25 | -2,052 | -3,260 | -3,725 | 1,884 |
 
 
 A última coluna é a média espacial de `máximo−mínimo`, e **não** o máximo dos três valores médios da tabela. O nível é **relativo** e está centrado individualmente; consequentemente, as médias ficam perto de zero por construção.
 
 ![Fonte omnidirecional: consenso e divergência espacial](figuras/03_omni_consenso_e_divergencia.png)
 
-*Figura 2 — Para cada métrica, à esquerda a média dos valores dos três simuladores e à direita a divergência máxima entre eles. `ND` identifica receptor sem três observações válidas.*
+*Figura 2 — Para cada métrica, à esquerda a média dos valores dos três simuladores e à direita a divergência máxima entre eles. Todos os 25 receptores possuem observações válidas nos três simuladores.*
 
 ### 4.2. Comparações pareadas
 
 | Parâmetro | Par | N | Viés A−B | RMSE |
 | --- | --- | --- | --- | --- |
-| EDT | ODEON − ISimpa | 24 | -0,397 | 0,401 |
+| EDT | ODEON − ISimpa | 25 | -0,394 | 0,398 |
 | EDT | ODEON − Pyroom | 25 | -0,524 | 0,556 |
-| EDT | ISimpa − Pyroom | 24 | -0,122 | 0,222 |
-| T30 | ODEON − ISimpa | 24 | -0,436 | 0,437 |
+| EDT | ISimpa − Pyroom | 25 | -0,130 | 0,226 |
+| T30 | ODEON − ISimpa | 25 | -0,437 | 0,438 |
 | T30 | ODEON − Pyroom | 25 | -0,452 | 0,459 |
-| T30 | ISimpa − Pyroom | 24 | -0,014 | 0,063 |
-| C80 | ODEON − ISimpa | 24 | 1,216 | 1,256 |
+| T30 | ISimpa − Pyroom | 25 | -0,016 | 0,062 |
+| C80 | ODEON − ISimpa | 25 | 1,208 | 1,247 |
 | C80 | ODEON − Pyroom | 25 | 1,673 | 1,899 |
-| C80 | ISimpa − Pyroom | 24 | 0,466 | 1,039 |
+| C80 | ISimpa − Pyroom | 25 | 0,465 | 1,022 |
 
 
 ![Fonte OMNI: diferenças pareadas de C80](figuras/07_omni_c80_diferencas_pareadas.png)
 
-*Figura 3 — Diferenças de C80 com sinal. Positivo significa que o primeiro simulador estima maior clareza. Comparações envolvendo I-Simpa omitem R11.*
+*Figura 3 — Diferenças de C80 com sinal. Positivo significa que o primeiro simulador estima maior clareza. A comparação inclui agora R11 e os outros 24 receptores.*
 
 **Leitura:** diferenças temporais relativamente estáveis e o desvio de C80 evidenciam ausência de equivalência perfeita entre os motores. No caso OMNI a diferença média dos perfis de nível relativo é pequena, mas isso **não prova concordância de SPL absoluto**, dada a centralização e o uso do G em ODEON.
+
+### 4.3. Controle de alteração no conjunto OMNI
+
+A nova exportação conserva os parâmetros principais (`computation_method=1`, 500.000 partículas, semente 123, 8 s de simulação, receptor com raio de 0,31 m, absorção atmosférica desativada) e a mesma malha. Os arquivos acústicos dos outros 24 receptores reproduzem os mesmos valores da versão anterior. Assim, qualquer variação entre as médias OMNI publicadas nesta revisão e na versão anterior decorre **exclusivamente da inclusão de R11**, não de um novo cenário geométrico ou de uma nova amostra estocástica identificada.
 
 ## 5. Resultados — alto-falante Bosch LA1-UW24.CF2
 
@@ -207,19 +215,21 @@ No I-Simpa, **−8° maximiza levemente o SPL médio**, enquanto **−16° apres
 
 O pacote anexado inclui este relatório e os gráficos em `figuras/` (imagens PNG com caminhos relativos), além das tabelas recalculadas em `dados/`:
 
-- `dados/omni_25_receptores_analise.csv` — dados OMNI com média dos três, divergência, diferenças com sinal e R11 ausente para métricas temporais.
+- `dados/omni_25_receptores_analise.csv` — dados OMNI com média dos três, divergência, diferenças com sinal e R11 recuperado e incluído em todas as métricas temporais.
 - `dados/cf2_75_receptores_analise.csv` — 25 receptores × 3 orientações, todas as métricas e diferenças.
-- `dados/resumo_omni.csv` e `dados/resumo_cf2.csv` — médias e divergências por caso.
+- `dados/resumo_omni.csv` e `dados/resumo_cf2.csv` — médias e divergências por caso; a tabela OMNI foi recalculada com N=25.
+- `dados/omni_25_receptores_atualizado_bruto.csv` — valores OMNI atualizados, antes dos campos derivados de divergência.
 - `dados/comparacoes_pareadas_rmse.csv` — viés, MAE, RMSE e número de pares efetivamente comparados.
 
-As fontes auditadas incluem as tabelas consolidadas previamente geradas, as exportações textuais ODEON 0°, −8°, −16°, ZIPs I-Simpa de 19h42, 20h01 e 20h09 e o conjunto de resultados Pyroomacoustics com 50.000 raios. A figura 1 é uma visualização derivada do modelo reconstruído; as demais são gráficos calculados das tabelas de resultados, e não ilustrações hipotéticas.
+As fontes auditadas incluem as tabelas consolidadas previamente geradas, as exportações textuais ODEON 0°, −8°, −16°, o ZIP OMNI atualizado I-Simpa de 21h04, os ZIPs CF2 I-Simpa de 19h42, 20h01 e 20h09 e o conjunto de resultados Pyroomacoustics com 50.000 raios. A figura 1 é uma visualização derivada do modelo reconstruído; as demais são gráficos calculados das tabelas de resultados, e não ilustrações hipotéticas.
 
 **Fontes de dados locais relevantes:**
 
 ```text
-Comparacion_25_Receptores_ODEON_ISimpa_Pyroom.csv
+OMNI_25_RECEPTORES_ATUALIZADO_20261016.csv
 Comparacion_CF2_tres_simuladores_75_receptores.csv
-2026-10-16_19h42m00s.zip   (I-Simpa 0°)
+2026-10-16_21h04m27s.zip   (I-Simpa OMNI atualizado, 25/25)
+2026-10-16_19h42m00s.zip   (I-Simpa CF2 0°)
 2026-10-16_20h01m09s.zip   (I-Simpa −8°)
 2026-10-16_20h09m36s.zip   (I-Simpa −16°)
 PRA_CF2_75_receptores_50000.csv
