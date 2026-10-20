@@ -1,0 +1,432 @@
+# Relatório técnico — benchmark acústico de três simuladores
+
+**Comparação ODEON 19.12 × I-Simpa 1.3.4 (SPPS) × Pyroomacoustics**  
+**Cenários:** fonte omnidirecional e Bosch LA1-UW24.CF2 (0°, −8°, −16°)  
+**Data dos resultados:** 16 de outubro de 2026 — revisão com o ZIP I-Simpa `2026-10-16_21h04m27s.zip`  
+**Revisão dos gráficos comparativos:** 20 de outubro de 2026 (adição de curvas por receptor e mapas pareados)  
+**Natureza:** análise numérica comparativa entre simuladores, sem validação experimental contra medições físicas.
+
+> **Resumo executivo.** No cenário omnidirecional, os três métodos apresentam divergência média de **0,305 dB** nos perfis de nível relativo (25 receptores), **0,545 s** em EDT, **0,467 s** em T30 e **1,884 dB** em C80 (25 receptores com parâmetros temporais completos). Com a fonte direcional Bosch CF2, os três simuladores indicam a **melhor média espacial de C80 em −16°**, apesar das diferenças absolutas. O melhor ângulo por receptor coincide nos três programas em **19/25** posições.
+
+## 1. Objetivos e questões de pesquisa
+
+Este trabalho compara o comportamento de três motores de simulação acústica ao reproduzir uma mesma geometria de auditório, posições de fonte e receptores e propriedades de absorção próximas. Os objetivos são: (i) quantificar divergências espaciais em **nível, EDT, T30 e C80**; (ii) distinguir a diferença inicial entre algoritmos (fonte OMNI) dos efeitos adicionais da diretividade; e (iii) verificar se o **ranking de orientações** permanece consistente, mesmo na presença de vieses sistemáticos. Os resultados apoiam o desenvolvimento posterior de otimização de posição e orientação de fontes sonoras, mas não estabelecem a superioridade física de nenhum simulador.
+
+## 2. Geometria e receptores
+
+- **Modelo:** `Example.par` do ODEON, auditório com arquibancada/piso inclinado, descrito por dez superfícies. Não se trata da sala retangular 6 × 5 × 3 m usada nos testes anteriores.
+- **Fonte P1:** posição (X, Y, Z) = **(3, 0, 4) m**, no mesmo sistema de coordenadas do auditório.
+- **Receptores:** 25 pontos R01–R25, distribuídos em grade 5 × 5 no espaço. Coordenadas X = 8,000; 10,962; 13,925; 16,887; 19,849 m; Y = −5; −2; 1; 4; 7 m. A cota Z acompanha a inclinação da sala.
+- **Absorção nominal:** α = 0,10 nas superfícies do cenário de referência. É importante validar sua atribuição efetiva em cada projeto e banda.
+
+![Geometria do auditório inclinado, fonte P1 e 25 receptores](figuras/01_geometria_auditorio.png)
+
+*Figura 1 — Reconstrução visual do auditório Example.par, com a fonte e os 25 receptores.*
+
+## 3. Condições computacionais e metodologia
+
+### 3.1. Ferramentas e parâmetros registrados
+
+| Critério | ODEON | I-Simpa | Pyroomacoustics |
+| --- | --- | --- | --- |
+| Simulador | ODEON 19.12 Combined, instalação de demonstração | I-Simpa 1.3.4, módulo SPPS | Execuções anteriores em Google Colab |
+| Fonte OMNI | `Omni.SO8` | OMNI | OMNI |
+| Fonte direcional | `LA1_UW24.CF2` | Balloon convertido para texto EASE | Adaptador direcional baseado em CF2 |
+| Algoritmo | Modelo híbrido próprio | Propagação por partículas sonoras, **Energetic** | Método híbrido ISM/traçado de raios na execução usada |
+| Configuração relevante | 1.000 raios tardios, conforme exportação ODEON; transição e espalhamento a auditar | 500.000 partículas, semente 123, raio de receptor 0,31 m, passo 10 ms | Resultados da execução com 50.000 raios |
+| Faixa analisada | Oitava central de 1000 Hz | 800, 1000 e 1250 Hz agregados no campo *Global* | Oitava de 1000 Hz reconstruída conforme o processamento anterior |
+| Duração da resposta | Parâmetros extraídos de exportações ODEON | 8 s | Depende da resposta impulsiva gerada; manter protocolo de processamento documentado |
+
+**Normalização espectral:** no caso direcional o ODEON utiliza a potência declarada no CF2 com **ganho extra de 0 dB**; no I-Simpa foi usado **Lw global = 107,2 dB**, com espectro por terços de oitava aproximado energeticamente a partir das potências por oitava do Bosch. Isso não garante equivalência de todos os detalhes espectrais, especialmente fora de 1000 Hz. No caso OMNI, ODEON e I-Simpa usam aproximadamente 70,4 dB por oitava na faixa investigada. O SPL absoluto entre ferramentas **não foi validado** para o conjunto de três motores.
+
+**Configuração geométrica:** as coordenadas dos receptores coincidem nos conjuntos utilizados, sujeitas a arredondamentos. A identidade geométrica, os fatores de dispersão (*scattering*), a absorção do ar e o comportamento do método híbrido requerem uma auditoria adicional para atribuir causalidade às diferenças.
+
+### 3.2. Indicadores e cálculo das divergências
+
+Para cada receptor `r`, indicador `M` e simulador `s`, foi utilizado o valor `M(s,r)`. A média dos três simuladores **não é uma referência experimental**, mas apenas um resumo descritivo:
+
+```text
+Consenso(r) = [ODEON(r) + I-Simpa(r) + Pyroom(r)] / 3
+Divergência(r) = max(ODEON(r), I-Simpa(r), Pyroom(r))
+               - min(ODEON(r), I-Simpa(r), Pyroom(r))
+Diferença A−B(r) = M(A,r) − M(B,r)
+Viés A−B = média das diferenças pareadas nos receptores válidos
+RMSE A−B = raiz quadrada da média de [M(A,r) − M(B,r)]²
+```
+
+- **EDT** (*Early Decay Time*), em segundos: extrapolação do início do decaimento energético.
+- **T30/RT30**, em segundos: tempo de reverberação estimado pela regressão do decaimento entre aproximadamente −5 e −35 dB, extrapolado a 60 dB.
+- **C80**, em dB: razão logarítmica entre energia recebida nos primeiros 80 ms e energia posterior.
+- **Nível relativo**, em dB: **G centrado** no ODEON e **SPL centrado** no I-Simpa/Pyroom, subtraindo a média espacial própria de cada ferramenta. Isso permite comparar **a forma da distribuição**, não o SPL absoluto nem a equivalência direta entre grandezas físicas distintas.
+
+## 4. Resultados — fonte omnidirecional
+
+**Atualização do conjunto OMNI.** O novo ZIP `2026-10-16_21h04m27s.zip` inclui os arquivos `Acoustic parameters.gabe` e `Schroeder curves.gabe` de **R11**, ausentes da exportação anterior. A geometria (`mesh.cbin`) é idêntica e os parâmetros numéricos dos outros 24 receptores não mudaram. Agora são **25/25 receptores com dados válidos** de SPL, EDT, T30, C80, C50, D50 e Ts no I-Simpa. As estatísticas e os mapas foram recalculados com os 25 pontos, sem qualquer interpolação.
+
+| Receptor recuperado | SPL (dB) | EDT (s) | T30 (s) | C80 (dB) | C50 (dB) | Ts (ms) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| R11 — (13,925; −5,000; 2,468) m | 55,289 | 3,661 | 3,740 | −3,101 | −5,887 | 274,63 |
+
+### 4.1. Médias dos três simuladores e faixa de divergência
+
+| Parâmetro | N | ODEON | I-Simpa | Pyroom | Divergência média |
+| --- | --- | --- | --- | --- | --- |
+| Nível relativo (dB) | 25 | -0,000 | -0,000 | 0,000 | 0,305 |
+| EDT (s) | 25 | 3,267 | 3,661 | 3,791 | 0,545 |
+| T30 (s) | 25 | 3,317 | 3,754 | 3,770 | 0,467 |
+| C80 (dB) | 25 | -2,052 | -3,260 | -3,725 | 1,884 |
+
+
+A última coluna é a média espacial de `máximo−mínimo`, e **não** o máximo dos três valores médios da tabela. O nível é **relativo** e está centrado individualmente; consequentemente, as médias ficam perto de zero por construção.
+
+![Fonte omnidirecional: consenso e divergência espacial](figuras/03_omni_consenso_e_divergencia.png)
+
+*Figura 2 — Para cada métrica, à esquerda a média dos valores dos três simuladores e à direita a divergência máxima entre eles. Todos os 25 receptores possuem observações válidas nos três simuladores.*
+
+### 4.2. Comparações pareadas
+
+| Parâmetro | Par | N | Viés A−B | RMSE |
+| --- | --- | --- | --- | --- |
+| EDT | ODEON − ISimpa | 25 | -0,394 | 0,398 |
+| EDT | ODEON − Pyroom | 25 | -0,524 | 0,556 |
+| EDT | ISimpa − Pyroom | 25 | -0,130 | 0,226 |
+| T30 | ODEON − ISimpa | 25 | -0,437 | 0,438 |
+| T30 | ODEON − Pyroom | 25 | -0,452 | 0,459 |
+| T30 | ISimpa − Pyroom | 25 | -0,016 | 0,062 |
+| C80 | ODEON − ISimpa | 25 | 1,208 | 1,247 |
+| C80 | ODEON − Pyroom | 25 | 1,673 | 1,899 |
+| C80 | ISimpa − Pyroom | 25 | 0,465 | 1,022 |
+
+
+![Fonte OMNI: diferenças pareadas de C80](figuras/07_omni_c80_diferencas_pareadas.png)
+
+*Figura 3 — Diferenças de C80 com sinal. Positivo significa que o primeiro simulador estima maior clareza. A comparação inclui agora R11 e os outros 24 receptores.*
+
+**Leitura:** diferenças temporais relativamente estáveis e o desvio de C80 evidenciam ausência de equivalência perfeita entre os motores. No caso OMNI a diferença média dos perfis de nível relativo é pequena, mas isso **não prova concordância de SPL absoluto**, dada a centralização e o uso do G em ODEON.
+
+### 4.3. Controle de alteração no conjunto OMNI
+
+A nova exportação conserva os parâmetros principais (`computation_method=1`, 500.000 partículas, semente 123, 8 s de simulação, receptor com raio de 0,31 m, absorção atmosférica desativada) e a mesma malha. Os arquivos acústicos dos outros 24 receptores reproduzem os mesmos valores da versão anterior. Assim, qualquer variação entre as médias OMNI publicadas nesta revisão e na versão anterior decorre **exclusivamente da inclusão de R11**, não de um novo cenário geométrico ou de uma nova amostra estocástica identificada.
+
+### 4.4. Leitura espacial por receptor — curvas 2D e diferenças pareadas (adição de 20/10/2026)
+
+Nesta análise complementar, os gráficos de linha usam **R01–R25 no eixo X** e o valor acústico no **eixo Y**. Cada curva corresponde a um dos três simuladores. Assim é possível observar simultaneamente os desvios de magnitude e a semelhança (ou diferença) na variação espacial. A série do Pyroomacoustics refere-se à execução com **50.000 raios**; todas as posições, inclusive **R11**, possuem valores completos.
+
+Os mapas pareados representam, em cada receptor, **ODEON − I-Simpa**, **ODEON − Pyroomacoustics** e **I-Simpa − Pyroomacoustics**. Neles, valores *positivos* significam que o primeiro simulador estima valor maior; valores *negativos*, menor. Os três mapas de cada painel usam **escala de cor simétrica com zero central**, e a escala é comum aos quatro cenários para cada grandeza acústica, facilitando a comparação entre OMNI e CF2. A distribuição 5×5 preserva a coordenada física dos receptores: linhas = X, colunas = Y.
+
+**Ressalva sobre nível relativo:** a curva ODEON é o índice **G centrado na média espacial**; as curvas I-Simpa/Pyroomacoustics são **níveis centrados**. A aproximação é útil apenas como comparação **qualitativa do padrão espacial**, não como prova de equivalência entre G e SPL ou de calibração absoluta em dB. Os valores relativos não representam potência sonora absoluta.
+
+#### 4.4.1. Perfil de nível relativo (G/SPL centrados)
+
+![Caso OMNI: Perfil de nível relativo (G/SPL centrados) nos 25 receptores, comparação em curvas 2D](figuras/novo_linhas_omni_nivel_relativo.png)
+
+*Curvas 2D — resposta por receptor (dB).*
+
+![Caso OMNI: três mapas pareados com sinal para Perfil de nível relativo (G/SPL centrados)](figuras/novo_pareados_omni_nivel_relativo.png)
+
+*Mapas pareados — diferença com sinal (dB); identificar o par é indispensável, pois a divergência máximo−mínimo não informa qual simulador apresenta o maior valor.*
+
+#### 4.4.2. EDT
+
+![Caso OMNI: EDT nos 25 receptores, comparação em curvas 2D](figuras/novo_linhas_omni_edt.png)
+
+*Curvas 2D — resposta por receptor (s).*
+
+![Caso OMNI: três mapas pareados com sinal para EDT](figuras/novo_pareados_omni_edt.png)
+
+*Mapas pareados — diferença com sinal (s); identificar o par é indispensável, pois a divergência máximo−mínimo não informa qual simulador apresenta o maior valor.*
+
+#### 4.4.3. T30/RT30
+
+![Caso OMNI: T30/RT30 nos 25 receptores, comparação em curvas 2D](figuras/novo_linhas_omni_t30.png)
+
+*Curvas 2D — resposta por receptor (s).*
+
+![Caso OMNI: três mapas pareados com sinal para T30/RT30](figuras/novo_pareados_omni_t30.png)
+
+*Mapas pareados — diferença com sinal (s); identificar o par é indispensável, pois a divergência máximo−mínimo não informa qual simulador apresenta o maior valor.*
+
+#### 4.4.4. C80
+
+![Caso OMNI: C80 nos 25 receptores, comparação em curvas 2D](figuras/novo_linhas_omni_c80.png)
+
+*Curvas 2D — resposta por receptor (dB).*
+
+![Caso OMNI: três mapas pareados com sinal para C80](figuras/novo_pareados_omni_c80.png)
+
+*Mapas pareados — diferença com sinal (dB); identificar o par é indispensável, pois a divergência máximo−mínimo não informa qual simulador apresenta o maior valor.*
+
+**Interpretação:** para T30 os perfis do I-Simpa e do Pyroomacoustics apresentam pequena diferença média, embora existam variações entre receptores. Em C80, o ODEON estima valores mais altos na média, enquanto as curvas e os mapas evidenciam diferenças locais expressivas, particularmente envolvendo a estimativa do Pyroomacoustics. Essas diferenças são *desacordos entre modelos*, não erros em relação a medições físicas.
+
+**Resumo quantitativo das comparações pareadas do caso OMNI (25 receptores):**
+
+| Grandeza | Comparação (A − B) | Viés | RMSE |
+|---|---|---:|---:|
+| Nível relativo (dB) | ODEON − I-Simpa | -0.000 | 0.144 |
+| Nível relativo (dB) | ODEON − Pyroomacoustics | -0.000 | 0.295 |
+| Nível relativo (dB) | I-Simpa − Pyroomacoustics | -0.000 | 0.319 |
+| EDT (s) | ODEON − I-Simpa | -0.394 | 0.398 |
+| EDT (s) | ODEON − Pyroomacoustics | -0.524 | 0.556 |
+| EDT (s) | I-Simpa − Pyroomacoustics | -0.130 | 0.226 |
+| T30 (s) | ODEON − I-Simpa | -0.437 | 0.438 |
+| T30 (s) | ODEON − Pyroomacoustics | -0.452 | 0.459 |
+| T30 (s) | I-Simpa − Pyroomacoustics | -0.016 | 0.062 |
+| C80 (dB) | ODEON − I-Simpa | +1.208 | 1.247 |
+| C80 (dB) | ODEON − Pyroomacoustics | +1.673 | 1.899 |
+| C80 (dB) | I-Simpa − Pyroomacoustics | +0.465 | 1.022 |
+
+*Viés = média de (A−B); RMSE = raiz quadrada da média dos desvios quadráticos. Para nível relativo, o viés é ~0 por construção da centralização, e o RMSE informa melhor a desigualdade espacial.*
+
+## 5. Resultados — alto-falante Bosch LA1-UW24.CF2
+
+### 5.1. Controle de variáveis e execução
+
+Foram estudadas **três elevações**: 0°, −8° e −16°, com o mesmo ponto de emissão, geometria, 25 receptores e espectro de potência nominal. Nos ZIPs do I-Simpa, as orientações são documentadas pelos vetores `(1,0,0)`, `(0,9903,0,−0,1392)` e `(0,9613,0,−0,2750)`, respectivamente. Os três trabalhos preservam os mesmos bytes de malha e arquivo de diretividade EASE. Foram selecionadas as bandas 800, 1000 e 1250 Hz no SPPS, agregadas para a comparação com a oitava de 1000 Hz do ODEON.
+
+### 5.2. Valores médios dos 25 receptores
+
+| Indicador | Elevação | ODEON | I-Simpa | Pyroom | Divergência média |
+| --- | --- | --- | --- | --- | --- |
+| EDT (s) | 0° | 3,439 | 3,863 | 3,935 | 0,572 |
+| EDT (s) | -8° | 3,399 | 3,714 | 3,859 | 0,499 |
+| EDT (s) | -16° | 3,394 | 3,644 | 3,825 | 0,449 |
+| T30 (s) | 0° | 3,312 | 3,856 | 3,960 | 0,672 |
+| T30 (s) | -8° | 3,324 | 3,810 | 3,922 | 0,610 |
+| T30 (s) | -16° | 3,329 | 3,760 | 3,863 | 0,539 |
+| C80 (dB) | 0° | -1,024 | -2,524 | -3,696 | 2,674 |
+| C80 (dB) | -8° | 0,144 | -1,333 | -2,626 | 2,773 |
+| C80 (dB) | -16° | 0,592 | -0,766 | -1,999 | 2,596 |
+
+
+![Valores médios de C80, EDT e T30 segundo a orientação da fonte](figuras/02_medias_cf2_por_orientacao.png)
+
+*Figura 4 — Variação das médias espaciais por inclinação nos três simuladores. Os resultados sugerem melhoria de C80 com a inclinação, mas o melhor ponto observado não deve ser extrapolado para orientações não testadas.*
+
+### 5.3. Divergência espacial simultânea
+
+![Divergência dos três simuladores por ângulo e por parâmetro](figuras/04_cf2_divergencias_3_angulos.png)
+
+*Figura 5 — Matriz de calor das divergências `máximo−mínimo` para EDT, T30 e C80 nas três elevações. Uma escala comum foi utilizada dentro de cada indicador, permitindo comparar os ângulos.*
+
+No CF2, as divergências médias na grade, em C80, foram: **2,674 dB (0°)**, **2,773 dB (−8°)** e **2,596 dB (−16°)**. Essas divergências não são erros contra uma verdade de referência; expressam apenas o intervalo de estimativas entre motores.
+
+### 5.4. Quem difere de quem: mapas pareados e valores absolutos
+
+![Bosch CF2: diferenças pareadas de C80](figuras/05_cf2_c80_diferencas_pareadas.png)
+
+*Figura 6 — Comparações pareadas de C80, mantendo o sinal da subtração, para os 25 receptores e as três orientações.*
+
+![Bosch CF2: mapas absolutos de C80 nos três simuladores](figuras/06_cf2_c80_valores_por_simulador.png)
+
+*Figura 7 — Valor absoluto de C80 por simulador e ângulo, em escala de cor compartilhada. A semelhança de padrões espaciais pode coexistir com diferentes níveis médios.*
+
+Em relação ao ODEON, o I-Simpa apresenta o seguinte viés e RMSE (I-Simpa − ODEON):
+
+| Elevação | Parâmetro | Viés I-Simpa − ODEON | RMSE |
+| --- | --- | --- | --- |
+| 0° | EDT | 0,424 | 0,451 |
+| 0° | T30 | 0,544 | 0,554 |
+| 0° | C80 | -1,500 | 1,549 |
+| -8° | EDT | 0,315 | 0,356 |
+| -8° | T30 | 0,486 | 0,491 |
+| -8° | C80 | -1,477 | 1,539 |
+| -16° | EDT | 0,250 | 0,291 |
+| -16° | T30 | 0,430 | 0,435 |
+| -16° | C80 | -1,358 | 1,399 |
+
+
+### 5.5. Seleção do melhor ângulo por receptor
+
+O ranking foi determinado por **maior C80 entre as três orientações medidas**, separadamente para cada receptor, sem arredondamento adicional. Os resultados são:
+
+- **ODEON × I-Simpa:** 22/25 receptores selecionam o mesmo ângulo.
+- **ODEON × Pyroomacoustics:** 21/25.
+- **I-Simpa × Pyroomacoustics:** 20/25.
+- **Concordância dos três:** **19/25** (76%).
+- **Orientação de maior C80 médio:** **−16° nos três simuladores**.
+- **I-Simpa por receptor:** melhor C80 em −8° para 12 receptores e em −16° para 13 receptores.
+
+![Bosch CF2: melhor orientação por receptor e simulador](figuras/08_cf2_melhor_orientacao_por_receptor.png)
+
+*Figura 8 — O ângulo ótimo dentro do conjunto discreto estudado não é uniforme na sala: há diferenças entre receptores e entre motores. A concordância de 19/25 é descritiva para esta grade e este conjunto de três ângulos.*
+
+### 5.6. Outros indicadores disponíveis no I-Simpa
+
+| Elevação | SPL médio (dB) | Desvio espacial SPL (dB) | C50 médio (dB) | D50 médio (%) |
+| --- | --- | --- | --- | --- |
+| 0° | 70,413 | 0,765 | -3,711 | 31,420 |
+| -8° | 70,828 | 0,545 | -2,446 | 37,593 |
+| -16° | 70,787 | 0,426 | -1,981 | 39,916 |
+
+
+No I-Simpa, **−8° maximiza levemente o SPL médio**, enquanto **−16° apresenta maior uniformidade de SPL** (menor desvio espacial). Sem a calibração de níveis absolutos de todos os motores, esta análise de SPL é **interna ao I-Simpa**.
+
+### 5.7. Leitura espacial por receptor — curvas 2D e diferenças pareadas (adição de 20/10/2026)
+
+Para as três inclinações do **Bosch LA1-UW24.CF2**, apresentamos EDT, T30 e C80 em dois formatos complementares: **curvas das três ferramentas nos 25 receptores** e **três mapas pareados com sinal** por indicador. A estrutura dos gráficos é igual à do caso OMNI, permitindo localizar os receptores responsáveis pelos maiores desvios e verificar visualmente a preservação do padrão espacial. Os mapas mantêm uma escala de cor comum, por grandeza, entre todos os ângulos e também em relação ao OMNI.
+
+O **SPL absoluto do Bosch não aparece como curva de três simuladores**, porque só há exportação calibrada de I-Simpa neste conjunto; inventar as outras duas curvas ou converter C80 em SPL seria incorreto. Os dados originais de SPL do I-Simpa permanecem no CSV consolidado e na seção 5.6.
+
+#### 5.7.1. Bosch CF2 com elevação de 0°
+
+**EDT — resposta ao longo dos 25 receptores**
+
+![Bosch CF2 0°: EDT por receptor nos três simuladores](figuras/novo_linhas_cf2_p00_edt.png)
+
+*Curvas por receptor (s): ODEON, I-Simpa e Pyroomacoustics.*
+
+![Bosch CF2 0°: três mapas pareados para EDT](figuras/novo_pareados_cf2_p00_edt.png)
+
+*Diferenças pareadas em s para os 25 pontos, preservando o sinal de A−B.*
+
+**T30/RT30 — resposta ao longo dos 25 receptores**
+
+![Bosch CF2 0°: T30/RT30 por receptor nos três simuladores](figuras/novo_linhas_cf2_p00_t30.png)
+
+*Curvas por receptor (s): ODEON, I-Simpa e Pyroomacoustics.*
+
+![Bosch CF2 0°: três mapas pareados para T30/RT30](figuras/novo_pareados_cf2_p00_t30.png)
+
+*Diferenças pareadas em s para os 25 pontos, preservando o sinal de A−B.*
+
+**C80 — resposta ao longo dos 25 receptores**
+
+![Bosch CF2 0°: C80 por receptor nos três simuladores](figuras/novo_linhas_cf2_p00_c80.png)
+
+*Curvas por receptor (dB): ODEON, I-Simpa e Pyroomacoustics.*
+
+![Bosch CF2 0°: três mapas pareados para C80](figuras/novo_pareados_cf2_p00_c80.png)
+
+*Diferenças pareadas em dB para os 25 pontos, preservando o sinal de A−B.*
+
+No C80, as diferenças médias (A−B) de 0° foram: **ODEON − I-Simpa = +1.500 dB**, **ODEON − Pyroomacoustics = +2.672 dB** e **I-Simpa − Pyroomacoustics = +1.172 dB**. Embora as médias possam sugerir uma separação relativamente sistemática, os mapas revelam a variação espacial das diferenças.
+
+#### 5.7.2. Bosch CF2 com elevação de -8°
+
+**EDT — resposta ao longo dos 25 receptores**
+
+![Bosch CF2 -8°: EDT por receptor nos três simuladores](figuras/novo_linhas_cf2_m08_edt.png)
+
+*Curvas por receptor (s): ODEON, I-Simpa e Pyroomacoustics.*
+
+![Bosch CF2 -8°: três mapas pareados para EDT](figuras/novo_pareados_cf2_m08_edt.png)
+
+*Diferenças pareadas em s para os 25 pontos, preservando o sinal de A−B.*
+
+**T30/RT30 — resposta ao longo dos 25 receptores**
+
+![Bosch CF2 -8°: T30/RT30 por receptor nos três simuladores](figuras/novo_linhas_cf2_m08_t30.png)
+
+*Curvas por receptor (s): ODEON, I-Simpa e Pyroomacoustics.*
+
+![Bosch CF2 -8°: três mapas pareados para T30/RT30](figuras/novo_pareados_cf2_m08_t30.png)
+
+*Diferenças pareadas em s para os 25 pontos, preservando o sinal de A−B.*
+
+**C80 — resposta ao longo dos 25 receptores**
+
+![Bosch CF2 -8°: C80 por receptor nos três simuladores](figuras/novo_linhas_cf2_m08_c80.png)
+
+*Curvas por receptor (dB): ODEON, I-Simpa e Pyroomacoustics.*
+
+![Bosch CF2 -8°: três mapas pareados para C80](figuras/novo_pareados_cf2_m08_c80.png)
+
+*Diferenças pareadas em dB para os 25 pontos, preservando o sinal de A−B.*
+
+No C80, as diferenças médias (A−B) de -8° foram: **ODEON − I-Simpa = +1.477 dB**, **ODEON − Pyroomacoustics = +2.770 dB** e **I-Simpa − Pyroomacoustics = +1.293 dB**. Embora as médias possam sugerir uma separação relativamente sistemática, os mapas revelam a variação espacial das diferenças.
+
+#### 5.7.3. Bosch CF2 com elevação de -16°
+
+**EDT — resposta ao longo dos 25 receptores**
+
+![Bosch CF2 -16°: EDT por receptor nos três simuladores](figuras/novo_linhas_cf2_m16_edt.png)
+
+*Curvas por receptor (s): ODEON, I-Simpa e Pyroomacoustics.*
+
+![Bosch CF2 -16°: três mapas pareados para EDT](figuras/novo_pareados_cf2_m16_edt.png)
+
+*Diferenças pareadas em s para os 25 pontos, preservando o sinal de A−B.*
+
+**T30/RT30 — resposta ao longo dos 25 receptores**
+
+![Bosch CF2 -16°: T30/RT30 por receptor nos três simuladores](figuras/novo_linhas_cf2_m16_t30.png)
+
+*Curvas por receptor (s): ODEON, I-Simpa e Pyroomacoustics.*
+
+![Bosch CF2 -16°: três mapas pareados para T30/RT30](figuras/novo_pareados_cf2_m16_t30.png)
+
+*Diferenças pareadas em s para os 25 pontos, preservando o sinal de A−B.*
+
+**C80 — resposta ao longo dos 25 receptores**
+
+![Bosch CF2 -16°: C80 por receptor nos três simuladores](figuras/novo_linhas_cf2_m16_c80.png)
+
+*Curvas por receptor (dB): ODEON, I-Simpa e Pyroomacoustics.*
+
+![Bosch CF2 -16°: três mapas pareados para C80](figuras/novo_pareados_cf2_m16_c80.png)
+
+*Diferenças pareadas em dB para os 25 pontos, preservando o sinal de A−B.*
+
+No C80, as diferenças médias (A−B) de -16° foram: **ODEON − I-Simpa = +1.358 dB**, **ODEON − Pyroomacoustics = +2.591 dB** e **I-Simpa − Pyroomacoustics = +1.232 dB**. Embora as médias possam sugerir uma separação relativamente sistemática, os mapas revelam a variação espacial das diferenças.
+
+#### 5.7.4. Comparação conjunta e leitura crítica
+
+Os resultados numéricos apresentados nas seções 5.2 e 5.5 permanecem inalterados. As novas curvas confirmam visualmente que os três simuladores **melhoram o C80 médio ao passar de 0° para −16°**, mas a escolha local do ângulo que produz maior C80 não é uniforme. Os mapas mostram quais pares estão produzindo o desvio e em quais receptores isso ocorre, algo que uma única estatística (RMSE ou divergência máximo−mínimo) não revela. Para a decisão de otimização, devem ser avaliados separadamente **valor médio**, **uniformidade espacial**, **ranking por receptor** e **incerteza de cálculo**.
+
+A comparação continua restrita às **três orientações discretas**, às condições registradas de **1000 Hz** e aos **25 receptores**. A concordância dos motores não estabelece a exatidão acústica perante uma medição real; a auditoria da diretividade, do scattering e da normalização energética descrita na seção 7 segue necessária.
+
+## 6. Discussão crítica
+
+1. **O resultado mais robusto para otimização é o ranking de C80**, não a igualdade absoluta de resultados. A escolha de −16° por média espacial é comum aos três programas, e o melhor ângulo por receptor coincide em 19/25 posições.
+2. **O T30 apresenta diferenças sistemáticas entre motores**, embora não varie muito com a orientação no ODEON. Isso sugere que metodologias de traçado, estimativa de decaimento, scattering, absorção do ar, truncamento e resolução temporal precisam ser verificadas antes de atribuir o desvio exclusivamente ao formato CF2.
+3. **O ganho espectral e a interpretação da diretividade exigem cautela.** ODEON utiliza diretamente o arquivo CF2. O I-Simpa utiliza uma conversão para EASE; não há comprovação independente completa do sinal das atenuações angulares e da convenção de eixos. Pyroomacoustics usa outra implementação/interpolação; padrões parecidos **não garantem equivalência angular física**.
+4. **Concordância entre simuladores não é validação empírica.** O ODEON é uma referência comercial de comparação, não um *ground truth*. A etapa complementar com medições reais, por exemplo na sala BRAS, continua necessária.
+5. **O ensaio é essencialmente de 1000 Hz.** O fato de alguns programas produzirem dados em múltiplas bandas não significa que estes resultados consolidem a validação espectral em toda a faixa audível.
+6. **Limitação da demo de ODEON:** a execução foi feita com um recinto de exemplo fornecido com a instalação. Restrições de edição, cálculo e exportação em outros ambientes precisam ser verificadas separadamente.
+7. **Incerteza estatística:** a semente 123 foi mantida nas três orientações I-Simpa para controle, mas não foram realizadas repetições suficientes com sementes independentes para estimar a incerteza do ranking. Empates e diferenças de cerca de 0,1 dB no ODEON merecem análise específica.
+
+## 7. Próximas etapas propostas
+
+1. **Auditoria de diretividade:** conferir coordenadas polares, sinal da atenuação, eixo frontal, convenção de elevação e interpolação a 1000 Hz; comparar o ganho angular previsto nas três ferramentas para um conjunto reduzido de direções conhecidas.
+2. **Harmonização física:** registrar a tabela real de α(f) por superfície, espalhamento, temperatura, umidade, perdas atmosféricas e condições de emissão; comparar resultados com scattering controlado.
+3. **Repetibilidade:** executar pelo menos três sementes independentes em I-Simpa e Pyroomacoustics para −8° e −16°, quantificando dispersão de C80 por receptor e estabilidade do ranking.
+4. **Calibração energética:** exportar SPL e potência espectral por banda do ODEON (quando possível) e documentar a amplitude usada no Pyroomacoustics; evitar diferenças em nível absoluto até essa equivalência estar demonstrada.
+5. **Extensão espectral:** repetir a comparação em 500, 2000 e 4000 Hz, garantindo agregação de terços e diretividade correspondente.
+6. **Validação experimental:** comparar ao menos um conjunto de métricas com medições de uma sala real (BRAS ou outro cenário medido), mantendo geometria e condições controladas.
+7. **Otimização:** utilizar média de C80, uniformidade de SPL e restrições de cobertura como objetivos; avaliar concordância dos rankings e desempenho próximo ao ótimo, não apenas RMSE absoluto.
+
+## 8. Reprodutibilidade e arquivos
+
+O pacote anexado inclui este relatório e os gráficos em `figuras/` (imagens PNG com caminhos relativos), além das tabelas recalculadas em `dados/`. As novas figuras usam **dados reais das tabelas consolidadas**, sem interpolação de receptores. Os painéis pareados usam a mesma escala de cor por métrica, incluindo todos os cenários. O código reproduzível das novas figuras está em `gerar_graficos_complementares.py`.
+
+- `dados/omni_25_receptores_analise.csv` — dados OMNI com média dos três, divergência, diferenças com sinal e R11 recuperado e incluído em todas as métricas temporais.
+- `dados/cf2_75_receptores_analise.csv` — 25 receptores × 3 orientações, todas as métricas e diferenças.
+- `dados/resumo_omni.csv` e `dados/resumo_cf2.csv` — médias e divergências por caso; a tabela OMNI foi recalculada com N=25.
+- `dados/omni_25_receptores_atualizado_bruto.csv` — valores OMNI atualizados, antes dos campos derivados de divergência.
+- `dados/comparacoes_pareadas_rmse.csv` — viés, MAE, RMSE e número de pares efetivamente comparados.
+- `dados/novo_comparacoes_pareadas_mapas.csv` — viés, MAE, RMSE e escala de representação dos **39 mapas pareados individuais**.
+- `dados/novo_respostas_2d_medias.csv` — médias das curvas 2D dos três simuladores.
+- `figuras/novo_linhas_*.png` — **13 gráficos 2D** com identificadores R01–R25 no eixo horizontal.
+- `figuras/novo_pareados_*.png` — **13 painéis de calor** com os três pares de simuladores.
+- `figuras/mapas_pareados_individuais/` — **39 mapas individuais** utilizados nos painéis, para edições e análise em detalhe.
+- `gerar_graficos_complementares.py` — script de reprodução dos gráficos adicionais (`numpy`, `pandas`, `matplotlib`, `pillow`).
+
+As fontes auditadas incluem as tabelas consolidadas previamente geradas, as exportações textuais ODEON 0°, −8°, −16°, o ZIP OMNI atualizado I-Simpa de 21h04, os ZIPs CF2 I-Simpa de 19h42, 20h01 e 20h09 e o conjunto de resultados Pyroomacoustics com 50.000 raios. A figura 1 é uma visualização derivada do modelo reconstruído; as demais são gráficos calculados das tabelas de resultados, e não ilustrações hipotéticas.
+
+**Fontes de dados locais relevantes:**
+
+```text
+OMNI_25_RECEPTORES_ATUALIZADO_20261016.csv
+Comparacion_CF2_tres_simuladores_75_receptores.csv
+2026-10-16_21h04m27s.zip   (I-Simpa OMNI atualizado, 25/25)
+2026-10-16_19h42m00s.zip   (I-Simpa CF2 0°)
+2026-10-16_20h01m09s.zip   (I-Simpa −8°)
+2026-10-16_20h09m36s.zip   (I-Simpa −16°)
+PRA_CF2_75_receptores_50000.csv
+```
+
+## 9. Conclusão
+
+A inclusão de curvas por receptor e mapas de calor com sinal permite diferenciar desvios sistemáticos de discrepâncias localizadas na plateia, preservando as 25 posições e a orientação física do auditório. Essas visualizações complementam, mas não substituem, as análises de viés e RMSE. 
+
+O estudo demonstra que o caso omnidirecional permite estabelecer a diferença de base entre algoritmos, ao passo que a fonte Bosch CF2 evidencia o efeito da orientação. **Os três simuladores concordam que a inclinação de −16° produz o maior C80 médio entre as três posições testadas**, apesar de divergências absolutas na estimativa de clareza e reverberação. O ranking da orientação por receptor também apresenta concordância significativa, mas incompleta (**19/25**). Esta evidência é útil para orientar um otimizador acústico que utilize simuladores de menor custo computacional; sua validade preditiva ainda deve ser testada com controle de parâmetros, repetições e medições físicas.
