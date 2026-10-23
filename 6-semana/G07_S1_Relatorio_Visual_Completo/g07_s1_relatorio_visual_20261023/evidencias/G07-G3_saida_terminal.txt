@@ -1,0 +1,677 @@
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ OUT="$BASE/acoustic_g3_orders0123"
+
+echo "===== INFORME ====="
+cat "$OUT/g07g3_report.md"
+
+echo
+echo "===== MÉTRICAS JSON ====="
+cat "$OUT/g07g3_summary.json"
+
+echo
+echo "===== TIEMPOS ====="
+column -s, -t < "$OUT/g07g3_solver_timings.csv"
+
+echo
+echo "===== ARCHIVOS RIR ====="
+ls -lh "$OUT"/*.npz
+===== INFORME =====
+# G07-G3 — RIR simuladas, modelo GT vs mallas reconstruidas
+
+**Evaluación controlada con escala GT (NO es calibración métrica autónoma).**
+
+Se empleó el mismo Pyroomacoustics Room.from_corners/extrude para los tres recintos, con máscara de visibilidad booleana auditada.
+
+| Métrica | Orden | 36 imágenes | 52 imágenes |
+|---|---:|---:|---:|
+| RIR espuria cuando GT silencioso | 0 | 8 | 0 |
+| RIR ausente cuando GT tiene energía | 0 | 0 | 0 |
+| Error abs. de energía (dB) (median) | 0 | 0.00000 | 0.00000 |
+| Error abs. de energía (dB) (p95) | 0 | 0.00000 | 0.00000 |
+| L2 relativa de RIR (median) | 0 | 0.00000 | 0.00000 |
+| L2 relativa de RIR (p95) | 0 | 0.00000 | 0.00000 |
+| L2 relativa de envolvente (median) | 0 | 0.00000 | 0.00000 |
+| L2 relativa de envolvente (p95) | 0 | 0.00000 | 0.00000 |
+| RIR espuria cuando GT silencioso | 1 | 0 | 0 |
+| RIR ausente cuando GT tiene energía | 1 | 0 | 0 |
+| Error abs. de energía (dB) (median) | 1 | 0.16930 | 0.00829 |
+| Error abs. de energía (dB) (p95) | 1 | 10.51293 | 0.09731 |
+| L2 relativa de RIR (median) | 1 | 0.38966 | 0.15903 |
+| L2 relativa de RIR (p95) | 1 | 3.25352 | 0.26197 |
+| L2 relativa de envolvente (median) | 1 | 0.08563 | 0.01675 |
+| L2 relativa de envolvente (p95) | 1 | 7.75954 | 0.04249 |
+| RIR espuria cuando GT silencioso | 2 | 0 | 0 |
+| RIR ausente cuando GT tiene energía | 2 | 0 | 0 |
+| Error abs. de energía (dB) (median) | 2 | 0.23796 | 0.01457 |
+| Error abs. de energía (dB) (p95) | 2 | 7.11308 | 0.12306 |
+| L2 relativa de RIR (median) | 2 | 0.55423 | 0.20898 |
+| L2 relativa de RIR (p95) | 2 | 2.19057 | 0.31442 |
+| L2 relativa de envolvente (median) | 2 | 0.14466 | 0.02442 |
+| L2 relativa de envolvente (p95) | 2 | 4.35115 | 0.07302 |
+| RIR espuria cuando GT silencioso | 3 | 0 | 0 |
+| RIR ausente cuando GT tiene energía | 3 | 0 | 0 |
+| Error abs. de energía (dB) (median) | 3 | 0.29236 | 0.03646 |
+| Error abs. de energía (dB) (p95) | 3 | 5.74926 | 0.19130 |
+| L2 relativa de RIR (median) | 3 | 0.67758 | 0.26783 |
+| L2 relativa de RIR (p95) | 3 | 1.89993 | 0.35608 |
+| L2 relativa de envolvente (median) | 3 | 0.21426 | 0.03438 |
+| L2 relativa de envolvente (p95) | 3 | 3.52209 | 0.09459 |
+
+**Notas:** La energía de la RIR depende de coeficientes sintéticos uniformes. Los errores de forma de onda son sensibles a retardos submuestrales. Una coincidencia numérica del simulador no equivale a validación con medidas reales.
+
+===== MÉTRICAS JSON =====
+{
+  "experiment": "G07-G3: polygonal-room Pyroomacoustics ISM orders 0-3 exploratory evaluation",
+  "CAUTION": "POST-HOC GT Sim3 alignment; true scale/orientation NOT autonomously recovered from RGB. Uniform synthetic material; ISM only. Acoustic evaluation is not real-room measurement.",
+  "visibility_patch": "Process-local defensive bool visibility normalization; observed dtype recorded; no installed package changed",
+  "pyroomacoustics_version": "0.10.1",
+  "fs": 48000,
+  "speed_m_per_s": 343.0,
+  "uniform_energy_absorption": 0.2,
+  "scattering": 0.0,
+  "ray_tracing": false,
+  "air_absorption": false,
+  "randomized_ism": false,
+  "early_window_ms": 100.0,
+  "envelope_smoothing_ms": 1.0,
+  "sources": {
+    "S_center": [
+      3.0,
+      2.0,
+      1.5
+    ],
+    "S_left_wing": [
+      1.35,
+      4.55,
+      1.5
+    ],
+    "S_right_wing": [
+      4.65,
+      4.55,
+      1.5
+    ]
+  },
+  "receivers": {
+    "R_grid_0_0": [
+      0.8,
+      0.8,
+      1.3
+    ],
+    "R_grid_0_1": [
+      0.8,
+      1.65,
+      1.4000000000000001
+    ],
+    "R_grid_0_2": [
+      0.8,
+      2.5,
+      1.5
+    ],
+    "R_grid_0_3": [
+      0.8,
+      3.35,
+      1.6
+    ],
+    "R_grid_0_4": [
+      0.8,
+      4.05,
+      1.7000000000000002
+    ],
+    "R_grid_1_0": [
+      1.8,
+      0.8,
+      1.4000000000000001
+    ],
+    "R_grid_1_1": [
+      1.8,
+      1.65,
+      1.5
+    ],
+    "R_grid_1_2": [
+      1.8,
+      2.5,
+      1.6
+    ],
+    "R_grid_1_3": [
+      1.8,
+      3.35,
+      1.7000000000000002
+    ],
+    "R_grid_1_4": [
+      1.8,
+      4.05,
+      1.3
+    ],
+    "R_grid_2_0": [
+      3.0,
+      0.8,
+      1.5
+    ],
+    "R_grid_2_1": [
+      3.0,
+      1.65,
+      1.6
+    ],
+    "R_grid_2_2": [
+      3.0,
+      2.5,
+      1.7000000000000002
+    ],
+    "R_grid_2_3": [
+      3.0,
+      3.35,
+      1.3
+    ],
+    "R_grid_2_4": [
+      3.0,
+      4.05,
+      1.4000000000000001
+    ],
+    "R_grid_3_0": [
+      4.2,
+      0.8,
+      1.6
+    ],
+    "R_grid_3_1": [
+      4.2,
+      1.65,
+      1.7000000000000002
+    ],
+    "R_grid_3_2": [
+      4.2,
+      2.5,
+      1.3
+    ],
+    "R_grid_3_3": [
+      4.2,
+      3.35,
+      1.4000000000000001
+    ],
+    "R_grid_3_4": [
+      4.2,
+      4.05,
+      1.5
+    ],
+    "R_grid_4_0": [
+      5.2,
+      0.8,
+      1.7000000000000002
+    ],
+    "R_grid_4_1": [
+      5.2,
+      1.65,
+      1.3
+    ],
+    "R_grid_4_2": [
+      5.2,
+      2.5,
+      1.4000000000000001
+    ],
+    "R_grid_4_3": [
+      5.2,
+      3.35,
+      1.5
+    ],
+    "R_grid_4_4": [
+      5.2,
+      4.05,
+      1.6
+    ],
+    "R_left_1": [
+      1.5,
+      4.72,
+      1.45
+    ],
+    "R_left_2": [
+      2.0,
+      4.6,
+      1.6
+    ],
+    "R_right_1": [
+      4.5,
+      4.72,
+      1.45
+    ],
+    "R_right_2": [
+      4.0,
+      4.6,
+      1.6
+    ]
+  },
+  "fit_camera_images": [
+    "cam_000.png",
+    "cam_002.png",
+    "cam_004.png",
+    "cam_006.png",
+    "cam_008.png",
+    "cam_010.png",
+    "cam_012.png",
+    "cam_014.png",
+    "cam_016.png",
+    "cam_018.png",
+    "cam_020.png",
+    "cam_022.png",
+    "cam_024.png",
+    "cam_026.png",
+    "cam_028.png",
+    "cam_030.png",
+    "cam_032.png",
+    "cam_034.png"
+  ],
+  "geometries": {
+    "GT": {
+      "zlo": 0.0,
+      "zhi": 3.0,
+      "n_walls": 8
+    },
+    "baseline36": {
+      "name": "reconstruction_e1_baseline",
+      "zlo": 6.67249910175638e-05,
+      "zhi": 3.0011292865562473,
+      "scale_evaluation_only": 0.5835482025357639,
+      "native_stack_inverted": true,
+      "n_walls": 4,
+      "area_m2_eval_only": 30.0232960609897,
+      "max_vertical_wall_tilt_deg": 0.009895883658583638
+    },
+    "targeted52": {
+      "name": "reconstruction_e1_targeted",
+      "zlo": 0.0006261066540826643,
+      "zhi": 3.000606495588365,
+      "scale_evaluation_only": 0.5863022363912014,
+      "native_stack_inverted": true,
+      "n_walls": 8,
+      "area_m2_eval_only": 28.87029655875203,
+      "max_vertical_wall_tilt_deg": 0.01191062296889944
+    }
+  },
+  "visibility_calls": 1044,
+  "no_visible_image_calls": 16,
+  "original_visibility_dtypes": [
+    "bool"
+  ],
+  "per_order": {
+    "0": {
+      "baseline36": {
+        "cases": 87,
+        "reference_silent_cases": 8,
+        "spurious_signal_when_reference_silent": 8,
+        "lost_signal_when_reference_nonzero": 0,
+        "absolute_energy_delta_db": {
+          "n": 79,
+          "mean": 2.098921676821551e-08,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 8.865410404916769e-07
+        },
+        "rir_waveform_relative_l2": {
+          "n": 79,
+          "mean": 2.420670321232006e-09,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 1.0214533488171009e-07
+        },
+        "smoothed_energy_envelope_relative_l2": {
+          "n": 79,
+          "mean": 4.834202792056566e-09,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 2.0415262575257666e-07
+        },
+        "absolute_early_energy_delta_db": {
+          "n": 79,
+          "mean": 2.098921676821551e-08,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 8.865410404916769e-07
+        }
+      },
+      "targeted52": {
+        "cases": 87,
+        "reference_silent_cases": 8,
+        "spurious_signal_when_reference_silent": 0,
+        "lost_signal_when_reference_nonzero": 0,
+        "absolute_energy_delta_db": {
+          "n": 79,
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rir_waveform_relative_l2": {
+          "n": 79,
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "smoothed_energy_envelope_relative_l2": {
+          "n": 79,
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "absolute_early_energy_delta_db": {
+          "n": 79,
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      }
+    },
+    "1": {
+      "baseline36": {
+        "cases": 87,
+        "reference_silent_cases": 0,
+        "spurious_signal_when_reference_silent": 0,
+        "lost_signal_when_reference_nonzero": 0,
+        "absolute_energy_delta_db": {
+          "n": 87,
+          "mean": 1.5255801515189489,
+          "median": 0.16930442102024418,
+          "p95": 10.512932350242547,
+          "max": 16.553221720436436
+        },
+        "rir_waveform_relative_l2": {
+          "n": 87,
+          "mean": 0.8080384547115335,
+          "median": 0.3896569504116626,
+          "p95": 3.2535176198137923,
+          "max": 6.651960078447912
+        },
+        "smoothed_energy_envelope_relative_l2": {
+          "n": 87,
+          "mean": 1.5750587991982672,
+          "median": 0.08562839750246119,
+          "p95": 7.759541126001798,
+          "max": 27.12232825476658
+        },
+        "absolute_early_energy_delta_db": {
+          "n": 87,
+          "mean": 1.5255801515189489,
+          "median": 0.16930442102024418,
+          "p95": 10.512932350242547,
+          "max": 16.553221720436436
+        }
+      },
+      "targeted52": {
+        "cases": 87,
+        "reference_silent_cases": 0,
+        "spurious_signal_when_reference_silent": 0,
+        "lost_signal_when_reference_nonzero": 0,
+        "absolute_energy_delta_db": {
+          "n": 87,
+          "mean": 0.02723914772102794,
+          "median": 0.008293998447506536,
+          "p95": 0.09731311964674161,
+          "max": 0.11709802063140444
+        },
+        "rir_waveform_relative_l2": {
+          "n": 87,
+          "mean": 0.1548567252335834,
+          "median": 0.15903251397759005,
+          "p95": 0.2619681014307095,
+          "max": 0.320287088836487
+        },
+        "smoothed_energy_envelope_relative_l2": {
+          "n": 87,
+          "mean": 0.02019152858024045,
+          "median": 0.016751180072457753,
+          "p95": 0.04248762112972066,
+          "max": 0.05317002762080177
+        },
+        "absolute_early_energy_delta_db": {
+          "n": 87,
+          "mean": 0.02723914772102794,
+          "median": 0.008293998447506536,
+          "p95": 0.09731311964674161,
+          "max": 0.11709802063140444
+        }
+      }
+    },
+    "2": {
+      "baseline36": {
+        "cases": 87,
+        "reference_silent_cases": 0,
+        "spurious_signal_when_reference_silent": 0,
+        "lost_signal_when_reference_nonzero": 0,
+        "absolute_energy_delta_db": {
+          "n": 87,
+          "mean": 1.3386715100021767,
+          "median": 0.23796492253021662,
+          "p95": 7.113084929972852,
+          "max": 12.399668842103795
+        },
+        "rir_waveform_relative_l2": {
+          "n": 87,
+          "mean": 0.8057943562579829,
+          "median": 0.5542290100245704,
+          "p95": 2.1905729438093466,
+          "max": 4.074109488266776
+        },
+        "smoothed_energy_envelope_relative_l2": {
+          "n": 87,
+          "mean": 0.9834277861560975,
+          "median": 0.1446629072768131,
+          "p95": 4.351147766221143,
+          "max": 15.186550440809802
+        },
+        "absolute_early_energy_delta_db": {
+          "n": 87,
+          "mean": 1.3386715100021767,
+          "median": 0.23796492253021662,
+          "p95": 7.113084929972852,
+          "max": 12.399668842103795
+        }
+      },
+      "targeted52": {
+        "cases": 87,
+        "reference_silent_cases": 0,
+        "spurious_signal_when_reference_silent": 0,
+        "lost_signal_when_reference_nonzero": 0,
+        "absolute_energy_delta_db": {
+          "n": 87,
+          "mean": 0.05097881142258383,
+          "median": 0.014569371934417574,
+          "p95": 0.12306491350335048,
+          "max": 1.3297704833603197
+        },
+        "rir_waveform_relative_l2": {
+          "n": 87,
+          "mean": 0.21574043492976763,
+          "median": 0.20898316614145984,
+          "p95": 0.3144202598289313,
+          "max": 0.3997066096303025
+        },
+        "smoothed_energy_envelope_relative_l2": {
+          "n": 87,
+          "mean": 0.034407255548221,
+          "median": 0.02442128867221292,
+          "p95": 0.07301758614924882,
+          "max": 0.5312033046844764
+        },
+        "absolute_early_energy_delta_db": {
+          "n": 87,
+          "mean": 0.05097881142258383,
+          "median": 0.014569371934417574,
+          "p95": 0.12306491350335048,
+          "max": 1.3297704833603197
+        }
+      }
+    },
+    "3": {
+      "baseline36": {
+        "cases": 87,
+        "reference_silent_cases": 0,
+        "spurious_signal_when_reference_silent": 0,
+        "lost_signal_when_reference_nonzero": 0,
+        "absolute_energy_delta_db": {
+          "n": 87,
+          "mean": 1.1374115158888265,
+          "median": 0.29236262625004733,
+          "p95": 5.749259436832394,
+          "max": 9.573846583887093
+        },
+        "rir_waveform_relative_l2": {
+          "n": 87,
+          "mean": 0.8477989886342251,
+          "median": 0.6775762843090328,
+          "p95": 1.8999268228437636,
+          "max": 2.923969337256015
+        },
+        "smoothed_energy_envelope_relative_l2": {
+          "n": 87,
+          "mean": 0.6913721044177522,
+          "median": 0.21426118136964659,
+          "p95": 3.522087345264376,
+          "max": 8.05826492692818
+        },
+        "absolute_early_energy_delta_db": {
+          "n": 87,
+          "mean": 1.1374115158888265,
+          "median": 0.29236262625004733,
+          "p95": 5.749259436832394,
+          "max": 9.573846583887093
+        }
+      },
+      "targeted52": {
+        "cases": 87,
+        "reference_silent_cases": 0,
+        "spurious_signal_when_reference_silent": 0,
+        "lost_signal_when_reference_nonzero": 0,
+        "absolute_energy_delta_db": {
+          "n": 87,
+          "mean": 0.07072477801393358,
+          "median": 0.036455504753746044,
+          "p95": 0.19130264650621612,
+          "max": 1.619175400930766
+        },
+        "rir_waveform_relative_l2": {
+          "n": 87,
+          "mean": 0.26749938222071445,
+          "median": 0.26782971748655,
+          "p95": 0.3560781142330909,
+          "max": 0.45468599373794444
+        },
+        "smoothed_energy_envelope_relative_l2": {
+          "n": 87,
+          "mean": 0.04546646489924697,
+          "median": 0.034384818739889605,
+          "p95": 0.09459164496906236,
+          "max": 0.5293200613836803
+        },
+        "absolute_early_energy_delta_db": {
+          "n": 87,
+          "mean": 0.07072477801393358,
+          "median": 0.036455504753746044,
+          "p95": 0.19130264650621612,
+          "max": 1.619175400930766
+        }
+      }
+    }
+  },
+  "direct_path_audit": [
+    {
+      "source": "S_center",
+      "model": "GT",
+      "n_direct_visible": 29,
+      "n_direct_invisible": 0
+    },
+    {
+      "source": "S_center",
+      "model": "baseline36",
+      "n_direct_visible": 29,
+      "n_direct_invisible": 0
+    },
+    {
+      "source": "S_center",
+      "model": "targeted52",
+      "n_direct_visible": 29,
+      "n_direct_invisible": 0
+    },
+    {
+      "source": "S_left_wing",
+      "model": "GT",
+      "n_direct_visible": 25,
+      "n_direct_invisible": 4
+    },
+    {
+      "source": "S_left_wing",
+      "model": "baseline36",
+      "n_direct_visible": 29,
+      "n_direct_invisible": 0
+    },
+    {
+      "source": "S_left_wing",
+      "model": "targeted52",
+      "n_direct_visible": 25,
+      "n_direct_invisible": 4
+    },
+    {
+      "source": "S_right_wing",
+      "model": "GT",
+      "n_direct_visible": 25,
+      "n_direct_invisible": 4
+    },
+    {
+      "source": "S_right_wing",
+      "model": "baseline36",
+      "n_direct_visible": 29,
+      "n_direct_invisible": 0
+    },
+    {
+      "source": "S_right_wing",
+      "model": "targeted52",
+      "n_direct_visible": 25,
+      "n_direct_invisible": 4
+    }
+  ],
+  "solver_note": "No-diffraction ISM predicts no signal for occluded order-0 GT cases. Higher-order RIR metrics include changes in path existence, arrival time, amplitudes and fractional-delay interpolation. Do NOT infer measured RT60 or STI. Visibility audit of direct paths is performed at order 0 only; for orders 2/3 cross-solver equivalence is not established."
+}
+
+===== TIEMPOS =====
+order  source        model       compute_rir_and_ism_elapsed_s  wall_count
+0      S_center      GT          0.026387474994407967           10
+0      S_center      baseline36  0.017820182998548262           6
+0      S_center      targeted52  0.019084740000835154           10
+0      S_left_wing   GT          0.026957233996654395           10
+0      S_left_wing   baseline36  0.0178721430056612             6
+0      S_left_wing   targeted52  0.018948313998407684           10
+0      S_right_wing  GT          0.025052871998923365           10
+0      S_right_wing  baseline36  0.019351546005054843           6
+0      S_right_wing  targeted52  0.018211212001915555           10
+1      S_center      GT          0.024335311994946096           10
+1      S_center      baseline36  0.019011276002856903           6
+1      S_center      targeted52  0.020301474003645126           10
+1      S_left_wing   GT          0.020440120999410283           10
+1      S_left_wing   baseline36  0.019906405002984684           6
+1      S_left_wing   targeted52  0.019364464002137538           10
+1      S_right_wing  GT          0.01941133400396211            10
+1      S_right_wing  baseline36  0.019487805999233387           6
+1      S_right_wing  targeted52  0.02026443999784533            10
+2      S_center      GT          0.022740188003808726           10
+2      S_center      baseline36  0.019330921000801027           6
+2      S_center      targeted52  0.020715707003546413           10
+2      S_left_wing   GT          0.019933680996473413           10
+2      S_left_wing   baseline36  0.0205767459992785             6
+2      S_left_wing   targeted52  0.02245311399747152            10
+2      S_right_wing  GT          0.020963071001460776           10
+2      S_right_wing  baseline36  0.01991163699858589            6
+2      S_right_wing  targeted52  0.019985751001513563           10
+3      S_center      GT          0.028386384998157155           10
+3      S_center      baseline36  0.021774624998215586           6
+3      S_center      targeted52  0.02437089000159176            10
+3      S_left_wing   GT          0.022720893000951037           10
+3      S_left_wing   baseline36  0.021244800002023112           6
+3      S_left_wing   targeted52  0.02499439699749928            10
+3      S_right_wing  GT          0.02384634799818741            10
+3      S_right_wing  baseline36  0.020297349998145364           6
+3      S_right_wing  targeted52  0.02342101099930005            10
+
+===== ARCHIVOS RIR =====
+-rw-rw-r-- 1 alunos alunos 880K out 22 23:35 /home/alunos/geometry-data/results/g07/s1_recess/acoustic_g3_orders0123/g07g3_rirs_order0.npz
+-rw-rw-r-- 1 alunos alunos 2,4M out 22 23:35 /home/alunos/geometry-data/results/g07/s1_recess/acoustic_g3_orders0123/g07g3_rirs_order1.npz
+-rw-rw-r-- 1 alunos alunos 3,7M out 22 23:35 /home/alunos/geometry-data/results/g07/s1_recess/acoustic_g3_orders0123/g07g3_rirs_order2.npz
+-rw-rw-r-- 1 alunos alunos 5,2M out 22 23:35 /home/alunos/geometry-data/results/g07/s1_recess/acoustic_g3_orders0123/g07g3_rirs_order3.npz
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ 

@@ -1,0 +1,54 @@
+{
+  "origem": "Resultados transcritos de logs do usuário G07-D4/E1/F/G1/G2/G3/G4/G5/G6/G7 (outubro de 2026); não são uma nova execução.",
+  "cenario": {
+    "nome": "S1 recess (Blender)",
+    "vertices_gt_xy_m": [[0,0],[6,0],[6,5],[3.8,5],[3.8,4.3],[2.2,4.3],[2.2,5],[0,5]],
+    "altura_m": 3,
+    "area_planta_m2": 28.88,
+    "volume_m3": 86.64,
+    "segmentos_parede": 8,
+    "esquinas_concavas": 2,
+    "fontes_m": {"S_center":[3,2,1.5],"S_left_wing":[1.35,4.55,1.5],"S_right_wing":[4.65,4.55,1.5]},
+    "receptor_singular_m": [3,0.8,1.5],
+    "receptores_grid_x_m": [0.8,1.8,3.0,4.2,5.2],
+    "receptores_grid_y_m": [0.8,1.65,2.5,3.35,4.05],
+    "receptores_adicionais_xy_m": [[1.5,4.72],[2.0,4.6],[4.5,4.72],[4.0,4.6]]
+  },
+  "sfm": {
+    "original36":{"imagens":36,"registradas":36,"pontos_brutos":13865,"pontos_qualidade":13044,"erro_cameras_holdout_mm":1.21366},
+    "dirigido52":{"imagens":52,"registradas":52,"pontos_brutos":18736,"pontos_qualidade":17039,"erro_cameras_holdout_mm":1.51947}
+  },
+  "cobertura_superficial_pct":{"wall_03":[5,75],"wall_05":[13.3333333,71.6666667]},
+  "geometria": {
+    "original36":{"segmentos_parede":4,"esquinas_concavas":0,"iou_planta":0.9619047564847004,"erro_volume_pct":3.9956022431036686,"gt_obj_media_mm":33.42218,"gt_obj_p95_mm":299.93328,"obj_gt_p95_mm":2.69098},
+    "dirigido52":{"segmentos_parede":8,"esquinas_concavas":2,"iou_planta":0.9996086604968949,"erro_volume_pct":-0.03425265584836579,"gt_obj_media_mm":0.56572,"gt_obj_p95_mm":1.13408,"obj_gt_p95_mm":1.08744}
+  },
+  "paredes_gt_erro_medio_mm":{"wall_00":[0.3928530581304971,0.26276713168113236],"wall_01":[1.7040247838008693,0.4583290517266243],"wall_02":[0.714707237042597,1.0620157150606535],"wall_03":[276.2686263762481,1.0999625357251113],"wall_04":[510.38591751383154,0.48517583251821095],"wall_05":[276.5233851066889,1.0645316852378428],"wall_06":[1.386723099847474,0.5323782589857706],"wall_07":[0.9192406164017246,0.4907172833779373]},
+  "paredes_gt_erro_p95_mm":{"wall_00":[0.89918,0.62611],"wall_01":[2.35588,0.78949],"wall_02":[0.98079,1.45294],"wall_03":[700.98078,1.45294],"wall_04":[701.28978,0.59203],"wall_05":[701.32068,1.27614],"wall_06":[1.75691,1.27614],"wall_07":[1.46833,0.82239]},
+  "trajetorias_G1": {
+    "casos":87,"fontes":3,"receptores":29,"gt_reflexoes_ordem1":434,
+    "original36":{"direto_espurio":8,"direto_perdido":0,"reflexoes_previstas":522,"reflexoes_emparelhadas":417,"reflexoes_omitidas":17,"reflexoes_espurias":105,"recall":0.960829493,"precision":0.798850575,"comprimento_p95_mm":3.778809,"chegada_p95_us":11.016936,"incidencia_p95_mm":2.306524},
+    "dirigido52":{"direto_espurio":0,"direto_perdido":0,"reflexoes_previstas":432,"reflexoes_emparelhadas":432,"reflexoes_omitidas":2,"reflexoes_espurias":0,"recall":0.995391705,"precision":1.0,"comprimento_p95_mm":1.694185,"chegada_p95_us":4.939315,"incidencia_p95_mm":0.989593}
+  },
+  "RIR_G3": {
+    "config":{"pyroomacoustics":"0.10.1","fs_hz":48000,"c_m_s":343,"absorcao_uniforme":0.2,"ISM_ordens":[0,1,2,3],"scattering":0,"raios":false},
+    "por_ordem": {
+      "1":{"energia_media_abs_db":[1.5255801515189489,0.02723914772102794],"energia_mediana_abs_db":[0.16930442102024418,0.008293998447506536],"energia_p95_abs_db":[10.512932350242547,0.09731311964674161],"rir_l2_media":[0.8080384547115335,0.1548567252335834],"rir_l2_mediana":[0.3896569504116626,0.15903251397759005],"rir_l2_p95":[3.2535176198137923,0.2619681014307095],"envoltoria_l2_media":[1.5750587991982672,0.02019152858024045],"envoltoria_l2_mediana":[0.08562839750246119,0.016751180072457753],"envoltoria_l2_p95":[7.759541126001798,0.04248762112972066]},
+      "2":{"energia_media_abs_db":[1.3386715100021767,0.05097881142258383],"energia_mediana_abs_db":[0.23796492253021662,0.014569371934417574],"energia_p95_abs_db":[7.113084929972852,0.12306491350335048],"rir_l2_media":[0.8057943562579829,0.21574043492976763],"rir_l2_mediana":[0.5542290100245704,0.20898316614145984],"rir_l2_p95":[2.1905729438093466,0.3144202598289313],"envoltoria_l2_media":[0.9834277861560975,0.034407255548221],"envoltoria_l2_mediana":[0.1446629072768131,0.02442128867221292],"envoltoria_l2_p95":[4.351147766221143,0.07301758614924882]},
+      "3":{"energia_media_abs_db":[1.1374115158888265,0.07072477801393358],"energia_mediana_abs_db":[0.29236262625004733,0.036455504753746044],"energia_p95_abs_db":[5.749259436832394,0.19130264650621612],"rir_l2_media":[0.8477989886342251,0.26749938222071445],"rir_l2_mediana":[0.6775762843090328,0.26782971748655],"rir_l2_p95":[1.8999268228437636,0.3560781142330909],"envoltoria_l2_media":[0.6913721044177522,0.04546646489924697],"envoltoria_l2_mediana":[0.21426118136964659,0.034384818739889605],"envoltoria_l2_p95":[3.522087345264376,0.09459164496906236]}
+    },
+    "direto_espurio_ordem0":[8,0]
+  },
+  "G4_pareado":{"1":{"energia_melhor_pior_empate":[74,13,0],"rir_l2_melhor_pior_empate":[87,0,0],"envoltoria_melhor_pior_empate":[80,7,0]},"2":{"energia_melhor_pior_empate":[77,10,0],"rir_l2_melhor_pior_empate":[87,0,0],"envoltoria_melhor_pior_empate":[84,3,0]},"3":{"energia_melhor_pior_empate":[75,12,0],"rir_l2_melhor_pior_empate":[87,0,0],"envoltoria_melhor_pior_empate":[87,0,0]}},
+  "hotspot": {
+    "fonte":"S_center","receptor":"R_grid_2_0","ponto_gt_m":[3,0.8,1.5],
+    "erro_energia_abs_db":{"2":[1.4093527643900736,1.3297704833603197],"3":[1.612362956469759,1.619175400930766]},
+    "replay_npz_9_l2_rel":0.0,
+    "GT_imagens_visiveis_acumuladas":{"2":{"central":29,"x-5":25,"x+5":25,"z-5":25,"z+5":25},"3":{"central":71,"x-5":61,"x+5":61,"z-5":61,"z+5":61}},
+    "GT_mudanca_energia_db_ordem3":{"x-5":-2.6727921870725195,"x+5":-2.67279221131931,"z-5":-2.8415215785566525,"z+5":-2.842031762797726,"y-5":-0.1824743210813089,"y+5":-0.07865856169445123,"y-10":0.21651638812905286,"y+10":0.16156613252351568},
+    "imagem_espelho_exemplo_m":[9,2,-1.5],"ponto_aresta_exemplo_m":[6,1.4,0]
+  },
+  "G6":{"acumulado_ate2":{"imagens_apenas_centro":8,"sinalizadas_aresta":8,"ancestral_nao_recuperada":0},"acumulado_ate3":{"imagens_apenas_centro":22,"sinalizadas_aresta":22,"ancestral_nao_recuperada":7},"tolerancia_aresta_mm":0.1},
+  "G7":{"ordem_2_xz":{"energia_media_abs_db":[0.14086502892357733,0.09612441198951478],"rir_l2_media":[0.4419581642252667,0.13458643662240088],"env_l2_media":[0.09262955214143641,0.03500739655135675],"energia_ganhos_perdas":[6,2],"rir_ganhos_perdas":[8,0],"env_ganhos_perdas":[8,0]},"ordem_3_xz":{"energia_media_abs_db":[0.12585510901820887,0.10466414698137465],"rir_l2_media":[0.5677201155528603,0.16532978404907928],"env_l2_media":[0.12151715270920058,0.03656362138696561],"energia_ganhos_perdas":[5,3],"rir_ganhos_perdas":[8,0],"env_ganhos_perdas":[8,0]},"ordem_3_y":{"energia_media_abs_db":[1.66180397918663,1.6763475760960582],"rir_l2_media":[0.6687048053981152,0.3505744133797764],"env_l2_media":[0.5381903764399291,0.5256239431240873],"energia_ganhos_perdas":[1,3]}},
+  "H1":{"status":"planejado_nao_executado","estrategia":"36 originais + 16 câmeras em posições idênticas; comparação orientação geral vs dirigida ao rebaixo"}
+}

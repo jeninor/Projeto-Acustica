@@ -1,0 +1,8 @@
+RELATÓRIO CF2 v1/v2 — 23-10-2026
+
+Abra relatorio_cf2_v1_v2_fase_sofa_benchmarks_20261023.md.
+As imagens ficam na pasta imagens/ (PNG para Markdown e SVG vetorial).
+Os CSV em dados/ contêm transcrições tabulares dos resultados exibidos nos registros de terminal; NÃO são saídas brutas completas.
+Os arquivos CF2/SOFA originais não estão incluídos no pacote.
+
+Use o Markdown com a pasta imagens/ preservando os caminhos relativos.

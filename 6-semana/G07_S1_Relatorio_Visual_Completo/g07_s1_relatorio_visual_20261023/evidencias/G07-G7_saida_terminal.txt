@@ -1,0 +1,132 @@
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ export GEO_CODE="$HOME/Documentos/Juan/geometry-mapping-3d"
+export GEO_DATA="$HOME/geometry-data"
+
+cp ~/Downloads/g07g7_resumen_robustez_hotspot.py \
+  "$GEO_CODE/scripts/"
+
+python3 -m py_compile \
+  "$GEO_CODE/scripts/g07g7_resumen_robustez_hotspot.py"
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ BASE="$GEO_DATA/results/g07/s1_recess"
+
+python3 "$GEO_CODE/scripts/g07g7_resumen_robustez_hotspot.py" \
+  --pairs "$BASE/acoustic_g5_hotspot/g07g5_paired_perturbations.csv" \
+  --replay-gate "$BASE/acoustic_g5_hotspot/g07g5_replay_gate.csv" \
+  --out "$BASE/acoustic_g7_robustness"
+G07-G7 complete: 36 group metrics; replay 9 PASS; /home/alunos/geometry-data/results/g07/s1_recess/acoustic_g7_robustness
+Order 2 central: n=1, energy mean baseline=1.40935 dB targeted=1.32977 dB, wins/losses/ties=1/0/0
+Order 2 deslocamento_xz: n=8, energy mean baseline=0.14087 dB targeted=0.09612 dB, wins/losses/ties=6/2/0
+Order 3 central: n=1, energy mean baseline=1.61236 dB targeted=1.61918 dB, wins/losses/ties=0/1/0
+Order 3 deslocamento_xz: n=8, energy mean baseline=0.12586 dB targeted=0.10466 dB, wins/losses/ties=5/3/0
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ OUT="$BASE/acoustic_g7_robustness"
+
+echo "===== INFORME ====="
+cat "$OUT/g07g7_relatorio_pt.md"
+
+echo
+echo "===== COMPARACIÓN ESTADÍSTICA ====="
+column -s, -t < "$OUT/g07g7_paired_strata.csv"
+
+echo
+echo "===== RESULTADOS INDIVIDUALES ====="
+head -n 20 "$OUT/g07g7_paired_cases.csv"
+===== INFORME =====
+# G07-G7 — Robustez local do ponto acústico singular
+
+**Escopo:** auditoria descritiva dos CSV do G07-G5, sem novas RIR e sem exclusão do ponto central.
+
+O ponto central permanece como resultado original. Os deslocamentos (x,z) formam uma análise de sensibilidade pré-definida após a identificação do hotspot, não uma validação independente.
+
+Controle NPZ G07-G5 aprovado em **9** reexecuções.
+
+| Ordem | Métrica | Grupo | n | Média 36 | Média 52 | Mediana 36 | Mediana 52 | P95 36 | P95 52 | Melhorou/Piorou/Empatou |
+|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| 1 | Erro absoluto de energia (dB) | Central | 1 | 0.12558 | 0.08657 | 0.12558 | 0.08657 | 0.12558 | 0.08657 | 1/0/0 |
+| 1 | Erro absoluto de energia (dB) | X/Z ±5/10 mm | 8 | 0.09711 | 0.07088 | 0.10749 | 0.08713 | 0.12822 | 0.12570 | 7/1/0 |
+| 1 | Erro absoluto de energia (dB) | Y ±5/10 mm | 4 | 0.11681 | 0.08759 | 0.11845 | 0.08869 | 0.12181 | 0.08901 | 4/0/0 |
+| 2 | Erro absoluto de energia (dB) | Central | 1 | 1.40935 | 1.32977 | 1.40935 | 1.32977 | 1.40935 | 1.32977 | 1/0/0 |
+| 2 | Erro absoluto de energia (dB) | X/Z ±5/10 mm | 8 | 0.14087 | 0.09612 | 0.15728 | 0.09318 | 0.20653 | 0.19606 | 6/2/0 |
+| 2 | Erro absoluto de energia (dB) | Y ±5/10 mm | 4 | 1.23576 | 1.16388 | 1.23434 | 1.15899 | 1.42400 | 1.35589 | 4/0/0 |
+| 2 | Erro relativo L2 de RIR | Central | 1 | 0.56527 | 0.31536 | 0.56527 | 0.31536 | 0.56527 | 0.31536 | 1/0/0 |
+| 2 | Erro relativo L2 de RIR | X/Z ±5/10 mm | 8 | 0.44196 | 0.13459 | 0.44080 | 0.13438 | 0.49311 | 0.18651 | 8/0/0 |
+| 2 | Erro relativo L2 de RIR | Y ±5/10 mm | 4 | 0.55496 | 0.28705 | 0.55492 | 0.28683 | 0.56717 | 0.31710 | 4/0/0 |
+| 2 | Erro relativo L2 de envoltória | Central | 1 | 0.54043 | 0.53120 | 0.54043 | 0.53120 | 0.54043 | 0.53120 | 1/0/0 |
+| 2 | Erro relativo L2 de envoltória | X/Z ±5/10 mm | 8 | 0.09263 | 0.03501 | 0.10374 | 0.03313 | 0.10581 | 0.05407 | 8/0/0 |
+| 2 | Erro relativo L2 de envoltória | Y ±5/10 mm | 4 | 0.49112 | 0.47713 | 0.49038 | 0.47684 | 0.55837 | 0.54250 | 4/0/0 |
+| 3 | Erro absoluto de energia (dB) | Central | 1 | 1.61236 | 1.61918 | 1.61236 | 1.61918 | 1.61236 | 1.61918 | 0/1/0 |
+| 3 | Erro absoluto de energia (dB) | X/Z ±5/10 mm | 8 | 0.12586 | 0.10466 | 0.14078 | 0.08217 | 0.21738 | 0.20374 | 5/3/0 |
+| 3 | Erro absoluto de energia (dB) | Y ±5/10 mm | 4 | 1.66180 | 1.67635 | 1.65814 | 1.66415 | 1.85354 | 1.87306 | 1/3/0 |
+| 3 | Erro relativo L2 de RIR | Central | 1 | 0.67074 | 0.34468 | 0.67074 | 0.34468 | 0.67074 | 0.34468 | 1/0/0 |
+| 3 | Erro relativo L2 de RIR | X/Z ±5/10 mm | 8 | 0.56772 | 0.16533 | 0.57286 | 0.16930 | 0.62169 | 0.21240 | 8/0/0 |
+| 3 | Erro relativo L2 de RIR | Y ±5/10 mm | 4 | 0.66870 | 0.35057 | 0.66815 | 0.34863 | 0.67553 | 0.37362 | 4/0/0 |
+| 3 | Erro relativo L2 de envoltória | Central | 1 | 0.54305 | 0.52932 | 0.54305 | 0.52932 | 0.54305 | 0.52932 | 1/0/0 |
+| 3 | Erro relativo L2 de envoltória | X/Z ±5/10 mm | 8 | 0.12152 | 0.03656 | 0.12743 | 0.03327 | 0.14776 | 0.05567 | 8/0/0 |
+| 3 | Erro relativo L2 de envoltória | Y ±5/10 mm | 4 | 0.53819 | 0.52562 | 0.53685 | 0.52564 | 0.58695 | 0.57262 | 4/0/0 |
+
+## Interpretação metodológica
+
+Os casos X/Z deslocados apresentam contagens de fontes imagem que podem coincidir com as do GT; isso não significa que as histórias das reflexões sejam idênticas.
+O resultado central com incidência em aresta é um caso singular relevante e não pode ser apagado do benchmark principal. As perturbações são uma análise de sensibilidade complementar.
+As trajetórias de ordem 3 que não tiveram cadeia ancestral recuperada continuam classificadas como hipóteses.
+Para uma análise confirmatória, usar múltiplas fontes/receptores não simétricos, repetir aquisições e obter escala independente de GT.
+
+===== COMPARACIÓN ESTADÍSTICA =====
+order  metric                    subset             n_paired  baseline_mean         targeted_mean         baseline_median       targeted_median       baseline_p95          targeted_p95          baseline_max         targeted_max          n_improved  n_worsened  n_tied  n_targeted_count_matched_gt  n_baseline_count_matched_gt
+1      absolute_energy_error_db  central            1         0.12558219929839157   0.08656662733195272   0.12558219929839157   0.08656662733195272   0.12558219929839157   0.08656662733195272   0.12558219929839157  0.08656662733195272   1           0           0       1                            1
+1      absolute_energy_error_db  deslocamento_xz    8         0.09711489524285838   0.07087683273246419   0.10748985939895317   0.08713488781967602   0.1282199257321623    0.1257002715660824    0.12931065537656417  0.1430796223490598    7           1           0       8                            8
+1      absolute_energy_error_db  deslocamento_y     4         0.11680918647705765   0.08759359563088098   0.1184511583692766    0.08869481905412208   0.12180957519837271   0.08901277024256342   0.12212039490304305  0.08902532407641355   4           0           0       4                            4
+1      absolute_energy_error_db  todos_perturbados  12        0.10367965898759147   0.07644908703193645   0.11801158110045648   0.08791463310782091   0.12759665164964692   0.11576921397580961   0.12931065537656417  0.1430796223490598    11          1           0       12                           12
+1      rir_waveform_relative_l2  central            1         0.28820341249384235   0.07144206395293479   0.28820341249384235   0.07144206395293479   0.28820341249384235   0.07144206395293479   0.28820341249384235  0.07144206395293479   1           0           0       1                            1
+1      rir_waveform_relative_l2  deslocamento_xz    8         0.2837858555394936    0.09815579029998789   0.2884150706043803    0.08739409815499827   0.3188432060838782    0.16102151679111387   0.3194682800068178   0.16219798364907934   8           0           0       8                            8
+1      rir_waveform_relative_l2  deslocamento_y     4         0.2882301841843379    0.07153527678438389   0.28814133882021453   0.07147625135064578   0.2900917866201525    0.07235132578290702   0.29024578548884084  0.07239148824105636   4           0           0       4                            4
+1      rir_waveform_relative_l2  todos_perturbados  12        0.2852672984211084    0.08928228579478656   0.28814133882021453   0.07147625135064578   0.3184860209850555    0.1603492500151336    0.3194682800068178   0.16219798364907934   12          0           0       12                           12
+1      envelope_relative_l2      central            1         0.05418397033022664   0.03139743331877751   0.05418397033022664   0.03139743331877751   0.05418397033022664   0.03139743331877751   0.05418397033022664  0.03139743331877751   1           0           0       1                            1
+1      envelope_relative_l2      deslocamento_xz    8         0.05068497154737263   0.026141657984334262  0.05184137835278162   0.03140510982312074   0.059278901911376136  0.04289677128098819   0.06315353924878088  0.049077624713641535  8           0           0       8                            8
+1      envelope_relative_l2      deslocamento_y     4         0.05008115326505344   0.031129363330183842  0.04941903300906113   0.031159536178925314  0.05296276066743379   0.03157078808963765   0.0535215814719853   0.03159188766395985   4           0           0       4                            4
+1      envelope_relative_l2      todos_perturbados  12        0.050483698786599564  0.027804226432950788  0.050790064440971616  0.03140510982312074   0.0578559624715433    0.0394604693363166    0.06315353924878088  0.049077624713641535  12          0           0       12                           12
+2      absolute_energy_error_db  central            1         1.4093527643900736    1.3297704833603197    1.4093527643900736    1.3297704833603197    1.4093527643900736    1.3297704833603197    1.4093527643900736   1.3297704833603197    1           0           0       0                            0
+2      absolute_energy_error_db  deslocamento_xz    8         0.14086502892357733   0.09612441198951478   0.15728011891072943   0.09317786666509756   0.20652768200804447   0.19606430864004382   0.21756054077599646  0.23444308041988351   6           2           0       8                            8
+2      absolute_energy_error_db  deslocamento_y     4         1.2357571644448786    1.1638779633844638    1.2343382167850474    1.158987004713537     1.424003101156992     1.3558909339463923    1.4262657338714133   1.3612872062038806    4           0           0       0                            0
+2      absolute_energy_error_db  todos_perturbados  12        0.5058290740973445    0.4520422624544978    0.18093302344326734   0.12210286018849603   1.4179694139185355    1.3415008745930905    1.4262657338714133   1.3612872062038806    10          2           0       8                            8
+2      rir_waveform_relative_l2  central            1         0.5652727194919743    0.3153565143621528    0.5652727194919743    0.3153565143621528    0.5652727194919743    0.3153565143621528    0.5652727194919743   0.3153565143621528    1           0           0       0                            0
+2      rir_waveform_relative_l2  deslocamento_xz    8         0.4419581642252667    0.13458643662240088   0.4407988459844214    0.1343794764323284    0.49310986649465527   0.18651037621469194   0.4994946471254254   0.18706758424392095   8           0           0       8                            8
+2      rir_waveform_relative_l2  deslocamento_y     4         0.55495901733557      0.2870460507210468    0.5549248199660113    0.28683449026059143   0.5671707891930455    0.31709580258668235   0.5672066493273982   0.3177663465393791    4           0           0       0                            0
+2      rir_waveform_relative_l2  todos_perturbados  12        0.47962511526203444   0.18540630798861618   0.4672086297569387    0.1724847613298372    0.567075162168105     0.315307685379491     0.5672066493273982   0.3177663465393791    12          0           0       8                            8
+2      envelope_relative_l2      central            1         0.5404266725468331    0.5312033046844764    0.5404266725468331    0.5312033046844764    0.5404266725468331    0.5312033046844764    0.5404266725468331   0.5312033046844764    1           0           0       0                            0
+2      envelope_relative_l2      deslocamento_xz    8         0.09262955214143641   0.03500739655135675   0.10374490818029669   0.03312520997469137   0.10581172683141449   0.054068952283845846  0.10643521692544936  0.062132982953407315  8           0           0       8                            8
+2      envelope_relative_l2      deslocamento_y     4         0.4911247219808412    0.477132148052949     0.49038234873702163   0.4768378640987059    0.5583657292735291    0.5425008330002329    0.561274238353181    0.5448755389330708    4           0           0       0                            0
+2      envelope_relative_l2      todos_perturbados  12        0.22546127542123798   0.18238231371855415   0.10439657896481912   0.03634462951619625   0.5506097050611238    0.5361682838459986    0.561274238353181    0.5448755389330708    12          0           0       8                            8
+3      absolute_energy_error_db  central            1         1.612362956469759     1.619175400930766     1.612362956469759     1.619175400930766     1.612362956469759     1.619175400930766     1.612362956469759    1.619175400930766     0           1           0       0                            0
+3      absolute_energy_error_db  deslocamento_xz    8         0.12585510901820887   0.10466414698137465   0.14078415856282833   0.08217428400989199   0.21738481240336693   0.20374395700387382   0.23785848899612072  0.23405675659119204   5           3           0       8                            0
+3      absolute_energy_error_db  deslocamento_y     4         1.66180397918663      1.6763475760960582    1.6581382909201738    1.664153173576191     1.8535363296250438    1.8730570622824572    1.8647364129526298   1.8889404826691725    1           3           0       0                            0
+3      absolute_energy_error_db  todos_perturbados  12        0.6378380657410159    0.6285586233529358    0.17649624550221688   0.142284913819605     1.8236694407514809    1.8307012745845497    1.8647364129526298   1.8889404826691725    6           6           0       8                            0
+3      rir_waveform_relative_l2  central            1         0.6707356810408572    0.3446798232328007    0.6707356810408572    0.3446798232328007    0.6707356810408572    0.3446798232328007    0.6707356810408572   0.3446798232328007    1           0           0       0                            0
+3      rir_waveform_relative_l2  deslocamento_xz    8         0.5677201155528603    0.16532978404907928   0.57286290541782      0.16929941222964662   0.6216926927801486    0.21239525170408807   0.6294583632756693   0.21392476877687785   8           0           0       8                            0
+3      rir_waveform_relative_l2  deslocamento_y     4         0.6687048053981152    0.3505744133797764    0.6681476935807925    0.3486275381963858    0.6755339198470717    0.37361745481014913   0.6760377453001756   0.3756146468536554    4           0           0       0                            0
+3      rir_waveform_relative_l2  todos_perturbados  12        0.6013816788346119    0.22707799382597832   0.5993138563257198    0.20019287753379097   0.6741903853054614    0.368291609360799     0.6760377453001756   0.3756146468536554    12          0           0       8                            0
+3      envelope_relative_l2      central            1         0.5430457216587725    0.5293200613836803    0.5430457216587725    0.5293200613836803    0.5430457216587725    0.5293200613836803    0.5430457216587725   0.5293200613836803    1           0           0       0                            0
+3      envelope_relative_l2      deslocamento_xz    8         0.12151715270920058   0.03656362138696561   0.1274313587478328    0.033267475739283146  0.1477576480088508    0.055666867444079546  0.14858521882625036  0.06276225620277308   8           0           0       8                            0
+3      envelope_relative_l2      deslocamento_y     4         0.5381903764399291    0.5256239431240873    0.5368468843472387    0.5256422645661578    0.5869501590041027    0.5726197793282458    0.5897197118306098   0.5753220098475268    4           0           0       0                            0
+3      envelope_relative_l2      todos_perturbados  12        0.26040822728611007   0.19958372863267285   0.1421937923478331    0.03860712666900936   0.579564684800084     0.5654138312768299    0.5897197118306098   0.5753220098475268    12          0           0       8                            0
+
+===== RESULTADOS INDIVIDUALES =====
+order,source,receiver,perturbation,axis,delta_mm,metric,baseline_error,targeted_error,gain_baseline_minus_targeted,outcome,gt_total_visible,baseline_total_visible,targeted_total_visible,baseline_count_histogram_matches_gt,targeted_count_histogram_matches_gt
+1,S_center,R_grid_2_0,central,none,0.0,absolute_energy_error_db,0.12558219929839157,0.08656662733195272,0.039015571966438845,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,central,none,0.0,rir_waveform_relative_l2,0.28820341249384235,0.07144206395293479,0.21676134854090756,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,central,none,0.0,envelope_relative_l2,0.05418397033022664,0.03139743331877751,0.022786537011449136,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,x+10mm,x,10.0,absolute_energy_error_db,0.12061844497158111,0.09342433439769587,0.02719411057388524,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,x+10mm,x,10.0,rir_waveform_relative_l2,0.2700434815388915,0.06372231006218705,0.20632117147670448,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,x+10mm,x,10.0,envelope_relative_l2,0.05202981951213154,0.031403232622732154,0.020626586889399383,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,x+5mm,x,5.0,absolute_energy_error_db,0.1191691090009339,0.09114026352936,0.0280288454715739,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,x+5mm,x,5.0,rir_waveform_relative_l2,0.2392133852837772,0.05328305056527567,0.1859303347185015,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,x+5mm,x,5.0,envelope_relative_l2,0.05178401944030127,0.03140698702350932,0.02037703241679195,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,x-10mm,x,-10.0,absolute_energy_error_db,0.12931065537656417,0.08688851568120828,0.04242213969535588,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,x-10mm,x,-10.0,rir_waveform_relative_l2,0.2667173085040568,0.06465345378883314,0.20206385471522365,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,x-10mm,x,-10.0,envelope_relative_l2,0.05208314685619592,0.03141804347748916,0.020665103378706758,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,x-5mm,x,-5.0,absolute_energy_error_db,0.12619428496398738,0.08738125995814373,0.038813025005843646,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,x-5mm,x,-5.0,rir_waveform_relative_l2,0.24161340022295247,0.05200879598479271,0.18960460423815975,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,x-5mm,x,-5.0,envelope_relative_l2,0.05189873726526196,0.031415075589882206,0.020483661675379752,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,y+10mm,y,10.0,absolute_energy_error_db,0.12004826353857415,0.08902532407641355,0.0310229394621606,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,y+10mm,y,10.0,rir_waveform_relative_l2,0.2863922736080818,0.07082876418123076,0.21556350942685104,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,y+10mm,y,10.0,envelope_relative_l2,0.04796496557010622,0.03086784852270549,0.017097117047400728,melhorou,7,7,7,True,True
+1,S_center,R_grid_2_0,y+5mm,y,5.0,absolute_energy_error_db,0.12212039490304305,0.08894163185074606,0.033178763052296986,melhorou,7,7,7,True,True
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ 

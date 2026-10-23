@@ -1,0 +1,249 @@
+.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ export GEO_CODE="$HOME/Documenexport GEO_CODE="$HOME/Documentos/Juan/geometry-mapping-3d"
+export GEO_DATA="$HOME/geometry-data"
+
+cp ~/Downloads/g07e1_reconstruct_nonconvex.py \
+  "$GEO_CODE/scripts/"
+
+python3 -m py_compile \
+  "$GEO_CODE/scripts/g07e1_reconstruct_nonconvex.py"
+
+export OPENBLAS_NUM_THREADS=1
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ python3 "$GEO_CODE/scripts/g07e1_reconstruct_nonconvex.py" \
+  --model-txt "$GEO_DATA/results/g07/s1_recess/colmap_blind/sparse_txt/0" \
+  --out "$GEO_DATA/results/g07/s1_recess/reconstruction_e1_baseline"
+G07-E1: PASS_EXPLORATORY 
+Planes: 7 Supported edges: 6
+Report: /home/alunos/geometry-data/results/g07/s1_recess/reconstruction_e1_baseline/g07e1_summary.json
+OBJ (COLMAP native units only): /home/alunos/geometry-data/results/g07/s1_recess/reconstruction_e1_baseline/g07e1_room_candidate_native.obj
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ python3 "$GEO_CODE/scripts/g07e1_reconstruct_nonconvex.py" \
+  --model-txt "$GEO_DATA/results/g07/s1_recess_targeted_v1/colmap_blind/sparse_txt/0" \
+  --out "$GEO_DATA/results/g07/s1_recess/reconstruction_e1_targeted"
+G07-E1: PASS_EXPLORATORY 
+Planes: 9 Supported edges: 12
+Report: /home/alunos/geometry-data/results/g07/s1_recess/reconstruction_e1_targeted/g07e1_summary.json
+OBJ (COLMAP native units only): /home/alunos/geometry-data/results/g07/s1_recess/reconstruction_e1_targeted/g07e1_room_candidate_native.obj
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ echo "===== G07-E1 — ORIGINAL ====="
+
+cat "$GEO_DATA/results/g07/s1_recess/reconstruction_e1_baseline/g07e1_summary.json"
+
+echo
+echo "===== G07-E1 — AMPLIADO ====="
+
+cat "$GEO_DATA/results/g07/s1_recess/reconstruction_e1_targeted/g07e1_summary.json"
+===== G07-E1 — ORIGINAL =====
+{
+  "experiment": "G07-E1: independent Manhattan nonconvex reconstruction",
+  "caveat": "Only COLMAP sparse model; assumed constant height and orthogonal walls; no metric scale; no GT inputs",
+  "path": "/home/alunos/geometry-data/results/g07/s1_recess/colmap_blind/sparse_txt/0",
+  "status": "PASS_EXPLORATORY",
+  "registered_images": 36,
+  "raw_points": 13865,
+  "quality_points": 13044,
+  "spatially_in_range_points": 13044,
+  "plane_threshold_native": 0.04769641576434671,
+  "planes": 7,
+  "unassigned_quality_points": 503,
+  "horizontal_plane_ids": [
+    6,
+    3
+  ],
+  "horizontal_bounds_native": [
+    -2.508724811411799,
+    2.634059612034166
+  ],
+  "x_wall_offsets_native": [
+    -4.243142258035373,
+    -3.042146052645866,
+    4.327660055181361
+  ],
+  "y_wall_offsets_native": [
+    -5.218663173011728,
+    5.068210957168756
+  ],
+  "candidate_supported_edges": 6,
+  "candidate_total_edges": 7,
+  "camera_up_assumption": "smallest PCA eigenvector of COLMAP camera stations",
+  "reconstruction_basis_colmap_native": [
+    [
+      0.8594288424223662,
+      -0.5098160507975144,
+      0.038336133891904996
+    ],
+    [
+      0.04427975113221139,
+      0.14892799169086468,
+      0.9878561418195441
+    ],
+    [
+      -0.5093342404082226,
+      -0.8472945459756909,
+      0.15056753935568834
+    ]
+  ],
+  "camera_centers_inside_candidate": 36,
+  "camera_centers_total": 36,
+  "footprint_native_xy": [
+    [
+      4.327660055181361,
+      -5.218663173011728
+    ],
+    [
+      4.327660055181361,
+      5.068210957168756
+    ],
+    [
+      -4.243142258035373,
+      5.068210957168756
+    ],
+    [
+      -4.243142258035373,
+      -5.218663173011728
+    ]
+  ],
+  "floor_area_native_units2": 88.16676459072028,
+  "height_native_units": 5.142784423445965,
+  "volume_native_units3": 453.42266360278353,
+  "n_vertices": 8,
+  "n_faces": 8,
+  "n_wall_segments": 4,
+  "reflex_corners": 0,
+  "supported_edges": 6
+}
+
+===== G07-E1 — AMPLIADO =====
+{
+  "experiment": "G07-E1: independent Manhattan nonconvex reconstruction",
+  "caveat": "Only COLMAP sparse model; assumed constant height and orthogonal walls; no metric scale; no GT inputs",
+  "path": "/home/alunos/geometry-data/results/g07/s1_recess_targeted_v1/colmap_blind/sparse_txt/0",
+  "status": "PASS_EXPLORATORY",
+  "registered_images": 52,
+  "raw_points": 18736,
+  "quality_points": 17039,
+  "spatially_in_range_points": 17039,
+  "plane_threshold_native": 0.04712540263976438,
+  "planes": 9,
+  "unassigned_quality_points": 542,
+  "horizontal_plane_ids": [
+    8,
+    2
+  ],
+  "horizontal_bounds_native": [
+    -2.515839497211638,
+    2.6009420320964205
+  ],
+  "x_wall_offsets_native": [
+    -5.206874610797708,
+    -1.4566027844585394,
+    1.2762937694033298,
+    5.025267010634652
+  ],
+  "y_wall_offsets_native": [
+    -5.544309959648031,
+    1.7890518596520355,
+    2.9825381337681955
+  ],
+  "candidate_supported_edges": 12,
+  "candidate_total_edges": 17,
+  "camera_up_assumption": "smallest PCA eigenvector of COLMAP camera stations",
+  "reconstruction_basis_colmap_native": [
+    [
+      -0.5051506160573703,
+      -0.8622179688602836,
+      0.03745703233448165
+    ],
+    [
+      0.14897531337417713,
+      -0.044366071694896786,
+      0.9878451334533309
+    ],
+    [
+      -0.8500760031326169,
+      0.5045907508633214,
+      0.1508607405565298
+    ]
+  ],
+  "camera_centers_inside_candidate": 52,
+  "camera_centers_total": 52,
+  "footprint_native_xy": [
+    [
+      5.025267010634652,
+      -5.544309959648031
+    ],
+    [
+      5.025267010634652,
+      2.9825381337681955
+    ],
+    [
+      1.2762937694033298,
+      2.9825381337681955
+    ],
+    [
+      1.2762937694033298,
+      1.7890518596520355
+    ],
+    [
+      -1.4566027844585394,
+      1.7890518596520355
+    ],
+    [
+      -1.4566027844585394,
+      2.9825381337681955
+    ],
+    [
+      -5.206874610797708,
+      2.9825381337681955
+    ],
+    [
+      -5.206874610797708,
+      -5.544309959648031
+    ]
+  ],
+  "floor_area_native_units2": 83.98624275066184,
+  "height_native_units": 5.116781529308058,
+  "volume_native_units3": 429.7392556225693,
+  "n_vertices": 16,
+  "n_faces": 20,
+  "n_wall_segments": 8,
+  "reflex_corners": 2,
+  "supported_edges": 12
+}
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ OUT="$GEO_DATA/results/g07/s1_recess/reconstruction_e1_targeted"
+
+echo "===== PLANOS DETECTADOS ====="
+column -s, -t < "$OUT/planes.csv"
+
+echo
+echo "===== SEGMENTOS DETECTADOS ====="
+column -s, -t < "$OUT/candidate_edges.csv"
+===== PLANOS DETECTADOS =====
+plane_id  class       n_points  p95_residual_native   nx                    ny                    nz
+0         vertical_x  2480      0.03346313238910393   -0.5050845149379392   0.1496620514327378    -0.8499946488836571
+1         vertical_y  2533      0.03105677347991731   0.8622702446329993    0.0447379094632059    -0.5044685765014604
+2         horizontal  2332      0.027363644460672288  0.03749427418042546   0.9877827294142615    0.15125957448900543
+3         vertical_x  2596      0.03332608638498345   -0.505146673888521    0.14907920472575478   -0.8500601323304727
+4         vertical_y  1789      0.014847083261006868  0.8620217560219996    0.044324475777732575  -0.5049295326991453
+5         vertical_y  1481      0.030684071442723455  0.8622515193162203    0.044902346460079394  -0.5044859727675771
+6         vertical_x  1182      0.013747598145291287  -0.5100554600875002   0.14903991559871596   -0.8471307639280113
+7         vertical_x  1099      0.015373561190603518  0.5146885238597082    -0.1506120802956147   0.8440448593979718
+8         horizontal  1005      0.0339733004158979    0.037688709338042005  0.9878011048286979    0.1510911595284006
+
+===== SEGMENTOS DETECTADOS =====
+line_axis  line_id  span_id  a    b     length  n_points  occupied                       age  passed  support_plane_ids
+x          0        0        "(0   0)"  "(0      1)"      7.333361819300067   2245  37        41      0.9024390243902439   True   [3]
+x          0        1        "(0   1)"  "(0      2)"      1.19348627411616    176   7         7       1.0                  True   [3]
+x          1        0        "(1   0)"  "(1      1)"      7.333361819300067   12    7         41      0.17073170731707318  False  [7]
+x          1        1        "(1   1)"  "(1      2)"      1.19348627411616    1050  7         7       1.0                  True   [7]
+x          2        0        "(2   0)"  "(2      1)"      7.333361819300067   22    11        41      0.2682926829268293   False  [6]
+x          2        1        "(2   1)"  "(2      2)"      1.19348627411616    1110  7         7       1.0                  True   [6]
+x          3        0        "(3   0)"  "(3      1)"      7.333361819300067   2164  37        41      0.9024390243902439   True   [0]
+x          3        1        "(3   1)"  "(3      2)"      1.19348627411616    139   7         7       1.0                  True   [0]
+y          0        0        "(0   0)"  "(1      0)"      3.7502718263391692  781   19        21      0.9047619047619048   True   [1]
+y          0        1        "(1   0)"  "(2      0)"      2.7328965538618695  697   16        16      1.0                  True   [1]
+y          0        2        "(2   0)"  "(3      0)"      3.748973241231322   776   19        21      0.9047619047619048   True   [1]
+y          1        0        "(0   1)"  "(1      1)"      3.7502718263391692  0     0         21      0.0                  False  [4]
+y          1        1        "(1   1)"  "(2      1)"      2.7328965538618695  1644  16        16      1.0                  True   [4]
+y          1        2        "(2   1)"  "(3      1)"      3.748973241231322   0     0         21      0.0                  False  [4]
+y          2        0        "(0   2)"  "(1      2)"      3.7502718263391692  678   19        21      0.9047619047619048   True   [5]
+y          2        1        "(1   2)"  "(2      2)"      2.7328965538618695  0     0         16      0.0                  False  [5]
+y          2        2        "(2   2)"  "(3      2)"      3.748973241231322   660   19        21      0.9047619047619048   True   [5]
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ 

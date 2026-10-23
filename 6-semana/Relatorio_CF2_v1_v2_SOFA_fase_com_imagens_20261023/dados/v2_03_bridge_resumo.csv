@@ -1,0 +1,3 @@
+modo,erro_espectro_piecewise_abs,erro_centro_complexo_abs,erro_centro_magnitude_db,erro_centro_fase_rad,status
+ORIGINAL,2.641e-12,5.282e-13,1.35e-13,5.386e-13,PASS
+ZERO_CONTROL,2.641e-12,5.281e-13,1.421e-13,5.386e-13,PASS

@@ -1,0 +1,123 @@
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ export GEO_CODE="$HOME/Documentos/Juan/geometry-mapping-3d"
+export GEO_DATA="$HOME/geometry-data"
+
+cp ~/Downloads/g07g6_audit_degenerate_image_paths.py \
+  "$GEO_CODE/scripts/"
+
+PRA_PY="$HOME/Documentos/Juan/mba/pyroomacoustic/.venv/bin/python"
+
+"$PRA_PY" -m py_compile \
+  "$GEO_CODE/scripts/g07g6_audit_degenerate_image_paths.py"
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ BASE="$GEO_DATA/results/g07/s1_recess"
+
+export PRA_NUM_THREADS=1
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+
+"$PRA_PY" "$GEO_CODE/scripts/g07g6_audit_degenerate_image_paths.py" \
+  --g07g3-summary "$BASE/acoustic_g3_orders0123/g07g3_summary.json" \
+  --manifest "$GEO_DATA/g07_room_family/s1_recess/manifest.json" \
+  --out "$BASE/acoustic_g6_edge_audit" \
+  --source S_center \
+  --receiver R_grid_2_0 \
+  --orders 2 3 \
+  --jitter-mm 5 \
+  --edge-tolerance-mm 0.1
+ORDER 2: central images=29 | x±5mm=25/25 | z±=25/25; central-only=8 edge-flag=8 unresolved_parent=0
+ORDER 3: central images=71 | x±5mm=61/61 | z±=61/61; central-only=22 edge-flag=22 unresolved_parent=7
+G07-G6 reports: /home/alunos/geometry-data/results/g07/s1_recess/acoustic_g6_edge_audit
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ OUT="$BASE/acoustic_g6_edge_audit"
+
+echo "===== INFORME ====="
+cat "$OUT/g07g6_report_pt.md"
+
+echo
+echo "===== FUENTES IMAGEN ESPECIALES ====="
+head -n 25 "$OUT/g07g6_center_only_image_sources.csv"
+
+echo
+echo "===== SECUENCIAS DE REFLEXIÓN ====="
+head -n 20 "$OUT/g07g6_candidate_bounce_chains.csv"
+===== INFORME =====
+# G07-G6 — Auditoria de caminhos refletidos sobre arestas
+
+**Escopo:** somente a geometria GT, a fonte e o receptor do G07-G3; sem reconstrução COLMAP, sem novas RIR e sem modificação do Pyroomacoustics.
+
+- Fonte: `S_center` em `[3.0, 2.0, 1.5]` m.
+- Receptor: `R_grid_2_0` em `[3.0, 0.8, 1.5]` m.
+- Deslocamentos: ±5 mm nos eixos x e z.
+
+| Ordem máximo ISM | Fontes visíveis centro | X - | X + | Z - | Z + | Imagens perdidas em ao menos uma perturbação | Com indício de aresta | Cadeia não recuperada |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2 | 29 | 25 | 25 | 25 | 25 | 8 | 8 | 0 |
+| 3 | 71 | 61 | 61 | 61 | 61 | 22 | 22 | 7 |
+
+## Fontes imagem de segundo ordem nas posições de simetria
+
+| Índice imagem | Posição imagem (m) | Última parede | Contato com aresta (mm) | Hipóteses de sequência |
+|---:|---|---|---:|---:|
+| 6 | [9.000002, 2.0, -1.500001] | floor | 0.000000 | 1 |
+| 7 | [9.000002, 2.0, 4.499999] | ceiling | 0.001907 | 1 |
+| 17 | [-3.000002, 2.0, -1.500001] | floor | 0.000000 | 1 |
+| 18 | [-3.000002, 2.0, 4.499999] | ceiling | 0.001907 | 1 |
+| 21 | [9.000002, 2.0, -1.500001] | 1 | 0.000000 | 1 |
+| 22 | [-3.000002, 2.0, -1.500001] | 7 | 0.000000 | 1 |
+| 26 | [9.000002, 2.0, 4.499999] | 1 | 0.000954 | 1 |
+| 27 | [-3.000002, 2.0, 4.499999] | 7 | 0.000954 | 1 |
+
+**Leitura:** incidências a menos que o limiar de uma aresta são geometricamente degeneradas. Sequências propostas a partir das posições-espelho são hipóteses; os índices `generators` do Pyroomacoustics podem não preservar a árvore de reflexão. O diagnóstico não declara que o solver esteja incorreto.
+
+## Próximo controle recomendado
+
+Para avaliar os indicadores acústicos robustamente, reporte os resultados por receptor e uma variante com pequenas perturbações pré-definidas. Marque explicitamente trajetórias que incidem em arestas e não confunda trajetórias especulares singulares com reflexões ordinárias de parede.
+
+===== FUENTES IMAGEN ESPECIALES =====
+order,image_idx,image_order,image_xyz_m,last_generating_wall,central_visible,x_minus_visible,x_plus_visible,z_minus_visible,z_plus_visible,last_wall_hit_xyz_m,last_wall_edge_distance_mm,last_wall_nearest_edge,last_wall_ray_fraction,recovered_candidate_chains,edge_or_coincident_bounce_candidate
+2,6,2,"[9.000002, 2.0, -1.500001]",floor,True,True,False,True,False,"[6.0, 1.3999998, 0.0]",0.0,5,0.49999984105433115,1,True
+2,7,2,"[9.000002, 2.0, 4.499999]",ceiling,True,True,False,False,True,"[6.0000019, 1.4000002, 3.0]",0.0019073492385501822,1,0.5000001589457699,1,True
+2,17,2,"[-3.000002, 2.0, -1.500001]",floor,True,False,True,True,False,"[0.0, 1.3999998, 0.0]",0.0,7,0.49999984105433115,1,True
+2,18,2,"[-3.000002, 2.0, 4.499999]",ceiling,True,False,True,False,True,"[-1.9e-06, 1.4000002, 3.0]",0.0019073492389942714,7,0.5000001589457699,1,True
+2,21,2,"[9.000002, 2.0, -1.500001]",1,True,False,True,False,True,"[6.0, 1.3999998, 0.0]",0.0,0,0.49999984105433115,1,True
+2,22,2,"[-3.000002, 2.0, -1.500001]",7,True,True,False,False,True,"[0.0, 1.3999998, 0.0]",0.0,0,0.49999984105433115,1,True
+2,26,2,"[9.000002, 2.0, 4.499999]",1,True,False,True,True,False,"[6.0, 1.3999998, 2.999999]",0.0009536740130933197,2,0.49999984105433115,1,True
+2,27,2,"[-3.000002, 2.0, 4.499999]",7,True,True,False,True,False,"[0.0, 1.3999998, 2.999999]",0.0009536740130933197,2,0.49999984105433115,1,True
+3,13,2,"[9.000002, 2.0, -1.500001]",floor,True,True,False,True,False,"[6.0, 1.3999998, 0.0]",0.0,5,0.49999984105433115,1,True
+3,14,3,"[9.000002, -2.0, -1.500001]",0,True,True,False,True,False,"[4.7142863, 0.0, 0.6428569]",642.8568703787666,0,0.28571428571428575,2,True
+3,16,2,"[9.000002, 2.0, 4.499999]",ceiling,True,True,False,False,True,"[6.0000019, 1.4000002, 3.0]",0.0019073492385501822,1,0.5000001589457699,1,True
+3,21,3,"[9.000002, 8.000002, -1.500001]",floor,True,True,False,True,False,"[6.0, 4.3999998, 0.0]",0.0,5,0.49999984105433115,0,True
+3,23,3,"[9.000002, 8.000002, -1.500001]",1,True,False,True,False,True,"[6.0, 4.3999998, 0.0]",0.0,0,0.49999984105433115,0,True
+3,24,3,"[9.000002, 8.000002, 4.499999]",1,True,False,True,True,False,"[6.0, 4.3999998, 2.999999]",0.0009536740130933197,2,0.49999984105433115,0,True
+3,34,3,"[-3.000002, 8.000002, -1.500001]",floor,True,False,True,True,False,"[0.0, 4.3999998, 0.0]",0.0,7,0.49999984105433115,0,True
+3,35,3,"[-3.000002, 8.000002, 4.499999]",ceiling,True,False,True,False,True,"[-1.9e-06, 4.4000021, 3.0]",0.0019073492389942714,7,0.5000001589457699,0,True
+3,36,3,"[-3.000002, 8.000002, -1.500001]",7,True,True,False,False,True,"[0.0, 4.3999998, 0.0]",0.0,0,0.49999984105433115,0,True
+3,37,3,"[-3.000002, 8.000002, 4.499999]",7,True,True,False,True,False,"[0.0, 4.3999998, 2.999999]",0.0009536740130933197,2,0.49999984105433115,0,True
+3,43,2,"[-3.000002, 2.0, -1.500001]",floor,True,False,True,True,False,"[0.0, 1.3999998, 0.0]",0.0,7,0.49999984105433115,1,True
+3,44,3,"[-3.000002, -2.0, -1.500001]",0,True,False,True,True,False,"[1.2857137, 0.0, 0.6428569]",642.8568703787666,0,0.28571428571428575,2,True
+3,46,2,"[-3.000002, 2.0, 4.499999]",ceiling,True,False,True,False,True,"[-1.9e-06, 1.4000002, 3.0]",0.0019073492389942714,7,0.5000001589457699,1,True
+3,47,3,"[-3.000002, -2.0, 4.499999]",0,True,False,True,False,True,"[1.2857137, 0.0, 2.3571426]",642.8574153355191,2,0.28571428571428575,2,True
+3,52,2,"[9.000002, 2.0, -1.500001]",1,True,False,True,False,True,"[6.0, 1.3999998, 0.0]",0.0,0,0.49999984105433115,1,True
+3,53,3,"[9.000002, -2.0, -1.500001]",0,True,False,True,False,True,"[4.7142863, 0.0, 0.6428569]",642.8568703787666,0,0.28571428571428575,2,True
+
+===== SECUENCIAS DE REFLEXIÓN =====
+order,image_idx,chain_no,wall_sequence_last_to_first,image_indices,bounce_points_m,bounce_edge_distances_mm,bounce_line_fractions,min_sequential_bounce_distance_mm,edge_degenerate_by_tolerance,hypothesis_only
+2,6,1,"[""floor"", ""1""]","[6, 3, 0]","[[6.0, 1.3999998092651973, 0.0], [6.0, 1.3999998092651973, 0.0]]","[0.0, 0.0]","[0.49999984105433115, 0.0]",0.0,True,True
+2,7,1,"[""ceiling"", ""1""]","[7, 3, 0]","[[6.0000019073492386, 1.4000001907349238, 3.0], [6.0, 1.3999998092651973, 3.0000009536746193]]","[0.0019073, 0.0009537]","[0.5000001589457699, -6.357830795168557e-07]",0.002166332280483157,True,True
+2,17,1,"[""floor"", ""7""]","[17, 14, 0]","[[0.0, 1.3999998092651973, 0.0], [0.0, 1.3999998092651973, 0.0]]","[0.0, 0.0]","[0.49999984105433115, 0.0]",0.0,True,True
+2,18,1,"[""ceiling"", ""7""]","[18, 14, 0]","[[-1.9073492389942714e-06, 1.4000001907349238, 3.0], [0.0, 1.3999998092651973, 3.0000009536746197]]","[0.0019073, 0.0009537]","[0.5000001589457699, -6.357830796648857e-07]",0.0021663322810696554,True,True
+2,21,1,"[""1"", ""floor""]","[21, 19, 0]","[[6.0, 1.3999998092651973, 0.0], [6.0, 1.3999998092651973, 0.0]]","[0.0, 0.0]","[0.49999984105433115, 0.0]",0.0,True,True
+2,22,1,"[""7"", ""floor""]","[22, 19, 0]","[[0.0, 1.3999998092651973, 0.0], [0.0, 1.3999998092651973, 0.0]]","[0.0, 0.0]","[0.49999984105433115, 0.0]",0.0,True,True
+2,26,1,"[""1"", ""ceiling""]","[26, 24, 0]","[[6.0, 1.3999998092651973, 2.999999046325987], [5.999998092651974, 1.4000001907349238, 3.0]]","[0.0009537, 0.0019073]","[0.49999984105433115, 6.35782675395675e-07]",0.0021663309461999315,True,True
+2,27,1,"[""7"", ""ceiling""]","[27, 24, 0]","[[0.0, 1.3999998092651973, 2.999999046325987], [1.907348026187025e-06, 1.4000001907349238, 3.0]]","[0.0009537, 0.0019073]","[0.49999984105433115, 6.35782675395675e-07]",0.0021663309462002715,True,True
+3,13,1,"[""floor"", ""1""]","[13, 8, 0]","[[6.0, 1.3999998092651973, 0.0], [6.0, 1.3999998092651973, 0.0]]","[0.0, 0.0]","[0.49999984105433115, 0.0]",0.0,True,True
+3,14,1,"[""0"", ""floor"", ""1""]","[14, 13, 8, 0]","[[4.714286259242467, 0.0, 0.6428568703787666], [6.0, 0.5999995549521271, 0.0], [6.0, 0.5999995549521271, 0.0]]","[642.8568704, 0.0, 0.0]","[0.28571428571428575, 0.29999977747606354, 0.0]",0.0,True,True
+3,14,2,"[""0"", ""1"", ""floor""]","[14, 52, 49, 0]","[[4.714286259242467, 0.0, 0.6428568703787666], [6.0, 0.599999554952127, 1.1102230246251565e-16], [6.0, 0.5999995549521271, 0.0]]","[642.8568704, 0.0, 0.0]","[0.28571428571428575, 0.2999997774760635, 7.401482125098773e-17]",1.570092458683775e-13,True,True
+3,16,1,"[""ceiling"", ""1""]","[16, 8, 0]","[[6.0000019073492386, 1.4000001907349238, 3.0], [6.0, 1.3999998092651973, 3.0000009536746193]]","[0.0019073, 0.0009537]","[0.5000001589457699, -6.357830795168557e-07]",0.002166332280483157,True,True
+3,43,1,"[""floor"", ""7""]","[43, 38, 0]","[[0.0, 1.3999998092651973, 0.0], [0.0, 1.3999998092651973, 0.0]]","[0.0, 0.0]","[0.49999984105433115, 0.0]",0.0,True,True
+3,44,1,"[""0"", ""floor"", ""7""]","[44, 43, 38, 0]","[[1.2857137407575332, 0.0, 0.6428568703787666], [0.0, 0.5999995549521271, 0.0], [0.0, 0.5999995549521271, 0.0]]","[642.8568704, 0.0, 0.0]","[0.28571428571428575, 0.29999977747606354, 0.0]",0.0,True,True
+3,44,2,"[""0"", ""7"", ""floor""]","[44, 56, 49, 0]","[[1.2857137407575332, 0.0, 0.6428568703787666], [0.0, 0.5999995549521271, 0.0], [0.0, 0.5999995549521271, 0.0]]","[642.8568704, 0.0, 0.0]","[0.28571428571428575, 0.29999977747606354, 0.0]",0.0,True,True
+3,46,1,"[""ceiling"", ""7""]","[46, 38, 0]","[[-1.9073492389942714e-06, 1.4000001907349238, 3.0], [0.0, 1.3999998092651973, 3.0000009536746197]]","[0.0019073, 0.0009537]","[0.5000001589457699, -6.357830796648857e-07]",0.0021663322810696554,True,True
+3,47,1,"[""0"", ""ceiling"", ""7""]","[47, 46, 38, 0]","[[1.2857137407575332, 0.0, 2.357142584664481], [-1.9073492394383607e-06, 0.6000004450481559, 3.0], [0.0, 0.5999995549521271, 3.0000009536746197]]","[642.8574153, 0.0019073, 0.0009537]","[0.28571428571428575, 0.30000022252407793, -6.357830798129155e-07]",0.002310789333088954,True,True
+3,47,2,"[""0"", ""7"", ""ceiling""]","[47, 68, 61, 0]","[[1.2857137407575332, 0.0, 2.357142584664481], [0.0, 0.5999995549521271, 2.9999990463259865], [1.9073480270752027e-06, 0.600000445048156, 3.0]]","[642.8574153, 0.0009537, 0.0019073]","[0.28571428571428575, 0.29999977747606354, 6.357826756917343e-07]",0.0023107880822604517,True,True
+3,52,1,"[""1"", ""floor""]","[52, 49, 0]","[[6.0, 1.3999998092651973, 0.0], [6.0, 1.3999998092651973, 0.0]]","[0.0, 0.0]","[0.49999984105433115, 0.0]",0.0,True,True
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ 

@@ -1,0 +1,393 @@
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ export GEO_CODE="$HOME/Documentos/Juan/geometry-mapping-3d"
+export GEO_DATA="$HOME/geometry-data"
+
+cp ~/Downloads/g07g1_acoustic_paths_preflight.py \
+  "$GEO_CODE/scripts/"
+
+python3 -m py_compile \
+  "$GEO_CODE/scripts/g07g1_acoustic_paths_preflight.py"
+
+export OPENBLAS_NUM_THREADS=1
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ BASE="$GEO_DATA/results/g07/s1_recess"
+TARGET="$GEO_DATA/results/g07/s1_recess_targeted_v1"
+
+python3 "$GEO_CODE/scripts/g07g1_acoustic_paths_preflight.py" \
+  --baseline-model "$BASE/colmap_blind/sparse_txt/0" \
+  --targeted-model "$TARGET/colmap_blind/sparse_txt/0" \
+  --baseline-reconstruction "$BASE/reconstruction_e1_baseline" \
+  --targeted-reconstruction "$BASE/reconstruction_e1_targeted" \
+  --manifest "$GEO_DATA/g07_room_family/s1_recess/manifest.json" \
+  --out "$BASE/acoustic_g1" \
+  --speed 343 \
+  --sample-rate 48000 \
+  --max-match-dist-m 0.10
+G07-G1 completed (GT-aligned EVALUATION ONLY; no RIR computed)
+ baseline36: cases=87, false direct=8, matched order1=417/434, missed=17, spurious=105
+ targeted52: cases=87, false direct=0, matched order1=432/434, missed=2, spurious=0
+Reports: /home/alunos/geometry-data/results/g07/s1_recess/acoustic_g1/g07g1_report.md /home/alunos/geometry-data/results/g07/s1_recess/acoustic_g1/g07g1_summary.json
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ OUT="$GEO_DATA/results/g07/s1_recess/acoustic_g1"
+
+echo "===== INFORME ACÚSTICO ====="
+cat "$OUT/g07g1_report.md"
+
+echo
+echo "===== RESULTADOS COMPLETOS ====="
+cat "$OUT/g07g1_summary.json"
+
+echo
+echo "===== COMPARACIÓN POR RECEPTOR ====="
+head -n 20 "$OUT/g07g1_receiver_cases.csv"
+===== INFORME ACÚSTICO =====
+# G07-G1 — Propagación geométrica de errores al orden 0/1
+
+**Evaluación post-hoc con escala y alineación GT; no es calibración métrica autónoma.**
+
+| Métrica | 36 imágenes | 52 imágenes |
+|---|---:|---:|
+| Rayos directos falsos (oclusión ignorada) | 8 | 0 |
+| Rayos directos válidos perdidos | 0 | 0 |
+| Reflexiones GT de referencia | 434 | 434 |
+| Reflexiones predichas | 522 | 432 |
+| Reflexiones coincidentes | 417 | 432 |
+| Reflexiones GT omitidas | 17 | 2 |
+| Reflexiones espurias | 105 | 0 |
+| Recall de trayectorias de primer orden | 0.96083 | 0.99539 |
+| Precisión de trayectorias de primer orden | 0.79885 | 1.00000 |
+
+| Errores en trayectorias coincidentes | 36 imágenes | 52 imágenes |
+|---|---:|---:|
+| Longitud: P95 (mm) | 3.779 | 1.694 |
+| Tiempo de llegada: P95 (µs) | 11.017 | 4.939 |
+| Punto de reflexión: P95 (mm) | 2.307 | 0.990 |
+
+**Advertencias:** los tiempos son estimaciones de trayectorias especulares sin respuesta impulsional, atenuación de materiales, difracción ni campo reverberante. Un RIR debe simularse en un experimento posterior con el mismo solver y parámetros.
+
+===== RESULTADOS COMPLETOS =====
+{
+  "experiment": "G07-G1 geometry-only acoustic propagation, order 0 and 1",
+  "warning": "FOR GT-EVALUATION ONLY: independently align native OBJ via 18 Blender GT camera centers; no metric scale is recovered from RGB. No absorption, diffraction, scattering, directivity, RIR or perceptual metrics.",
+  "simulator": "analytic first-order specular image-source geometry with finite walls and exact visibility against nonconvex footprint",
+  "sources_gt_m": {
+    "S_center": [
+      3.0,
+      2.0,
+      1.5
+    ],
+    "S_left_wing": [
+      1.35,
+      4.55,
+      1.5
+    ],
+    "S_right_wing": [
+      4.65,
+      4.55,
+      1.5
+    ]
+  },
+  "receivers_gt_m": {
+    "R_grid_0_0": [
+      0.8,
+      0.8,
+      1.3
+    ],
+    "R_grid_0_1": [
+      0.8,
+      1.65,
+      1.4000000000000001
+    ],
+    "R_grid_0_2": [
+      0.8,
+      2.5,
+      1.5
+    ],
+    "R_grid_0_3": [
+      0.8,
+      3.35,
+      1.6
+    ],
+    "R_grid_0_4": [
+      0.8,
+      4.05,
+      1.7000000000000002
+    ],
+    "R_grid_1_0": [
+      1.8,
+      0.8,
+      1.4000000000000001
+    ],
+    "R_grid_1_1": [
+      1.8,
+      1.65,
+      1.5
+    ],
+    "R_grid_1_2": [
+      1.8,
+      2.5,
+      1.6
+    ],
+    "R_grid_1_3": [
+      1.8,
+      3.35,
+      1.7000000000000002
+    ],
+    "R_grid_1_4": [
+      1.8,
+      4.05,
+      1.3
+    ],
+    "R_grid_2_0": [
+      3.0,
+      0.8,
+      1.5
+    ],
+    "R_grid_2_1": [
+      3.0,
+      1.65,
+      1.6
+    ],
+    "R_grid_2_2": [
+      3.0,
+      2.5,
+      1.7000000000000002
+    ],
+    "R_grid_2_3": [
+      3.0,
+      3.35,
+      1.3
+    ],
+    "R_grid_2_4": [
+      3.0,
+      4.05,
+      1.4000000000000001
+    ],
+    "R_grid_3_0": [
+      4.2,
+      0.8,
+      1.6
+    ],
+    "R_grid_3_1": [
+      4.2,
+      1.65,
+      1.7000000000000002
+    ],
+    "R_grid_3_2": [
+      4.2,
+      2.5,
+      1.3
+    ],
+    "R_grid_3_3": [
+      4.2,
+      3.35,
+      1.4000000000000001
+    ],
+    "R_grid_3_4": [
+      4.2,
+      4.05,
+      1.5
+    ],
+    "R_grid_4_0": [
+      5.2,
+      0.8,
+      1.7000000000000002
+    ],
+    "R_grid_4_1": [
+      5.2,
+      1.65,
+      1.3
+    ],
+    "R_grid_4_2": [
+      5.2,
+      2.5,
+      1.4000000000000001
+    ],
+    "R_grid_4_3": [
+      5.2,
+      3.35,
+      1.5
+    ],
+    "R_grid_4_4": [
+      5.2,
+      4.05,
+      1.6
+    ],
+    "R_left_1": [
+      1.5,
+      4.72,
+      1.45
+    ],
+    "R_left_2": [
+      2.0,
+      4.6,
+      1.6
+    ],
+    "R_right_1": [
+      4.5,
+      4.72,
+      1.45
+    ],
+    "R_right_2": [
+      4.0,
+      4.6,
+      1.6
+    ]
+  },
+  "sound_speed_m_s": 343.0,
+  "fs_hz_for_sample_equivalent": 48000,
+  "reflection_match_max_point_distance_m": 0.1,
+  "fit_camera_images": [
+    "cam_000.png",
+    "cam_002.png",
+    "cam_004.png",
+    "cam_006.png",
+    "cam_008.png",
+    "cam_010.png",
+    "cam_012.png",
+    "cam_014.png",
+    "cam_016.png",
+    "cam_018.png",
+    "cam_020.png",
+    "cam_022.png",
+    "cam_024.png",
+    "cam_026.png",
+    "cam_028.png",
+    "cam_030.png",
+    "cam_032.png",
+    "cam_034.png"
+  ],
+  "models": {
+    "baseline36": {
+      "n_cases": 87,
+      "n_sources": 3,
+      "n_receivers": 29,
+      "direct_gt_visible": 79,
+      "direct_pred_visible": 87,
+      "direct_false_positive": 8,
+      "direct_false_negative": 0,
+      "gt_order1_paths": 434,
+      "candidate_order1_paths": 522,
+      "matched_order1_paths": 417,
+      "missed_gt_order1_paths": 17,
+      "spurious_candidate_order1_paths": 105,
+      "recall_order1": 0.9608294930875576,
+      "precision_order1": 0.7988505747126436,
+      "absolute_length_error_mm_matched": {
+        "n": 417,
+        "mean": 1.5291560532799902,
+        "median": 1.3901791061501356,
+        "p95": 3.7788091752894104,
+        "max": 4.670683447174362
+      },
+      "absolute_arrival_error_us_matched": {
+        "n": 417,
+        "mean": 4.458180913352757,
+        "median": 4.053000309475058,
+        "p95": 11.016936371105457,
+        "max": 13.617152907213423
+      },
+      "reflection_point_shift_mm_matched": {
+        "n": 417,
+        "mean": 1.017532212734876,
+        "median": 1.1078660993148552,
+        "p95": 2.3065243389546684,
+        "max": 2.536208600647885
+      },
+      "missed_GT_face_histogram": {
+        "wall_04": 11,
+        "wall_05": 3,
+        "wall_03": 3
+      },
+      "spurious_face_histogram": {
+        "wall_00": 47,
+        "wall_03": 21,
+        "wall_01": 21,
+        "floor": 8,
+        "ceiling": 8
+      },
+      "recovered_geometry_evaluation_only": {
+        "name": "reconstruction_e1_baseline",
+        "zlo": 6.67249910175638e-05,
+        "zhi": 3.0011292865562473,
+        "scale_evaluation_only": 0.5835482025357639,
+        "native_stack_inverted": true,
+        "n_walls": 4,
+        "area_m2_eval_only": 30.0232960609897,
+        "max_vertical_wall_tilt_deg": 0.009895883658583638
+      }
+    },
+    "targeted52": {
+      "n_cases": 87,
+      "n_sources": 3,
+      "n_receivers": 29,
+      "direct_gt_visible": 79,
+      "direct_pred_visible": 79,
+      "direct_false_positive": 0,
+      "direct_false_negative": 0,
+      "gt_order1_paths": 434,
+      "candidate_order1_paths": 432,
+      "matched_order1_paths": 432,
+      "missed_gt_order1_paths": 2,
+      "spurious_candidate_order1_paths": 0,
+      "recall_order1": 0.9953917050691244,
+      "precision_order1": 1.0,
+      "absolute_length_error_mm_matched": {
+        "n": 432,
+        "mean": 0.8210664447773813,
+        "median": 0.8602773010655262,
+        "p95": 1.6941850204331474,
+        "max": 2.3751566730676466
+      },
+      "absolute_arrival_error_us_matched": {
+        "n": 432,
+        "mean": 2.393779722383075,
+        "median": 2.508097087653913,
+        "p95": 4.939314928376677,
+        "max": 6.924655023520833
+      },
+      "reflection_point_shift_mm_matched": {
+        "n": 432,
+        "mean": 0.6239431719385808,
+        "median": 0.6138090057762888,
+        "p95": 0.9895927559566364,
+        "max": 1.2256872123507168
+      },
+      "missed_GT_face_histogram": {
+        "wall_01": 1,
+        "wall_07": 1
+      },
+      "spurious_face_histogram": {},
+      "recovered_geometry_evaluation_only": {
+        "name": "reconstruction_e1_targeted",
+        "zlo": 0.0006261066540826643,
+        "zhi": 3.000606495588365,
+        "scale_evaluation_only": 0.5863022363912014,
+        "native_stack_inverted": true,
+        "n_walls": 8,
+        "area_m2_eval_only": 28.87029655875203,
+        "max_vertical_wall_tilt_deg": 0.01191062296889944
+      }
+    }
+  }
+}
+
+===== COMPARACIÓN POR RECEPTOR =====
+model,gt_direct_visible,candidate_direct_visible,false_positive_direct,false_negative_direct,gt_reflections,candidate_reflections,matched_reflections,missed_gt_reflections,spurious_candidate_reflections,missing_gt_faces,spurious_candidate_faces,source,receiver
+baseline36,True,True,False,False,5,6,5,0,1,,wall_00,S_center,R_grid_0_0
+baseline36,True,True,False,False,5,6,5,0,1,,wall_00,S_center,R_grid_0_1
+baseline36,True,True,False,False,6,6,6,0,0,,,S_center,R_grid_0_2
+baseline36,True,True,False,False,6,6,6,0,0,,,S_center,R_grid_0_3
+baseline36,True,True,False,False,6,6,6,0,0,,,S_center,R_grid_0_4
+baseline36,True,True,False,False,6,6,5,1,1,wall_04,wall_00,S_center,R_grid_1_0
+baseline36,True,True,False,False,6,6,5,1,1,wall_04,wall_00,S_center,R_grid_1_1
+baseline36,True,True,False,False,6,6,5,1,1,wall_04,wall_00,S_center,R_grid_1_2
+baseline36,True,True,False,False,5,6,5,0,1,,wall_00,S_center,R_grid_1_3
+baseline36,True,True,False,False,5,6,5,0,1,,wall_00,S_center,R_grid_1_4
+baseline36,True,True,False,False,6,6,5,1,1,wall_04,wall_00,S_center,R_grid_2_0
+baseline36,True,True,False,False,6,6,5,1,1,wall_04,wall_00,S_center,R_grid_2_1
+baseline36,True,True,False,False,6,6,5,1,1,wall_04,wall_00,S_center,R_grid_2_2
+baseline36,True,True,False,False,6,6,5,1,1,wall_04,wall_00,S_center,R_grid_2_3
+baseline36,True,True,False,False,6,6,5,1,1,wall_04,wall_00,S_center,R_grid_2_4
+baseline36,True,True,False,False,6,6,5,1,1,wall_04,wall_00,S_center,R_grid_3_0
+baseline36,True,True,False,False,6,6,5,1,1,wall_04,wall_00,S_center,R_grid_3_1
+baseline36,True,True,False,False,6,6,5,1,1,wall_04,wall_00,S_center,R_grid_3_2
+baseline36,True,True,False,False,5,6,5,0,1,,wall_00,S_center,R_grid_3_3
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ 

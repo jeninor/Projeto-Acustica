@@ -1,0 +1,501 @@
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ OUT="$BASE/acoustic_g2"
+
+echo "===== INFORME G07-G2 ====="
+cat "$OUT/g07g2_report.md"
+
+echo
+echo "===== MÉTRICAS COMPLETAS ====="
+cat "$OUT/g07g2_summary.json"
+
+echo
+echo "===== RESULTADOS POR RECEPTOR ====="
+head -n 20 "$OUT/g07g2_receiver_cases.csv"
+
+echo
+echo "===== ARCHIVOS ====="
+ls -lh "$OUT"
+===== INFORME G07-G2 =====
+# G07-G2 — RIR simuladas, modelo GT vs mallas reconstruidas
+
+**Evaluación controlada con escala GT (NO es calibración métrica autónoma).**
+
+Se empleó el mismo Pyroomacoustics Room.from_corners/extrude para los tres recintos, con máscara de visibilidad booleana auditada.
+
+| Métrica | Orden | 36 imágenes | 52 imágenes |
+|---|---:|---:|---:|
+| RIR espuria cuando GT silencioso | 0 | 8 | 0 |
+| RIR ausente cuando GT tiene energía | 0 | 0 | 0 |
+| Error abs. de energía (dB), mediana | 0 | 0.00000 | 0.00000 |
+| L2 relativa de RIR, mediana | 0 | 0.00000 | 0.00000 |
+| L2 relativa de envolvente, mediana | 0 | 0.00000 | 0.00000 |
+| RIR espuria cuando GT silencioso | 1 | 0 | 0 |
+| RIR ausente cuando GT tiene energía | 1 | 0 | 0 |
+| Error abs. de energía (dB), mediana | 1 | 0.16930 | 0.00829 |
+| L2 relativa de RIR, mediana | 1 | 0.38966 | 0.15903 |
+| L2 relativa de envolvente, mediana | 1 | 0.08563 | 0.01675 |
+
+**Notas:** La energía de la RIR depende de coeficientes sintéticos uniformes. Los errores de forma de onda son sensibles a retardos submuestrales. Una coincidencia numérica del simulador no equivale a validación con medidas reales.
+
+===== MÉTRICAS COMPLETAS =====
+{
+  "experiment": "G07-G2: polygonal-room Pyroomacoustics 0/1 RIR controlled evaluation",
+  "CAUTION": "POST-HOC GT Sim3 alignment; true scale/orientation NOT autonomously recovered from RGB. Uniform synthetic material; ISM only. Acoustic evaluation is not real-room measurement.",
+  "visibility_patch": "Runtime-only boolean image-source mask wrapper to avoid int32-as-index bug in PRA 0.10.1; no installed package changed",
+  "pyroomacoustics_version": "0.10.1",
+  "fs": 48000,
+  "speed_m_per_s": 343.0,
+  "uniform_energy_absorption": 0.2,
+  "scattering": 0.0,
+  "ray_tracing": false,
+  "air_absorption": false,
+  "randomized_ism": false,
+  "early_window_ms": 100,
+  "envelope_smoothing_ms": 1.0,
+  "sources": {
+    "S_center": [
+      3.0,
+      2.0,
+      1.5
+    ],
+    "S_left_wing": [
+      1.35,
+      4.55,
+      1.5
+    ],
+    "S_right_wing": [
+      4.65,
+      4.55,
+      1.5
+    ]
+  },
+  "receivers": {
+    "R_grid_0_0": [
+      0.8,
+      0.8,
+      1.3
+    ],
+    "R_grid_0_1": [
+      0.8,
+      1.65,
+      1.4000000000000001
+    ],
+    "R_grid_0_2": [
+      0.8,
+      2.5,
+      1.5
+    ],
+    "R_grid_0_3": [
+      0.8,
+      3.35,
+      1.6
+    ],
+    "R_grid_0_4": [
+      0.8,
+      4.05,
+      1.7000000000000002
+    ],
+    "R_grid_1_0": [
+      1.8,
+      0.8,
+      1.4000000000000001
+    ],
+    "R_grid_1_1": [
+      1.8,
+      1.65,
+      1.5
+    ],
+    "R_grid_1_2": [
+      1.8,
+      2.5,
+      1.6
+    ],
+    "R_grid_1_3": [
+      1.8,
+      3.35,
+      1.7000000000000002
+    ],
+    "R_grid_1_4": [
+      1.8,
+      4.05,
+      1.3
+    ],
+    "R_grid_2_0": [
+      3.0,
+      0.8,
+      1.5
+    ],
+    "R_grid_2_1": [
+      3.0,
+      1.65,
+      1.6
+    ],
+    "R_grid_2_2": [
+      3.0,
+      2.5,
+      1.7000000000000002
+    ],
+    "R_grid_2_3": [
+      3.0,
+      3.35,
+      1.3
+    ],
+    "R_grid_2_4": [
+      3.0,
+      4.05,
+      1.4000000000000001
+    ],
+    "R_grid_3_0": [
+      4.2,
+      0.8,
+      1.6
+    ],
+    "R_grid_3_1": [
+      4.2,
+      1.65,
+      1.7000000000000002
+    ],
+    "R_grid_3_2": [
+      4.2,
+      2.5,
+      1.3
+    ],
+    "R_grid_3_3": [
+      4.2,
+      3.35,
+      1.4000000000000001
+    ],
+    "R_grid_3_4": [
+      4.2,
+      4.05,
+      1.5
+    ],
+    "R_grid_4_0": [
+      5.2,
+      0.8,
+      1.7000000000000002
+    ],
+    "R_grid_4_1": [
+      5.2,
+      1.65,
+      1.3
+    ],
+    "R_grid_4_2": [
+      5.2,
+      2.5,
+      1.4000000000000001
+    ],
+    "R_grid_4_3": [
+      5.2,
+      3.35,
+      1.5
+    ],
+    "R_grid_4_4": [
+      5.2,
+      4.05,
+      1.6
+    ],
+    "R_left_1": [
+      1.5,
+      4.72,
+      1.45
+    ],
+    "R_left_2": [
+      2.0,
+      4.6,
+      1.6
+    ],
+    "R_right_1": [
+      4.5,
+      4.72,
+      1.45
+    ],
+    "R_right_2": [
+      4.0,
+      4.6,
+      1.6
+    ]
+  },
+  "fit_camera_images": [
+    "cam_000.png",
+    "cam_002.png",
+    "cam_004.png",
+    "cam_006.png",
+    "cam_008.png",
+    "cam_010.png",
+    "cam_012.png",
+    "cam_014.png",
+    "cam_016.png",
+    "cam_018.png",
+    "cam_020.png",
+    "cam_022.png",
+    "cam_024.png",
+    "cam_026.png",
+    "cam_028.png",
+    "cam_030.png",
+    "cam_032.png",
+    "cam_034.png"
+  ],
+  "geometries": {
+    "GT": {
+      "zlo": 0.0,
+      "zhi": 3.0,
+      "n_walls": 8
+    },
+    "baseline36": {
+      "name": "reconstruction_e1_baseline",
+      "zlo": 6.67249910175638e-05,
+      "zhi": 3.0011292865562473,
+      "scale_evaluation_only": 0.5835482025357639,
+      "native_stack_inverted": true,
+      "n_walls": 4,
+      "area_m2_eval_only": 30.0232960609897,
+      "max_vertical_wall_tilt_deg": 0.009895883658583638
+    },
+    "targeted52": {
+      "name": "reconstruction_e1_targeted",
+      "zlo": 0.0006261066540826643,
+      "zhi": 3.000606495588365,
+      "scale_evaluation_only": 0.5863022363912014,
+      "native_stack_inverted": true,
+      "n_walls": 8,
+      "area_m2_eval_only": 28.87029655875203,
+      "max_vertical_wall_tilt_deg": 0.01191062296889944
+    }
+  },
+  "visibility_calls": 522,
+  "no_visible_image_calls": 16,
+  "original_visibility_dtypes": [
+    "bool"
+  ],
+  "per_order": {
+    "0": {
+      "baseline36": {
+        "cases": 87,
+        "reference_silent_cases": 8,
+        "spurious_signal_when_reference_silent": 8,
+        "lost_signal_when_reference_nonzero": 0,
+        "absolute_energy_delta_db": {
+          "n": 79,
+          "mean": 2.098921676821551e-08,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 8.865410404916769e-07
+        },
+        "rir_waveform_relative_l2": {
+          "n": 79,
+          "mean": 2.420670321232006e-09,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 1.0214533488171009e-07
+        },
+        "smoothed_energy_envelope_relative_l2": {
+          "n": 79,
+          "mean": 4.834202792056566e-09,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 2.0415262575257666e-07
+        },
+        "absolute_early_energy_delta_db": {
+          "n": 79,
+          "mean": 2.098921676821551e-08,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 8.865410404916769e-07
+        }
+      },
+      "targeted52": {
+        "cases": 87,
+        "reference_silent_cases": 8,
+        "spurious_signal_when_reference_silent": 0,
+        "lost_signal_when_reference_nonzero": 0,
+        "absolute_energy_delta_db": {
+          "n": 79,
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rir_waveform_relative_l2": {
+          "n": 79,
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "smoothed_energy_envelope_relative_l2": {
+          "n": 79,
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "absolute_early_energy_delta_db": {
+          "n": 79,
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      }
+    },
+    "1": {
+      "baseline36": {
+        "cases": 87,
+        "reference_silent_cases": 0,
+        "spurious_signal_when_reference_silent": 0,
+        "lost_signal_when_reference_nonzero": 0,
+        "absolute_energy_delta_db": {
+          "n": 87,
+          "mean": 1.5255801515189489,
+          "median": 0.16930442102024418,
+          "p95": 10.512932350242547,
+          "max": 16.553221720436436
+        },
+        "rir_waveform_relative_l2": {
+          "n": 87,
+          "mean": 0.8080384547115335,
+          "median": 0.3896569504116626,
+          "p95": 3.2535176198137923,
+          "max": 6.651960078447912
+        },
+        "smoothed_energy_envelope_relative_l2": {
+          "n": 87,
+          "mean": 1.5750587991982672,
+          "median": 0.08562839750246119,
+          "p95": 7.759541126001798,
+          "max": 27.12232825476658
+        },
+        "absolute_early_energy_delta_db": {
+          "n": 87,
+          "mean": 1.5255801515189489,
+          "median": 0.16930442102024418,
+          "p95": 10.512932350242547,
+          "max": 16.553221720436436
+        }
+      },
+      "targeted52": {
+        "cases": 87,
+        "reference_silent_cases": 0,
+        "spurious_signal_when_reference_silent": 0,
+        "lost_signal_when_reference_nonzero": 0,
+        "absolute_energy_delta_db": {
+          "n": 87,
+          "mean": 0.02723914772102794,
+          "median": 0.008293998447506536,
+          "p95": 0.09731311964674161,
+          "max": 0.11709802063140444
+        },
+        "rir_waveform_relative_l2": {
+          "n": 87,
+          "mean": 0.1548567252335834,
+          "median": 0.15903251397759005,
+          "p95": 0.2619681014307095,
+          "max": 0.320287088836487
+        },
+        "smoothed_energy_envelope_relative_l2": {
+          "n": 87,
+          "mean": 0.02019152858024045,
+          "median": 0.016751180072457753,
+          "p95": 0.04248762112972066,
+          "max": 0.05317002762080177
+        },
+        "absolute_early_energy_delta_db": {
+          "n": 87,
+          "mean": 0.02723914772102794,
+          "median": 0.008293998447506536,
+          "p95": 0.09731311964674161,
+          "max": 0.11709802063140444
+        }
+      }
+    }
+  },
+  "direct_path_audit": [
+    {
+      "source": "S_center",
+      "model": "GT",
+      "n_direct_visible": 29,
+      "n_direct_invisible": 0
+    },
+    {
+      "source": "S_center",
+      "model": "baseline36",
+      "n_direct_visible": 29,
+      "n_direct_invisible": 0
+    },
+    {
+      "source": "S_center",
+      "model": "targeted52",
+      "n_direct_visible": 29,
+      "n_direct_invisible": 0
+    },
+    {
+      "source": "S_left_wing",
+      "model": "GT",
+      "n_direct_visible": 25,
+      "n_direct_invisible": 4
+    },
+    {
+      "source": "S_left_wing",
+      "model": "baseline36",
+      "n_direct_visible": 29,
+      "n_direct_invisible": 0
+    },
+    {
+      "source": "S_left_wing",
+      "model": "targeted52",
+      "n_direct_visible": 25,
+      "n_direct_invisible": 4
+    },
+    {
+      "source": "S_right_wing",
+      "model": "GT",
+      "n_direct_visible": 25,
+      "n_direct_invisible": 4
+    },
+    {
+      "source": "S_right_wing",
+      "model": "baseline36",
+      "n_direct_visible": 29,
+      "n_direct_invisible": 0
+    },
+    {
+      "source": "S_right_wing",
+      "model": "targeted52",
+      "n_direct_visible": 25,
+      "n_direct_invisible": 4
+    }
+  ],
+  "solver_note": "No-diffraction ISM predicts no signal for occluded order-0 GT cases. Order-1 RIR metrics include changes in path existence, arrival time, amplitudes and fractional-delay interpolation. Do NOT infer measured RT60 or STI."
+}
+
+===== RESULTADOS POR RECEPTOR =====
+order,model,source,receiver,energy_gt,energy_candidate,both_silent,spurious_when_reference_silent,missing_when_reference_nonzero,energy_delta_db,early_energy_delta_db,waveform_rel_l2,envelope_energy_rel_l2,waveform_pearson_corr,best_crosscorr_lag_samples,best_crosscorr_lag_us,rir_samples_gt,rir_samples_candidate
+0,baseline36,S_center,R_grid_0_0,0.1566864630795709,0.1566864630795709,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,434,434
+0,targeted52,S_center,R_grid_0_0,0.1566864630795709,0.1566864630795709,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,434,434
+0,baseline36,S_center,R_grid_0_1,0.20078492122025182,0.20078492122025182,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,395,395
+0,targeted52,S_center,R_grid_0_1,0.20078492122025182,0.20078492122025182,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,395,395
+0,baseline36,S_center,R_grid_0_2,0.19346343820530848,0.19346343820530848,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,398,398
+0,targeted52,S_center,R_grid_0_2,0.19346343820530848,0.19346343820530848,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,398,398
+0,baseline36,S_center,R_grid_0_3,0.146664751387377,0.146664751387377,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,444,444
+0,targeted52,S_center,R_grid_0_3,0.146664751387377,0.146664751387377,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,444,444
+0,baseline36,S_center,R_grid_0_4,0.10869040484391446,0.10869040484391446,False,False,False,0.0,0.0,0.0,0.0,0.9999999999999998,0,0.0,504,504
+0,targeted52,S_center,R_grid_0_4,0.10869040484391446,0.10869040484391446,False,False,False,0.0,0.0,0.0,0.0,0.9999999999999998,0,0.0,504,504
+0,baseline36,S_center,R_grid_1_0,0.34436036044688123,0.34436036044688123,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,320,320
+0,targeted52,S_center,R_grid_1_0,0.34436036044688123,0.34436036044688123,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,320,320
+0,baseline36,S_center,R_grid_1_1,0.6361789575818945,0.6361789575818945,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,257,257
+0,targeted52,S_center,R_grid_1_1,0.6361789575818945,0.6361789575818945,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,257,257
+0,baseline36,S_center,R_grid_1_2,0.5759850447381254,0.5759850447381254,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,265,265
+0,targeted52,S_center,R_grid_1_2,0.5759850447381254,0.5759850447381254,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,265,265
+0,baseline36,S_center,R_grid_1_3,0.2983433924137562,0.2983433924137562,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,337,337
+0,targeted52,S_center,R_grid_1_3,0.2983433924137562,0.2983433924137562,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,337,337
+0,baseline36,S_center,R_grid_1_4,0.1724840257327701,0.1724840257327701,False,False,False,0.0,0.0,0.0,0.0,1.0,0,0.0,416,416
+
+===== ARCHIVOS =====
+total 3,3M
+-rw-rw-r-- 1 alunos alunos  58K out 22 22:27 g07g2_receiver_cases.csv
+-rw-rw-r-- 1 alunos alunos 1,2K out 22 22:27 g07g2_report.md
+-rw-rw-r-- 1 alunos alunos 880K out 22 22:27 g07g2_rirs_order0.npz
+-rw-rw-r-- 1 alunos alunos 2,4M out 22 22:27 g07g2_rirs_order1.npz
+-rw-rw-r-- 1 alunos alunos  886 out 22 22:27 g07g2_solver_timings.csv
+-rw-rw-r-- 1 alunos alunos 9,4K out 22 22:27 g07g2_summary.json
+(.venv) alunos@dpi-Precision-Tower-3620:~/Documentos/Juan/geometry-mapping-3d$ 
